@@ -151,6 +151,172 @@ EinsteinSolution[(stressEnergyTensor_)[(metricTensor_)[metricMatrixRepresentatio
     Length[Dimensions[metricMatrixRepresentation]] == 2 && Length[coordinates] == Length[metricMatrixRepresentation] && 
     BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[Dimensions[matrixRepresentation]] == 2 && 
     Length[coordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
+EinsteinSolution[(stressEnergyTensor_)[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, 
+      metricIndex2_], matrixRepresentation_List, index1_, index2_], cosmologicalConstant_]["MetricTensor"] := 
+  MetricTensor[metricMatrixRepresentation, coordinates, metricIndex1, metricIndex2] /; 
+   SymbolName[stressEnergyTensor] === "StressEnergyTensor" && SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[metricMatrixRepresentation]] == 2 && Length[coordinates] == Length[metricMatrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
+EinsteinSolution[(stressEnergyTensor_)[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, 
+      metricIndex2_], matrixRepresentation_List, index1_, index2_], cosmologicalConstant_]["StressEnergyTensor"] := 
+  StressEnergyTensor[MetricTensor[metricMatrixRepresentation, coordinates, metricIndex1, metricIndex2], 
+    matrixRepresentation, index1, index2] /; SymbolName[stressEnergyTensor] === "StressEnergyTensor" && 
+    SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[metricMatrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[metricMatrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2]
+EinsteinSolution[(stressEnergyTensor_)[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, 
+      metricIndex2_], matrixRepresentation_List, index1_, index2_], cosmologicalConstant_]["Coordinates"] := 
+  coordinates /; SymbolName[stressEnergyTensor] === "StressEnergyTensor" && 
+    SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[metricMatrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[metricMatrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2]
+EinsteinSolution[(stressEnergyTensor_)[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, 
+      metricIndex2_], matrixRepresentation_List, index1_, index2_], cosmologicalConstant_]["CoordinateOneForms"] := 
+  (If[Head[#1] === Subscript, Subscript[StringJoin["\[FormalD]", ToString[First[#1]]], ToString[Last[#1]]], 
+      If[Head[#1] === Superscript, Superscript[StringJoin["\[FormalD]", ToString[First[#1]]], ToString[Last[#1]]], 
+       StringJoin["\[FormalD]", ToString[#1]]]] & ) /@ coordinates /; SymbolName[stressEnergyTensor] === "StressEnergyTensor" && 
+    SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[metricMatrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[metricMatrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2]
+EinsteinSolution[(stressEnergyTensor_)[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, 
+      metricIndex2_], matrixRepresentation_List, index1_, index2_], cosmologicalConstant_]["SolutionQ"] := 
+  Module[{newMetricMatrixRepresentation, newCoordinates, christoffelSymbols, riemannTensor, ricciTensor, ricciScalar, 
+     tensorRepresentation, einsteinEquations}, newMetricMatrixRepresentation = metricMatrixRepresentation /. 
+       (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newCoordinates = coordinates /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     christoffelSymbols = Normal[SparseArray[
+        (Module[{index = #1}, index -> Total[((1/2)*Inverse[newMetricMatrixRepresentation][[index[[1]],#1]]*
+                (D[newMetricMatrixRepresentation[[#1,index[[3]]]], newCoordinates[[index[[2]]]]] + 
+                 D[newMetricMatrixRepresentation[[index[[2]],#1]], newCoordinates[[index[[3]]]]] - 
+                 D[newMetricMatrixRepresentation[[index[[2]],index[[3]]]], newCoordinates[[#1]]]) & ) /@ 
+              Range[Length[newMetricMatrixRepresentation]]]] & ) /@ Tuples[Range[Length[newMetricMatrixRepresentation]], 
+          3]]]; riemannTensor = 
+      Normal[SparseArray[(Module[{index = #1}, index -> D[christoffelSymbols[[index[[1]],index[[2]],index[[4]]]], 
+               newCoordinates[[index[[3]]]]] - D[christoffelSymbols[[index[[1]],index[[2]],index[[3]]]], newCoordinates[[
+                index[[4]]]]] + Total[(christoffelSymbols[[index[[1]],#1,index[[3]]]]*christoffelSymbols[[#1,index[[2]],
+                   index[[4]]]] & ) /@ Range[Length[newMetricMatrixRepresentation]]] - 
+              Total[(christoffelSymbols[[index[[1]],#1,index[[4]]]]*christoffelSymbols[[#1,index[[2]],index[[3]]]] & ) /@ 
+                Range[Length[newMetricMatrixRepresentation]]]] & ) /@ 
+          Tuples[Range[Length[newMetricMatrixRepresentation]], 4]]] /. (ToExpression[#1] -> #1 & ) /@ 
+        Select[coordinates, StringQ]; ricciTensor = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[(riemannTensor[[#1,First[index],#1,Last[index]]] & ) /@ 
+              Range[Length[metricMatrixRepresentation]]]] & ) /@ Tuples[Range[Length[metricMatrixRepresentation]], 2]]]; 
+     ricciScalar = Total[(Inverse[metricMatrixRepresentation][[First[#1],Last[#1]]]*ricciTensor[[First[#1],
+           Last[#1]]] & ) /@ Tuples[Range[Length[metricMatrixRepresentation]], 2]]; 
+     tensorRepresentation = Normal[SparseArray[
+        (Module[{index = #1}, index -> Total[(metricMatrixRepresentation[[First[index],First[#1]]]*
+                metricMatrixRepresentation[[Last[#1],Last[index]]]*matrixRepresentation[[First[#1],Last[#1]]] & ) /@ 
+              Tuples[Range[Length[metricMatrixRepresentation]], 2]]] & ) /@ 
+         Tuples[Range[Length[metricMatrixRepresentation]], 2]]]; einsteinEquations = 
+      FullSimplify[Thread[Catenate[ricciTensor - (1/2)*ricciScalar*metricMatrixRepresentation + 
+           cosmologicalConstant*metricMatrixRepresentation] == Catenate[(8*Pi)*tensorRepresentation]]]; 
+     If[einsteinEquations === True, True, If[einsteinEquations === False, False, 
+       If[Length[Select[einsteinEquations, #1 === False & ]] > 0, False, True]]]] /; 
+   SymbolName[stressEnergyTensor] === "StressEnergyTensor" && SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[metricMatrixRepresentation]] == 2 && Length[coordinates] == Length[metricMatrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
+EinsteinSolution[(stressEnergyTensor_)[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, 
+      metricIndex2_], matrixRepresentation_List, index1_, index2_], cosmologicalConstant_]["ExactSolutionQ"] := 
+  Module[{newMetricMatrixRepresentation, newCoordinates, christoffelSymbols, riemannTensor, ricciTensor, ricciScalar, 
+     tensorRepresentation, einsteinEquations}, newMetricMatrixRepresentation = metricMatrixRepresentation /. 
+       (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newCoordinates = coordinates /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     christoffelSymbols = Normal[SparseArray[
+        (Module[{index = #1}, index -> Total[((1/2)*Inverse[newMetricMatrixRepresentation][[index[[1]],#1]]*
+                (D[newMetricMatrixRepresentation[[#1,index[[3]]]], newCoordinates[[index[[2]]]]] + 
+                 D[newMetricMatrixRepresentation[[index[[2]],#1]], newCoordinates[[index[[3]]]]] - 
+                 D[newMetricMatrixRepresentation[[index[[2]],index[[3]]]], newCoordinates[[#1]]]) & ) /@ 
+              Range[Length[newMetricMatrixRepresentation]]]] & ) /@ Tuples[Range[Length[newMetricMatrixRepresentation]], 
+          3]]]; riemannTensor = 
+      Normal[SparseArray[(Module[{index = #1}, index -> D[christoffelSymbols[[index[[1]],index[[2]],index[[4]]]], 
+               newCoordinates[[index[[3]]]]] - D[christoffelSymbols[[index[[1]],index[[2]],index[[3]]]], newCoordinates[[
+                index[[4]]]]] + Total[(christoffelSymbols[[index[[1]],#1,index[[3]]]]*christoffelSymbols[[#1,index[[2]],
+                   index[[4]]]] & ) /@ Range[Length[newMetricMatrixRepresentation]]] - 
+              Total[(christoffelSymbols[[index[[1]],#1,index[[4]]]]*christoffelSymbols[[#1,index[[2]],index[[3]]]] & ) /@ 
+                Range[Length[newMetricMatrixRepresentation]]]] & ) /@ 
+          Tuples[Range[Length[newMetricMatrixRepresentation]], 4]]] /. (ToExpression[#1] -> #1 & ) /@ 
+        Select[coordinates, StringQ]; ricciTensor = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[(riemannTensor[[#1,First[index],#1,Last[index]]] & ) /@ 
+              Range[Length[metricMatrixRepresentation]]]] & ) /@ Tuples[Range[Length[metricMatrixRepresentation]], 2]]]; 
+     ricciScalar = Total[(Inverse[metricMatrixRepresentation][[First[#1],Last[#1]]]*ricciTensor[[First[#1],
+           Last[#1]]] & ) /@ Tuples[Range[Length[metricMatrixRepresentation]], 2]]; 
+     tensorRepresentation = Normal[SparseArray[
+        (Module[{index = #1}, index -> Total[(metricMatrixRepresentation[[First[index],First[#1]]]*
+                metricMatrixRepresentation[[Last[#1],Last[index]]]*matrixRepresentation[[First[#1],Last[#1]]] & ) /@ 
+              Tuples[Range[Length[metricMatrixRepresentation]], 2]]] & ) /@ 
+         Tuples[Range[Length[metricMatrixRepresentation]], 2]]]; einsteinEquations = 
+      FullSimplify[Thread[Catenate[ricciTensor - (1/2)*ricciScalar*metricMatrixRepresentation + 
+           cosmologicalConstant*metricMatrixRepresentation] == Catenate[(8*Pi)*tensorRepresentation]]]; 
+     If[einsteinEquations === True, True, If[einsteinEquations === False, False, 
+       If[Length[Select[einsteinEquations, #1 === False & ]] > 0, False, 
+        If[Length[DeleteDuplicates[Reverse /@ Sort /@ Select[einsteinEquations, #1 =!= True & ]]] == 0, True, 
+         False]]]]] /; SymbolName[stressEnergyTensor] === "StressEnergyTensor" && 
+    SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[metricMatrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[metricMatrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2]
+EinsteinSolution[(stressEnergyTensor_)[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, 
+      metricIndex2_], matrixRepresentation_List, index1_, index2_], cosmologicalConstant_]["CosmologicalConstant"] := 
+  cosmologicalConstant /; SymbolName[stressEnergyTensor] === "StressEnergyTensor" && 
+    SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[metricMatrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[metricMatrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2]
+EinsteinSolution[(stressEnergyTensor_)[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, 
+      metricIndex2_], matrixRepresentation_List, index1_, index2_], cosmologicalConstant_]["Dimensions"] := 
+  Length[metricMatrixRepresentation] /; SymbolName[stressEnergyTensor] === "StressEnergyTensor" && 
+    SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[metricMatrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[metricMatrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2]
+EinsteinSolution[(stressEnergyTensor_)[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, 
+      metricIndex2_], matrixRepresentation_List, index1_, index2_], cosmologicalConstant_]["Signature"] := 
+  Module[{eigenvalues, positiveEigenvalues, negativeEigenvalues}, eigenvalues = Eigenvalues[metricMatrixRepresentation]; 
+     positiveEigenvalues = Select[eigenvalues, #1 > 0 & ]; negativeEigenvalues = Select[eigenvalues, #1 < 0 & ]; 
+     If[Length[positiveEigenvalues] + Length[negativeEigenvalues] == Length[metricMatrixRepresentation], 
+      Join[ConstantArray[-1, Length[negativeEigenvalues]], ConstantArray[1, Length[positiveEigenvalues]]], 
+      Indeterminate]] /; SymbolName[stressEnergyTensor] === "StressEnergyTensor" && 
+    SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[metricMatrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[metricMatrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2]
+EinsteinSolution[(stressEnergyTensor_)[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, 
+      metricIndex2_], matrixRepresentation_List, index1_, index2_], cosmologicalConstant_]["RiemannianQ"] := 
+  Module[{eigenvalues, positiveEigenvalues, negativeEigenvalues}, eigenvalues = Eigenvalues[metricMatrixRepresentation]; 
+     positiveEigenvalues = Select[eigenvalues, #1 > 0 & ]; negativeEigenvalues = Select[eigenvalues, #1 < 0 & ]; 
+     If[Length[positiveEigenvalues] + Length[negativeEigenvalues] == Length[matrixRepresentation], 
+      If[Length[positiveEigenvalues] == Length[metricMatrixRepresentation] || Length[negativeEigenvalues] == 
+         Length[metricMatrixRepresentation], True, False], Indeterminate]] /; 
+   SymbolName[stressEnergyTensor] === "StressEnergyTensor" && SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[metricMatrixRepresentation]] == 2 && Length[coordinates] == Length[metricMatrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
+EinsteinSolution[(stressEnergyTensor_)[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, 
+      metricIndex2_], matrixRepresentation_List, index1_, index2_], cosmologicalConstant_]["PseudoRiemannianQ"] := 
+  Module[{eigenvalues, positiveEigenvalues, negativeEigenvalues}, eigenvalues = Eigenvalues[metricMatrixRepresentation]; 
+     positiveEigenvalues = Select[eigenvalues, #1 > 0 & ]; negativeEigenvalues = Select[eigenvalues, #1 < 0 & ]; 
+     If[Length[positiveEigenvalues] + Length[negativeEigenvalues] == Length[metricMatrixRepresentation], 
+      If[Length[positiveEigenvalues] == Length[metricMatrixRepresentation] || Length[negativeEigenvalues] == 
+         Length[metricMatrixRepresentation], False, True], Indeterminate]] /; 
+   SymbolName[stressEnergyTensor] === "StressEnergyTensor" && SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[metricMatrixRepresentation]] == 2 && Length[coordinates] == Length[metricMatrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
+EinsteinSolution[(stressEnergyTensor_)[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, 
+      metricIndex2_], matrixRepresentation_List, index1_, index2_], cosmologicalConstant_]["LorentzianQ"] := 
+  Module[{eigenvalues, positiveEigenvalues, negativeEigenvalues}, eigenvalues = Eigenvalues[metricMatrixRepresentation]; 
+     positiveEigenvalues = Select[eigenvalues, #1 > 0 & ]; negativeEigenvalues = Select[eigenvalues, #1 < 0 & ]; 
+     If[Length[positiveEigenvalues] + Length[negativeEigenvalues] == Length[metricMatrixRepresentation], 
+      If[Length[positiveEigenvalues] == 1 || Length[negativeEigenvalues] == 1, True, False], Indeterminate]] /; 
+   SymbolName[stressEnergyTensor] === "StressEnergyTensor" && SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[metricMatrixRepresentation]] == 2 && Length[coordinates] == Length[metricMatrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
 EinsteinSolution /: 
   MakeBoxes[einsteinSolution:EinsteinSolution[(stressEnergyTensor_)[(metricTensor_)[metricMatrixRepresentation_List, 
         coordinates_List, metricIndex1_, metricIndex2_], matrixRepresentation_List, index1_, index2_], 
