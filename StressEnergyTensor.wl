@@ -671,6 +671,149 @@ StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_
     Length[Dimensions[metricMatrixRepresentation]] == 2 && Length[coordinates] == Length[metricMatrixRepresentation] && 
     BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[Dimensions[matrixRepresentation]] == 2 && 
     Length[coordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
+StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+    matrixRepresentation_List, index1_, index2_]["NullEnergyCondition"] := 
+  Module[{covariantStressEnergyTensor}, covariantStressEnergyTensor = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[(metricMatrixRepresentation[[First[index],First[#1]]]*
+                metricMatrixRepresentation[[Last[#1],Last[index]]]*matrixRepresentation[[First[#1],Last[#1]]] & ) /@ 
+              Tuples[Range[Length[metricMatrixRepresentation]], 2]]] & ) /@ 
+         Tuples[Range[Length[metricMatrixRepresentation]], 2]]]; 
+     Implies[Total[(metricMatrixRepresentation[[First[#1],Last[#1]]]*Superscript["\[FormalCapitalX]", ToString[First[#1]]]*
+           Superscript["\[FormalCapitalX]", ToString[Last[#1]]] & ) /@ Tuples[Range[Length[metricMatrixRepresentation]], 2]] == 0, 
+      Total[(covariantStressEnergyTensor[[First[#1],Last[#1]]]*Superscript["\[FormalCapitalX]", ToString[First[#1]]]*
+           Superscript["\[FormalCapitalX]", ToString[Last[#1]]] & ) /@ Tuples[Range[Length[metricMatrixRepresentation]], 2]] >= 0]] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[metricMatrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[metricMatrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2]
+StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+    matrixRepresentation_List, index1_, index2_]["ReducedNullEnergyCondition"] := 
+  Module[{covariantStressEnergyTensor}, covariantStressEnergyTensor = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[(metricMatrixRepresentation[[First[index],First[#1]]]*
+                metricMatrixRepresentation[[Last[#1],Last[index]]]*matrixRepresentation[[First[#1],Last[#1]]] & ) /@ 
+              Tuples[Range[Length[metricMatrixRepresentation]], 2]]] & ) /@ 
+         Tuples[Range[Length[metricMatrixRepresentation]], 2]]]; 
+     FullSimplify[Implies[Total[(metricMatrixRepresentation[[First[#1],Last[#1]]]*Superscript["\[FormalCapitalX]", ToString[First[#1]]]*
+            Superscript["\[FormalCapitalX]", ToString[Last[#1]]] & ) /@ Tuples[Range[Length[metricMatrixRepresentation]], 2]] == 0, 
+       Total[(covariantStressEnergyTensor[[First[#1],Last[#1]]]*Superscript["\[FormalCapitalX]", ToString[First[#1]]]*
+            Superscript["\[FormalCapitalX]", ToString[Last[#1]]] & ) /@ Tuples[Range[Length[metricMatrixRepresentation]], 2]] >= 
+        0]]] /; SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[metricMatrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[metricMatrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2]
+StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+    matrixRepresentation_List, index1_, index2_]["WeakEnergyCondition"] := 
+  Module[{covariantStressEnergyTensor}, covariantStressEnergyTensor = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[(metricMatrixRepresentation[[First[index],First[#1]]]*
+                metricMatrixRepresentation[[Last[#1],Last[index]]]*matrixRepresentation[[First[#1],Last[#1]]] & ) /@ 
+              Tuples[Range[Length[metricMatrixRepresentation]], 2]]] & ) /@ 
+         Tuples[Range[Length[metricMatrixRepresentation]], 2]]]; 
+     Implies[Total[(metricMatrixRepresentation[[First[#1],Last[#1]]]*Superscript["\[FormalCapitalX]", ToString[First[#1]]]*
+           Superscript["\[FormalCapitalX]", ToString[Last[#1]]] & ) /@ Tuples[Range[Length[metricMatrixRepresentation]], 2]] < 0, 
+      Total[(covariantStressEnergyTensor[[First[#1],Last[#1]]]*Superscript["\[FormalCapitalX]", ToString[First[#1]]]*
+           Superscript["\[FormalCapitalX]", ToString[Last[#1]]] & ) /@ Tuples[Range[Length[metricMatrixRepresentation]], 2]] >= 0]] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[metricMatrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[metricMatrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2]
+StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+    matrixRepresentation_List, index1_, index2_]["ReducedWeakEnergyCondition"] := 
+  Module[{covariantStressEnergyTensor}, covariantStressEnergyTensor = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[(metricMatrixRepresentation[[First[index],First[#1]]]*
+                metricMatrixRepresentation[[Last[#1],Last[index]]]*matrixRepresentation[[First[#1],Last[#1]]] & ) /@ 
+              Tuples[Range[Length[metricMatrixRepresentation]], 2]]] & ) /@ 
+         Tuples[Range[Length[metricMatrixRepresentation]], 2]]]; 
+     FullSimplify[Implies[Total[(metricMatrixRepresentation[[First[#1],Last[#1]]]*Superscript["\[FormalCapitalX]", ToString[First[#1]]]*
+            Superscript["\[FormalCapitalX]", ToString[Last[#1]]] & ) /@ Tuples[Range[Length[metricMatrixRepresentation]], 2]] < 0, 
+       Total[(covariantStressEnergyTensor[[First[#1],Last[#1]]]*Superscript["\[FormalCapitalX]", ToString[First[#1]]]*
+            Superscript["\[FormalCapitalX]", ToString[Last[#1]]] & ) /@ Tuples[Range[Length[metricMatrixRepresentation]], 2]] >= 
+        0]]] /; SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[metricMatrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[metricMatrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2]
+StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+    matrixRepresentation_List, index1_, index2_]["DominantEnergyCondition"] := 
+  Module[{covariantStressEnergyTensor, mixedStressEnergyTensor}, 
+    covariantStressEnergyTensor = Normal[SparseArray[
+        (Module[{index = #1}, index -> Total[(metricMatrixRepresentation[[First[index],First[#1]]]*
+                metricMatrixRepresentation[[Last[#1],Last[index]]]*matrixRepresentation[[First[#1],Last[#1]]] & ) /@ 
+              Tuples[Range[Length[metricMatrixRepresentation]], 2]]] & ) /@ 
+         Tuples[Range[Length[metricMatrixRepresentation]], 2]]]; mixedStressEnergyTensor = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[(metricMatrixRepresentation[[#1,Last[index]]]*
+                matrixRepresentation[[First[index],#1]] & ) /@ Range[Length[metricMatrixRepresentation]]]] & ) /@ 
+         Tuples[Range[Length[metricMatrixRepresentation]], 2]]]; 
+     Implies[Total[(metricMatrixRepresentation[[First[#1],Last[#1]]]*Superscript["\[FormalCapitalX]", ToString[First[#1]]]*
+           Superscript["\[FormalCapitalX]", ToString[Last[#1]]] & ) /@ Tuples[Range[Length[metricMatrixRepresentation]], 2]] < 0, 
+      Total[(covariantStressEnergyTensor[[First[#1],Last[#1]]]*Superscript["\[FormalCapitalX]", ToString[First[#1]]]*
+            Superscript["\[FormalCapitalX]", ToString[Last[#1]]] & ) /@ Tuples[Range[Length[metricMatrixRepresentation]], 2]] >= 0 && 
+       Total[(Module[{index = #1}, metricMatrixRepresentation[[First[index],Last[index]]]*
+             (Total[(mixedStressEnergyTensor[[First[index],#1]]*Superscript["\[FormalCapitalX]", ToString[#1]] & ) /@ 
+                Range[Length[metricMatrixRepresentation]]]*Total[(mixedStressEnergyTensor[[Last[index],#1]]*
+                  Superscript["\[FormalCapitalX]", ToString[#1]] & ) /@ Range[Length[metricMatrixRepresentation]]])] & ) /@ 
+          Tuples[Range[Length[metricMatrixRepresentation]], 2]] <= 0]] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[metricMatrixRepresentation]] == 2 && Length[coordinates] == Length[metricMatrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
+StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+    matrixRepresentation_List, index1_, index2_]["ReducedDominantEnergyCondition"] := 
+  Module[{covariantStressEnergyTensor, mixedStressEnergyTensor}, 
+    covariantStressEnergyTensor = Normal[SparseArray[
+        (Module[{index = #1}, index -> Total[(metricMatrixRepresentation[[First[index],First[#1]]]*
+                metricMatrixRepresentation[[Last[#1],Last[index]]]*matrixRepresentation[[First[#1],Last[#1]]] & ) /@ 
+              Tuples[Range[Length[metricMatrixRepresentation]], 2]]] & ) /@ 
+         Tuples[Range[Length[metricMatrixRepresentation]], 2]]]; mixedStressEnergyTensor = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[(metricMatrixRepresentation[[#1,Last[index]]]*
+                matrixRepresentation[[First[index],#1]] & ) /@ Range[Length[metricMatrixRepresentation]]]] & ) /@ 
+         Tuples[Range[Length[metricMatrixRepresentation]], 2]]]; 
+     FullSimplify[Implies[Total[(metricMatrixRepresentation[[First[#1],Last[#1]]]*Superscript["\[FormalCapitalX]", ToString[First[#1]]]*
+            Superscript["\[FormalCapitalX]", ToString[Last[#1]]] & ) /@ Tuples[Range[Length[metricMatrixRepresentation]], 2]] < 0, 
+       Total[(covariantStressEnergyTensor[[First[#1],Last[#1]]]*Superscript["\[FormalCapitalX]", ToString[First[#1]]]*
+             Superscript["\[FormalCapitalX]", ToString[Last[#1]]] & ) /@ Tuples[Range[Length[metricMatrixRepresentation]], 2]] >= 0 && 
+        Total[(Module[{index = #1}, metricMatrixRepresentation[[First[index],Last[index]]]*
+              (Total[(mixedStressEnergyTensor[[First[index],#1]]*Superscript["\[FormalCapitalX]", ToString[#1]] & ) /@ 
+                 Range[Length[metricMatrixRepresentation]]]*Total[(mixedStressEnergyTensor[[Last[index],#1]]*
+                   Superscript["\[FormalCapitalX]", ToString[#1]] & ) /@ Range[Length[metricMatrixRepresentation]]])] & ) /@ 
+           Tuples[Range[Length[metricMatrixRepresentation]], 2]] <= 0]]] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[metricMatrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[metricMatrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2]
+StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+    matrixRepresentation_List, index1_, index2_]["StrongEnergyCondition"] := 
+  Module[{covariantStressEnergyTensor, stressEnergyTrace}, 
+    covariantStressEnergyTensor = Normal[SparseArray[
+        (Module[{index = #1}, index -> Total[(metricMatrixRepresentation[[First[index],First[#1]]]*
+                metricMatrixRepresentation[[Last[#1],Last[index]]]*matrixRepresentation[[First[#1],Last[#1]]] & ) /@ 
+              Tuples[Range[Length[metricMatrixRepresentation]], 2]]] & ) /@ 
+         Tuples[Range[Length[metricMatrixRepresentation]], 2]]]; stressEnergyTrace = 
+      Total[(metricMatrixRepresentation[[First[#1],Last[#1]]]*matrixRepresentation[[First[#1],Last[#1]]] & ) /@ 
+        Tuples[Range[Length[metricMatrixRepresentation]], 2]]; 
+     Implies[Total[(metricMatrixRepresentation[[First[#1],Last[#1]]]*Superscript["\[FormalCapitalX]", ToString[First[#1]]]*
+           Superscript["\[FormalCapitalX]", ToString[Last[#1]]] & ) /@ Tuples[Range[Length[metricMatrixRepresentation]], 2]] < 0, 
+      Total[((covariantStressEnergyTensor[[First[#1],Last[#1]]] - (1/2)*stressEnergyTrace*matrixRepresentation[[First[#1],
+              Last[#1]]])*Superscript["\[FormalCapitalX]", ToString[First[#1]]]*Superscript["\[FormalCapitalX]", ToString[Last[#1]]] & ) /@ 
+         Tuples[Range[Length[metricMatrixRepresentation]], 2]] >= 0]] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[metricMatrixRepresentation]] == 2 && Length[coordinates] == Length[metricMatrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
+StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+    matrixRepresentation_List, index1_, index2_]["ReducedStrongEnergyCondition"] := 
+  Module[{covariantStressEnergyTensor, stressEnergyTrace}, 
+    covariantStressEnergyTensor = Normal[SparseArray[
+        (Module[{index = #1}, index -> Total[(metricMatrixRepresentation[[First[index],First[#1]]]*
+                metricMatrixRepresentation[[Last[#1],Last[index]]]*matrixRepresentation[[First[#1],Last[#1]]] & ) /@ 
+              Tuples[Range[Length[metricMatrixRepresentation]], 2]]] & ) /@ 
+         Tuples[Range[Length[metricMatrixRepresentation]], 2]]]; stressEnergyTrace = 
+      Total[(metricMatrixRepresentation[[First[#1],Last[#1]]]*matrixRepresentation[[First[#1],Last[#1]]] & ) /@ 
+        Tuples[Range[Length[metricMatrixRepresentation]], 2]]; 
+     FullSimplify[Implies[Total[(metricMatrixRepresentation[[First[#1],Last[#1]]]*Superscript["\[FormalCapitalX]", ToString[First[#1]]]*
+            Superscript["\[FormalCapitalX]", ToString[Last[#1]]] & ) /@ Tuples[Range[Length[metricMatrixRepresentation]], 2]] < 0, 
+       Total[((covariantStressEnergyTensor[[First[#1],Last[#1]]] - (1/2)*stressEnergyTrace*matrixRepresentation[[First[
+                #1],Last[#1]]])*Superscript["\[FormalCapitalX]", ToString[First[#1]]]*Superscript["\[FormalCapitalX]", ToString[Last[#1]]] & ) /@ 
+          Tuples[Range[Length[metricMatrixRepresentation]], 2]] >= 0]]] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[metricMatrixRepresentation]] == 2 && Length[coordinates] == Length[metricMatrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
 StressEnergyTensor[StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, 
      metricIndex2_], matrixRepresentation_List, index1_, index2_], newIndex1_, newIndex2_] := 
   StressEnergyTensor[MetricTensor[metricMatrixRepresentation, coordinates, metricIndex1, metricIndex2], 
