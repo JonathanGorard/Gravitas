@@ -1,7 +1,8 @@
 (* ::Package:: *)
 
 MetricTensor[] := {"Symmetric", "SymmetricField", "Asymmetric", "AsymmetricField", "Euclidean", "Minkowski", 
-   "Schwarzschild", "IsotropicSchwarzschild", "Kerr", "ReissnerNordstrom", "Godel", "FLRW"}
+   "Schwarzschild", "IsotropicSchwarzschild", "EddingtonFinkelstein", "Kerr", "ReissnerNordstrom", "KerrNewman", "Godel", 
+   "FLRW"}
 MetricTensor[dimensionCount_Integer] := 
   MetricTensor[Normal[SparseArray[(#1 -> Subscript["\[FormalG]", Sort[#1]] & ) /@ Tuples[Range[dimensionCount], 2]]], 
    (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[dimensionCount], True, True]
@@ -236,11 +237,33 @@ MetricTensor[{"IsotropicSchwarzschild", mass_}, coordinates_List, index1_, index
 MetricTensor["EddingtonFinkelstein"] := 
   MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*"\[FormalCapitalM]")/"\[FormalR]"), {1, 2} -> \[PlusMinus]1, {2, 1} -> \[PlusMinus]1, {3, 3} -> "\[FormalR]"^2, 
       {4, 4} -> "\[FormalR]"^2*Sin["\[FormalTheta]"]^2}]], {"\[FormalCapitalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, True, True]
-MetricTensor["KruskalSzekeres"] := Module[{radialCoordinate}, 
-   radialCoordinate = (2*"\[FormalCapitalM]")*(1 + ProductLog[("\[FormalCapitalX]"^2 - "\[FormalCapitalT]"^2)/E]); 
-    MetricTensor[DiagonalMatrix[{(-((32*"\[FormalCapitalM]"^3)/radialCoordinate))*Exp[-(radialCoordinate/(2*"\[FormalCapitalM]"))], 
-       ((32*"\[FormalCapitalM]"^3)/radialCoordinate)*Exp[-(radialCoordinate/(2*"\[FormalCapitalM]"))], radialCoordinate^2, 
-       radialCoordinate^2*Sin["\[FormalTheta]"]^2}], {"\[FormalCapitalT]", "\[FormalCapitalX]", "\[FormalTheta]", "\[FormalPhi]"}, True, True]]
+MetricTensor["EddingtonFinkelstein", coordinates_List] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*"\[FormalCapitalM]")/coordinates[[2]]), {1, 2} -> \[PlusMinus]1, {2, 1} -> \[PlusMinus]1, 
+       {3, 3} -> coordinates[[2]]^2, {4, 4} -> coordinates[[2]]^2*Sin[coordinates[[3]]]^2}]], coordinates, True, True] /; 
+   Length[coordinates] == 4
+MetricTensor["EddingtonFinkelstein", index1_, index2_] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*"\[FormalCapitalM]")/"\[FormalR]"), {1, 2} -> \[PlusMinus]1, {2, 1} -> \[PlusMinus]1, {3, 3} -> "\[FormalR]"^2, 
+       {4, 4} -> "\[FormalR]"^2*Sin["\[FormalTheta]"]^2}]], {"\[FormalCapitalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, index1, index2] /; 
+   BooleanQ[index1] && BooleanQ[index2]
+MetricTensor["EddingtonFinkelstein", coordinates_List, index1_, index2_] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*"\[FormalCapitalM]")/coordinates[[2]]), {1, 2} -> \[PlusMinus]1, {2, 1} -> \[PlusMinus]1, 
+       {3, 3} -> coordinates[[2]]^2, {4, 4} -> coordinates[[2]]^2*Sin[coordinates[[3]]]^2}]], coordinates, index1, 
+    index2] /; Length[coordinates] == 4 && BooleanQ[index1] && BooleanQ[index2]
+MetricTensor[{"EddingtonFinkelstein", mass_}] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*mass)/"\[FormalR]"), {1, 2} -> \[PlusMinus]1, {2, 1} -> \[PlusMinus]1, {3, 3} -> "\[FormalR]"^2, 
+      {4, 4} -> "\[FormalR]"^2*Sin["\[FormalTheta]"]^2}]], {"\[FormalCapitalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, True, True]
+MetricTensor[{"EddingtonFinkelstein", mass_}, coordinates_List] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*mass)/coordinates[[2]]), {1, 2} -> \[PlusMinus]1, {2, 1} -> \[PlusMinus]1, 
+       {3, 3} -> coordinates[[2]]^2, {4, 4} -> coordinates[[2]]^2*Sin[coordinates[[3]]]^2}]], coordinates, True, True] /; 
+   Length[coordinates] == 4
+MetricTensor[{"EddingtonFinkelstein", mass_}, index1_, index2_] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*mass)/"\[FormalR]"), {1, 2} -> \[PlusMinus]1, {2, 1} -> \[PlusMinus]1, {3, 3} -> "\[FormalR]"^2, 
+       {4, 4} -> "\[FormalR]"^2*Sin["\[FormalTheta]"]^2}]], {"\[FormalCapitalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, index1, index2] /; 
+   BooleanQ[index1] && BooleanQ[index2]
+MetricTensor[{"EddingtonFinkelstein", mass_}, coordinates_List, index1_, index2_] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*mass)/coordinates[[2]]), {1, 2} -> \[PlusMinus]1, {2, 1} -> \[PlusMinus]1, 
+       {3, 3} -> coordinates[[2]]^2, {4, 4} -> coordinates[[2]]^2*Sin[coordinates[[3]]]^2}]], coordinates, index1, 
+    index2] /; Length[coordinates] == 4 && BooleanQ[index1] && BooleanQ[index2]
 MetricTensor["Kerr"] := MetricTensor[
    Normal[SparseArray[{{1, 1} -> -(1 - (2*"\[FormalCapitalM]"*"\[FormalR]")/("\[FormalR]"^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos["\[FormalTheta]"]^2)), 
       {2, 2} -> ("\[FormalR]"^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos["\[FormalTheta]"]^2)/("\[FormalR]"^2 - 2*"\[FormalCapitalM]"*"\[FormalR]" + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2), 
@@ -367,16 +390,6 @@ MetricTensor[{"Kerr", mass_, angularMomentum_}, coordinates_List, index1_, index
        {4, 1} -> (-2*coordinates[[2]]*angularMomentum*Sin[coordinates[[3]]]^2)/(coordinates[[2]]^2 + 
           (angularMomentum/mass)^2*Cos[coordinates[[3]]]^2)}]], coordinates, index1, index2] /; 
    Length[coordinates] == 4 && BooleanQ[index1] && BooleanQ[index2]
-MetricTensor["KerrSchild"] := Module[{minkowskiMetric, radialCoordinate, scalarFunction, kerrSchildVector}, 
-   minkowskiMetric = DiagonalMatrix[{-1, 1, 1, 1}]; radialCoordinate = 
-     Sqrt[-("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2 + "\[FormalX]"^2 + "\[FormalY]"^2 + "\[FormalZ]"^2 + 
-        Sqrt[4*"\[FormalCapitalJ]"^2*"\[FormalCapitalM]"^2*"\[FormalZ]"^2 + ("\[FormalCapitalJ]"^2 - ("\[FormalCapitalM]"*"\[FormalX]")^2 - ("\[FormalCapitalM]"*"\[FormalY]")^2 - ("\[FormalCapitalM]"*"\[FormalZ]")^2)^2]/"\[FormalCapitalM]"^2]/
-      Sqrt[2]; scalarFunction = (2*"\[FormalCapitalM]"*radialCoordinate^3)/(radialCoordinate^4 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*"\[FormalZ]"^2); 
-    kerrSchildVector = {1, (radialCoordinate*"\[FormalX]" + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")*"\[FormalY]")/(radialCoordinate^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2), 
-      (radialCoordinate*"\[FormalY]" - ("\[FormalCapitalJ]"/"\[FormalCapitalM]")*"\[FormalX]")/(radialCoordinate^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2), "\[FormalZ]"/radialCoordinate}; 
-    MetricTensor[Normal[SparseArray[(#1 -> minkowskiMetric[[First[#1],Last[#1]]] + 
-           scalarFunction*kerrSchildVector[[First[#1]]]*kerrSchildVector[[Last[#1]]] & ) /@ Tuples[Range[4], 2]]], 
-     {"\[FormalT]", "\[FormalX]", "\[FormalY]", "\[FormalZ]"}, True, True]]
 MetricTensor["ReissnerNordstrom"] := MetricTensor[DiagonalMatrix[{-(1 - (2*"\[FormalCapitalM]")/"\[FormalR]" + "\[FormalCapitalQ]"^2/(4*Pi*"\[FormalR]"^2)), 
      1/(1 - (2*"\[FormalCapitalM]")/"\[FormalR]" + "\[FormalCapitalQ]"^2/(4*Pi*"\[FormalR]"^2)), "\[FormalR]"^2, "\[FormalR]"^2*Sin["\[FormalTheta]"]^2}], {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, 
    True, True]
@@ -427,6 +440,242 @@ MetricTensor[{"ReissnerNordstrom", mass_, charge_}, coordinates_List, index1_, i
       1/(1 - (2*mass)/coordinates[[2]] + charge^2/(4*Pi*coordinates[[2]]^2)), coordinates[[2]]^2, 
       coordinates[[2]]^2*Sin[coordinates[[3]]]^2}], coordinates, index1, index2] /; 
    Length[coordinates] == 4 && BooleanQ[index1] && BooleanQ[index2]
+MetricTensor["KerrNewman"] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> (("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Sin["\[FormalTheta]"]^2 - "\[FormalR]"^2 + 2*"\[FormalCapitalM]"*"\[FormalR]" - ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2 - 
+         "\[FormalCapitalQ]"^2/(4*Pi))/("\[FormalR]"^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos["\[FormalTheta]"]^2), {2, 2} -> ("\[FormalR]"^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos["\[FormalTheta]"]^2)/
+        ("\[FormalR]"^2 - 2*"\[FormalCapitalM]"*"\[FormalR]" + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2 + "\[FormalCapitalQ]"^2/(4*Pi)), {3, 3} -> "\[FormalR]"^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos["\[FormalTheta]"]^2, 
+      {4, 4} -> ((("\[FormalR]"^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2)^2 - ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*("\[FormalR]"^2 - 2*"\[FormalCapitalM]"*"\[FormalR]" + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2 + 
+            "\[FormalCapitalQ]"^2/(4*Pi))*Sin["\[FormalTheta]"]^2)/("\[FormalR]"^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos["\[FormalTheta]"]^2))*Sin["\[FormalTheta]"]^2, 
+      {1, 4} -> ((("\[FormalCapitalJ]"/"\[FormalCapitalM]")*("\[FormalR]"^2 - 2*"\[FormalCapitalM]"*"\[FormalR]" + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2 + "\[FormalCapitalQ]"^2/(4*Pi)) - 
+          ("\[FormalR]"^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2)*("\[FormalCapitalJ]"/"\[FormalCapitalM]"))/("\[FormalR]"^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos["\[FormalTheta]"]^2))*Sin["\[FormalTheta]"]^2, 
+      {4, 1} -> ((("\[FormalCapitalJ]"/"\[FormalCapitalM]")*("\[FormalR]"^2 - 2*"\[FormalCapitalM]"*"\[FormalR]" + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2 + "\[FormalCapitalQ]"^2/(4*Pi)) - 
+          ("\[FormalR]"^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2)*("\[FormalCapitalJ]"/"\[FormalCapitalM]"))/("\[FormalR]"^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos["\[FormalTheta]"]^2))*Sin["\[FormalTheta]"]^2}]], 
+   {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, True, True]
+MetricTensor["KerrNewman", coordinates_List] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> (("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Sin[coordinates[[3]]]^2 - coordinates[[2]]^2 + 
+          2*"\[FormalCapitalM]"*coordinates[[2]] - ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2 - "\[FormalCapitalQ]"^2/(4*Pi))/(coordinates[[2]]^2 + 
+          ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos[coordinates[[3]]]^2), 
+       {2, 2} -> (coordinates[[2]]^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos[coordinates[[3]]]^2)/(coordinates[[2]]^2 - 
+          2*"\[FormalCapitalM]"*coordinates[[2]] + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2 + "\[FormalCapitalQ]"^2/(4*Pi)), 
+       {3, 3} -> coordinates[[2]]^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos[coordinates[[3]]]^2, 
+       {4, 4} -> (((coordinates[[2]]^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2)^2 - ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*(coordinates[[2]]^2 - 
+             2*"\[FormalCapitalM]"*coordinates[[2]] + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2 + "\[FormalCapitalQ]"^2/(4*Pi))*Sin[coordinates[[3]]]^2)/
+          (coordinates[[2]]^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos[coordinates[[3]]]^2))*Sin[coordinates[[3]]]^2, 
+       {1, 4} -> ((("\[FormalCapitalJ]"/"\[FormalCapitalM]")*(coordinates[[2]]^2 - 2*"\[FormalCapitalM]"*coordinates[[2]] + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2 + "\[FormalCapitalQ]"^2/(4*Pi)) - 
+           (coordinates[[2]]^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2)*("\[FormalCapitalJ]"/"\[FormalCapitalM]"))/(coordinates[[2]]^2 + 
+           ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos[coordinates[[3]]]^2))*Sin[coordinates[[3]]]^2, 
+       {4, 1} -> ((("\[FormalCapitalJ]"/"\[FormalCapitalM]")*(coordinates[[2]]^2 - 2*"\[FormalCapitalM]"*coordinates[[2]] + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2 + "\[FormalCapitalQ]"^2/(4*Pi)) - 
+           (coordinates[[2]]^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2)*("\[FormalCapitalJ]"/"\[FormalCapitalM]"))/(coordinates[[2]]^2 + 
+           ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos[coordinates[[3]]]^2))*Sin[coordinates[[3]]]^2}]], coordinates, True, True] /; 
+   Length[coordinates] == 4
+MetricTensor["KerrNewman", index1_, index2_] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> (("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Sin["\[FormalTheta]"]^2 - "\[FormalR]"^2 + 2*"\[FormalCapitalM]"*"\[FormalR]" - ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2 - 
+          "\[FormalCapitalQ]"^2/(4*Pi))/("\[FormalR]"^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos["\[FormalTheta]"]^2), {2, 2} -> ("\[FormalR]"^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos["\[FormalTheta]"]^2)/
+         ("\[FormalR]"^2 - 2*"\[FormalCapitalM]"*"\[FormalR]" + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2 + "\[FormalCapitalQ]"^2/(4*Pi)), {3, 3} -> "\[FormalR]"^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos["\[FormalTheta]"]^2, 
+       {4, 4} -> ((("\[FormalR]"^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2)^2 - ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*("\[FormalR]"^2 - 2*"\[FormalCapitalM]"*"\[FormalR]" + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2 + 
+             "\[FormalCapitalQ]"^2/(4*Pi))*Sin["\[FormalTheta]"]^2)/("\[FormalR]"^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos["\[FormalTheta]"]^2))*Sin["\[FormalTheta]"]^2, 
+       {1, 4} -> ((("\[FormalCapitalJ]"/"\[FormalCapitalM]")*("\[FormalR]"^2 - 2*"\[FormalCapitalM]"*"\[FormalR]" + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2 + "\[FormalCapitalQ]"^2/(4*Pi)) - 
+           ("\[FormalR]"^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2)*("\[FormalCapitalJ]"/"\[FormalCapitalM]"))/("\[FormalR]"^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos["\[FormalTheta]"]^2))*Sin["\[FormalTheta]"]^2, 
+       {4, 1} -> ((("\[FormalCapitalJ]"/"\[FormalCapitalM]")*("\[FormalR]"^2 - 2*"\[FormalCapitalM]"*"\[FormalR]" + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2 + "\[FormalCapitalQ]"^2/(4*Pi)) - 
+           ("\[FormalR]"^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2)*("\[FormalCapitalJ]"/"\[FormalCapitalM]"))/("\[FormalR]"^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos["\[FormalTheta]"]^2))*Sin["\[FormalTheta]"]^2}]], 
+    {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, index1, index2] /; BooleanQ[index1] && BooleanQ[index2]
+MetricTensor["KerrNewman", coordinates_List, index1_, index2_] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> (("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Sin[coordinates[[3]]]^2 - coordinates[[2]]^2 + 
+          2*"\[FormalCapitalM]"*coordinates[[2]] - ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2 - "\[FormalCapitalQ]"^2/(4*Pi))/(coordinates[[2]]^2 + 
+          ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos[coordinates[[3]]]^2), 
+       {2, 2} -> (coordinates[[2]]^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos[coordinates[[3]]]^2)/(coordinates[[2]]^2 - 
+          2*"\[FormalCapitalM]"*coordinates[[2]] + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2 + "\[FormalCapitalQ]"^2/(4*Pi)), 
+       {3, 3} -> coordinates[[2]]^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos[coordinates[[3]]]^2, 
+       {4, 4} -> (((coordinates[[2]]^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2)^2 - ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*(coordinates[[2]]^2 - 
+             2*"\[FormalCapitalM]"*coordinates[[2]] + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2 + "\[FormalCapitalQ]"^2/(4*Pi))*Sin[coordinates[[3]]]^2)/
+          (coordinates[[2]]^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos[coordinates[[3]]]^2))*Sin[coordinates[[3]]]^2, 
+       {1, 4} -> ((("\[FormalCapitalJ]"/"\[FormalCapitalM]")*(coordinates[[2]]^2 - 2*"\[FormalCapitalM]"*coordinates[[2]] + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2 + "\[FormalCapitalQ]"^2/(4*Pi)) - 
+           (coordinates[[2]]^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2)*("\[FormalCapitalJ]"/"\[FormalCapitalM]"))/(coordinates[[2]]^2 + 
+           ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos[coordinates[[3]]]^2))*Sin[coordinates[[3]]]^2, 
+       {4, 1} -> ((("\[FormalCapitalJ]"/"\[FormalCapitalM]")*(coordinates[[2]]^2 - 2*"\[FormalCapitalM]"*coordinates[[2]] + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2 + "\[FormalCapitalQ]"^2/(4*Pi)) - 
+           (coordinates[[2]]^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2)*("\[FormalCapitalJ]"/"\[FormalCapitalM]"))/(coordinates[[2]]^2 + 
+           ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos[coordinates[[3]]]^2))*Sin[coordinates[[3]]]^2}]], coordinates, index1, index2] /; 
+   Length[coordinates] == 4 && BooleanQ[index1] && BooleanQ[index2]
+MetricTensor[{"KerrNewman", mass_}] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> (("\[FormalCapitalJ]"/mass)^2*Sin["\[FormalTheta]"]^2 - "\[FormalR]"^2 + 2*mass*"\[FormalR]" - ("\[FormalCapitalJ]"/mass)^2 - 
+         "\[FormalCapitalQ]"^2/(4*Pi))/("\[FormalR]"^2 + ("\[FormalCapitalJ]"/mass)^2*Cos["\[FormalTheta]"]^2), {2, 2} -> ("\[FormalR]"^2 + ("\[FormalCapitalJ]"/mass)^2*Cos["\[FormalTheta]"]^2)/
+        ("\[FormalR]"^2 - 2*mass*"\[FormalR]" + ("\[FormalCapitalJ]"/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi)), {3, 3} -> "\[FormalR]"^2 + ("\[FormalCapitalJ]"/mass)^2*Cos["\[FormalTheta]"]^2, 
+      {4, 4} -> ((("\[FormalR]"^2 + ("\[FormalCapitalJ]"/mass)^2)^2 - ("\[FormalCapitalJ]"/mass)^2*("\[FormalR]"^2 - 2*mass*"\[FormalR]" + ("\[FormalCapitalJ]"/mass)^2 + 
+            "\[FormalCapitalQ]"^2/(4*Pi))*Sin["\[FormalTheta]"]^2)/("\[FormalR]"^2 + ("\[FormalCapitalJ]"/mass)^2*Cos["\[FormalTheta]"]^2))*Sin["\[FormalTheta]"]^2, 
+      {1, 4} -> ((("\[FormalCapitalJ]"/mass)*("\[FormalR]"^2 - 2*mass*"\[FormalR]" + ("\[FormalCapitalJ]"/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi)) - 
+          ("\[FormalR]"^2 + ("\[FormalCapitalJ]"/mass)^2)*("\[FormalCapitalJ]"/mass))/("\[FormalR]"^2 + ("\[FormalCapitalJ]"/mass)^2*Cos["\[FormalTheta]"]^2))*Sin["\[FormalTheta]"]^2, 
+      {4, 1} -> ((("\[FormalCapitalJ]"/mass)*("\[FormalR]"^2 - 2*mass*"\[FormalR]" + ("\[FormalCapitalJ]"/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi)) - 
+          ("\[FormalR]"^2 + ("\[FormalCapitalJ]"/mass)^2)*("\[FormalCapitalJ]"/mass))/("\[FormalR]"^2 + ("\[FormalCapitalJ]"/mass)^2*Cos["\[FormalTheta]"]^2))*Sin["\[FormalTheta]"]^2}]], 
+   {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, True, True]
+MetricTensor[{"KerrNewman", mass_}, coordinates_List] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> (("\[FormalCapitalJ]"/mass)^2*Sin[coordinates[[3]]]^2 - coordinates[[2]]^2 + 
+          2*mass*coordinates[[2]] - ("\[FormalCapitalJ]"/mass)^2 - "\[FormalCapitalQ]"^2/(4*Pi))/(coordinates[[2]]^2 + 
+          ("\[FormalCapitalJ]"/mass)^2*Cos[coordinates[[3]]]^2), 
+       {2, 2} -> (coordinates[[2]]^2 + ("\[FormalCapitalJ]"/mass)^2*Cos[coordinates[[3]]]^2)/(coordinates[[2]]^2 - 
+          2*mass*coordinates[[2]] + ("\[FormalCapitalJ]"/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi)), 
+       {3, 3} -> coordinates[[2]]^2 + ("\[FormalCapitalJ]"/mass)^2*Cos[coordinates[[3]]]^2, 
+       {4, 4} -> (((coordinates[[2]]^2 + ("\[FormalCapitalJ]"/mass)^2)^2 - ("\[FormalCapitalJ]"/mass)^2*(coordinates[[2]]^2 - 
+             2*mass*coordinates[[2]] + ("\[FormalCapitalJ]"/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi))*Sin[coordinates[[3]]]^2)/
+          (coordinates[[2]]^2 + ("\[FormalCapitalJ]"/mass)^2*Cos[coordinates[[3]]]^2))*Sin[coordinates[[3]]]^2, 
+       {1, 4} -> ((("\[FormalCapitalJ]"/mass)*(coordinates[[2]]^2 - 2*mass*coordinates[[2]] + ("\[FormalCapitalJ]"/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi)) - 
+           (coordinates[[2]]^2 + ("\[FormalCapitalJ]"/mass)^2)*("\[FormalCapitalJ]"/mass))/(coordinates[[2]]^2 + 
+           ("\[FormalCapitalJ]"/mass)^2*Cos[coordinates[[3]]]^2))*Sin[coordinates[[3]]]^2, 
+       {4, 1} -> ((("\[FormalCapitalJ]"/mass)*(coordinates[[2]]^2 - 2*mass*coordinates[[2]] + ("\[FormalCapitalJ]"/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi)) - 
+           (coordinates[[2]]^2 + ("\[FormalCapitalJ]"/mass)^2)*("\[FormalCapitalJ]"/mass))/(coordinates[[2]]^2 + 
+           ("\[FormalCapitalJ]"/mass)^2*Cos[coordinates[[3]]]^2))*Sin[coordinates[[3]]]^2}]], coordinates, True, True] /; 
+   Length[coordinates] == 4
+MetricTensor[{"KerrNewman", mass_}, index1_, index2_] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> (("\[FormalCapitalJ]"/mass)^2*Sin["\[FormalTheta]"]^2 - "\[FormalR]"^2 + 2*mass*"\[FormalR]" - ("\[FormalCapitalJ]"/mass)^2 - 
+          "\[FormalCapitalQ]"^2/(4*Pi))/("\[FormalR]"^2 + ("\[FormalCapitalJ]"/mass)^2*Cos["\[FormalTheta]"]^2), {2, 2} -> ("\[FormalR]"^2 + ("\[FormalCapitalJ]"/mass)^2*Cos["\[FormalTheta]"]^2)/
+         ("\[FormalR]"^2 - 2*mass*"\[FormalR]" + ("\[FormalCapitalJ]"/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi)), {3, 3} -> "\[FormalR]"^2 + ("\[FormalCapitalJ]"/mass)^2*Cos["\[FormalTheta]"]^2, 
+       {4, 4} -> ((("\[FormalR]"^2 + ("\[FormalCapitalJ]"/mass)^2)^2 - ("\[FormalCapitalJ]"/mass)^2*("\[FormalR]"^2 - 2*mass*"\[FormalR]" + ("\[FormalCapitalJ]"/mass)^2 + 
+             "\[FormalCapitalQ]"^2/(4*Pi))*Sin["\[FormalTheta]"]^2)/("\[FormalR]"^2 + ("\[FormalCapitalJ]"/mass)^2*Cos["\[FormalTheta]"]^2))*Sin["\[FormalTheta]"]^2, 
+       {1, 4} -> ((("\[FormalCapitalJ]"/mass)*("\[FormalR]"^2 - 2*mass*"\[FormalR]" + ("\[FormalCapitalJ]"/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi)) - 
+           ("\[FormalR]"^2 + ("\[FormalCapitalJ]"/mass)^2)*("\[FormalCapitalJ]"/mass))/("\[FormalR]"^2 + ("\[FormalCapitalJ]"/mass)^2*Cos["\[FormalTheta]"]^2))*Sin["\[FormalTheta]"]^2, 
+       {4, 1} -> ((("\[FormalCapitalJ]"/mass)*("\[FormalR]"^2 - 2*mass*"\[FormalR]" + ("\[FormalCapitalJ]"/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi)) - 
+           ("\[FormalR]"^2 + ("\[FormalCapitalJ]"/mass)^2)*("\[FormalCapitalJ]"/mass))/("\[FormalR]"^2 + ("\[FormalCapitalJ]"/mass)^2*Cos["\[FormalTheta]"]^2))*Sin["\[FormalTheta]"]^2}]], 
+    {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, index1, index2] /; BooleanQ[index1] && BooleanQ[index2]
+MetricTensor[{"KerrNewman", mass_}, coordinates_List, index1_, index2_] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> (("\[FormalCapitalJ]"/mass)^2*Sin[coordinates[[3]]]^2 - coordinates[[2]]^2 + 
+          2*mass*coordinates[[2]] - ("\[FormalCapitalJ]"/mass)^2 - "\[FormalCapitalQ]"^2/(4*Pi))/(coordinates[[2]]^2 + 
+          ("\[FormalCapitalJ]"/mass)^2*Cos[coordinates[[3]]]^2), 
+       {2, 2} -> (coordinates[[2]]^2 + ("\[FormalCapitalJ]"/mass)^2*Cos[coordinates[[3]]]^2)/(coordinates[[2]]^2 - 
+          2*mass*coordinates[[2]] + ("\[FormalCapitalJ]"/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi)), 
+       {3, 3} -> coordinates[[2]]^2 + ("\[FormalCapitalJ]"/mass)^2*Cos[coordinates[[3]]]^2, 
+       {4, 4} -> (((coordinates[[2]]^2 + ("\[FormalCapitalJ]"/mass)^2)^2 - ("\[FormalCapitalJ]"/mass)^2*(coordinates[[2]]^2 - 
+             2*mass*coordinates[[2]] + ("\[FormalCapitalJ]"/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi))*Sin[coordinates[[3]]]^2)/
+          (coordinates[[2]]^2 + ("\[FormalCapitalJ]"/mass)^2*Cos[coordinates[[3]]]^2))*Sin[coordinates[[3]]]^2, 
+       {1, 4} -> ((("\[FormalCapitalJ]"/mass)*(coordinates[[2]]^2 - 2*mass*coordinates[[2]] + ("\[FormalCapitalJ]"/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi)) - 
+           (coordinates[[2]]^2 + ("\[FormalCapitalJ]"/mass)^2)*("\[FormalCapitalJ]"/mass))/(coordinates[[2]]^2 + 
+           ("\[FormalCapitalJ]"/mass)^2*Cos[coordinates[[3]]]^2))*Sin[coordinates[[3]]]^2, 
+       {4, 1} -> ((("\[FormalCapitalJ]"/mass)*(coordinates[[2]]^2 - 2*mass*coordinates[[2]] + ("\[FormalCapitalJ]"/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi)) - 
+           (coordinates[[2]]^2 + ("\[FormalCapitalJ]"/mass)^2)*("\[FormalCapitalJ]"/mass))/(coordinates[[2]]^2 + 
+           ("\[FormalCapitalJ]"/mass)^2*Cos[coordinates[[3]]]^2))*Sin[coordinates[[3]]]^2}]], coordinates, index1, index2] /; 
+   Length[coordinates] == 4 && BooleanQ[index1] && BooleanQ[index2]
+MetricTensor[{"KerrNewman", mass_, angularMomentum_}] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> ((angularMomentum/mass)^2*Sin["\[FormalTheta]"]^2 - "\[FormalR]"^2 + 2*mass*"\[FormalR]" - 
+         (angularMomentum/mass)^2 - "\[FormalCapitalQ]"^2/(4*Pi))/("\[FormalR]"^2 + (angularMomentum/mass)^2*Cos["\[FormalTheta]"]^2), 
+      {2, 2} -> ("\[FormalR]"^2 + (angularMomentum/mass)^2*Cos["\[FormalTheta]"]^2)/("\[FormalR]"^2 - 2*mass*"\[FormalR]" + (angularMomentum/mass)^2 + 
+         "\[FormalCapitalQ]"^2/(4*Pi)), {3, 3} -> "\[FormalR]"^2 + (angularMomentum/mass)^2*Cos["\[FormalTheta]"]^2, 
+      {4, 4} -> ((("\[FormalR]"^2 + (angularMomentum/mass)^2)^2 - (angularMomentum/mass)^2*("\[FormalR]"^2 - 2*mass*"\[FormalR]" + 
+            (angularMomentum/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi))*Sin["\[FormalTheta]"]^2)/("\[FormalR]"^2 + (angularMomentum/mass)^2*Cos["\[FormalTheta]"]^2))*
+        Sin["\[FormalTheta]"]^2, {1, 4} -> (((angularMomentum/mass)*("\[FormalR]"^2 - 2*mass*"\[FormalR]" + (angularMomentum/mass)^2 + 
+            "\[FormalCapitalQ]"^2/(4*Pi)) - ("\[FormalR]"^2 + (angularMomentum/mass)^2)*(angularMomentum/mass))/
+         ("\[FormalR]"^2 + (angularMomentum/mass)^2*Cos["\[FormalTheta]"]^2))*Sin["\[FormalTheta]"]^2, 
+      {4, 1} -> (((angularMomentum/mass)*("\[FormalR]"^2 - 2*mass*"\[FormalR]" + (angularMomentum/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi)) - 
+          ("\[FormalR]"^2 + (angularMomentum/mass)^2)*(angularMomentum/mass))/("\[FormalR]"^2 + (angularMomentum/mass)^2*Cos["\[FormalTheta]"]^2))*
+        Sin["\[FormalTheta]"]^2}]], {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, True, True]
+MetricTensor[{"KerrNewman", mass_, angularMomentum_}, coordinates_List] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> ((angularMomentum/mass)^2*Sin[coordinates[[3]]]^2 - coordinates[[2]]^2 + 
+          2*mass*coordinates[[2]] - (angularMomentum/mass)^2 - "\[FormalCapitalQ]"^2/(4*Pi))/(coordinates[[2]]^2 + 
+          (angularMomentum/mass)^2*Cos[coordinates[[3]]]^2), 
+       {2, 2} -> (coordinates[[2]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[3]]]^2)/
+         (coordinates[[2]]^2 - 2*mass*coordinates[[2]] + (angularMomentum/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi)), 
+       {3, 3} -> coordinates[[2]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[3]]]^2, 
+       {4, 4} -> (((coordinates[[2]]^2 + (angularMomentum/mass)^2)^2 - (angularMomentum/mass)^2*
+            (coordinates[[2]]^2 - 2*mass*coordinates[[2]] + (angularMomentum/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi))*
+            Sin[coordinates[[3]]]^2)/(coordinates[[2]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[3]]]^2))*
+         Sin[coordinates[[3]]]^2, {1, 4} -> (((angularMomentum/mass)*(coordinates[[2]]^2 - 2*mass*coordinates[[2]] + 
+             (angularMomentum/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi)) - (coordinates[[2]]^2 + (angularMomentum/mass)^2)*
+            (angularMomentum/mass))/(coordinates[[2]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[3]]]^2))*
+         Sin[coordinates[[3]]]^2, {4, 1} -> (((angularMomentum/mass)*(coordinates[[2]]^2 - 2*mass*coordinates[[2]] + 
+             (angularMomentum/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi)) - (coordinates[[2]]^2 + (angularMomentum/mass)^2)*
+            (angularMomentum/mass))/(coordinates[[2]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[3]]]^2))*
+         Sin[coordinates[[3]]]^2}]], coordinates, True, True] /; Length[coordinates] == 4
+MetricTensor[{"KerrNewman", mass_, angularMomentum_}, index1_, index2_] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> ((angularMomentum/mass)^2*Sin["\[FormalTheta]"]^2 - "\[FormalR]"^2 + 2*mass*"\[FormalR]" - 
+          (angularMomentum/mass)^2 - "\[FormalCapitalQ]"^2/(4*Pi))/("\[FormalR]"^2 + (angularMomentum/mass)^2*Cos["\[FormalTheta]"]^2), 
+       {2, 2} -> ("\[FormalR]"^2 + (angularMomentum/mass)^2*Cos["\[FormalTheta]"]^2)/("\[FormalR]"^2 - 2*mass*"\[FormalR]" + (angularMomentum/mass)^2 + 
+          "\[FormalCapitalQ]"^2/(4*Pi)), {3, 3} -> "\[FormalR]"^2 + (angularMomentum/mass)^2*Cos["\[FormalTheta]"]^2, 
+       {4, 4} -> ((("\[FormalR]"^2 + (angularMomentum/mass)^2)^2 - (angularMomentum/mass)^2*("\[FormalR]"^2 - 2*mass*"\[FormalR]" + 
+             (angularMomentum/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi))*Sin["\[FormalTheta]"]^2)/("\[FormalR]"^2 + (angularMomentum/mass)^2*Cos["\[FormalTheta]"]^2))*
+         Sin["\[FormalTheta]"]^2, {1, 4} -> (((angularMomentum/mass)*("\[FormalR]"^2 - 2*mass*"\[FormalR]" + (angularMomentum/mass)^2 + 
+             "\[FormalCapitalQ]"^2/(4*Pi)) - ("\[FormalR]"^2 + (angularMomentum/mass)^2)*(angularMomentum/mass))/
+          ("\[FormalR]"^2 + (angularMomentum/mass)^2*Cos["\[FormalTheta]"]^2))*Sin["\[FormalTheta]"]^2, 
+       {4, 1} -> (((angularMomentum/mass)*("\[FormalR]"^2 - 2*mass*"\[FormalR]" + (angularMomentum/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi)) - 
+           ("\[FormalR]"^2 + (angularMomentum/mass)^2)*(angularMomentum/mass))/("\[FormalR]"^2 + (angularMomentum/mass)^2*
+            Cos["\[FormalTheta]"]^2))*Sin["\[FormalTheta]"]^2}]], {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, index1, index2] /; 
+   BooleanQ[index1] && BooleanQ[index2]
+MetricTensor[{"KerrNewman", mass_, angularMomentum_}, coordinates_List, index1_, index2_] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> ((angularMomentum/mass)^2*Sin[coordinates[[3]]]^2 - coordinates[[2]]^2 + 
+          2*mass*coordinates[[2]] - (angularMomentum/mass)^2 - "\[FormalCapitalQ]"^2/(4*Pi))/(coordinates[[2]]^2 + 
+          (angularMomentum/mass)^2*Cos[coordinates[[3]]]^2), 
+       {2, 2} -> (coordinates[[2]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[3]]]^2)/
+         (coordinates[[2]]^2 - 2*mass*coordinates[[2]] + (angularMomentum/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi)), 
+       {3, 3} -> coordinates[[2]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[3]]]^2, 
+       {4, 4} -> (((coordinates[[2]]^2 + (angularMomentum/mass)^2)^2 - (angularMomentum/mass)^2*
+            (coordinates[[2]]^2 - 2*mass*coordinates[[2]] + (angularMomentum/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi))*
+            Sin[coordinates[[3]]]^2)/(coordinates[[2]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[3]]]^2))*
+         Sin[coordinates[[3]]]^2, {1, 4} -> (((angularMomentum/mass)*(coordinates[[2]]^2 - 2*mass*coordinates[[2]] + 
+             (angularMomentum/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi)) - (coordinates[[2]]^2 + (angularMomentum/mass)^2)*
+            (angularMomentum/mass))/(coordinates[[2]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[3]]]^2))*
+         Sin[coordinates[[3]]]^2, {4, 1} -> (((angularMomentum/mass)*(coordinates[[2]]^2 - 2*mass*coordinates[[2]] + 
+             (angularMomentum/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi)) - (coordinates[[2]]^2 + (angularMomentum/mass)^2)*
+            (angularMomentum/mass))/(coordinates[[2]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[3]]]^2))*
+         Sin[coordinates[[3]]]^2}]], coordinates, index1, index2] /; Length[coordinates] == 4 && BooleanQ[index1] && 
+    BooleanQ[index2]
+MetricTensor[{"KerrNewman", mass_, angularMomentum_, charge_}] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> ((angularMomentum/mass)^2*Sin["\[FormalTheta]"]^2 - "\[FormalR]"^2 + 2*mass*"\[FormalR]" - 
+         (angularMomentum/mass)^2 - charge^2/(4*Pi))/("\[FormalR]"^2 + (angularMomentum/mass)^2*Cos["\[FormalTheta]"]^2), 
+      {2, 2} -> ("\[FormalR]"^2 + (angularMomentum/mass)^2*Cos["\[FormalTheta]"]^2)/("\[FormalR]"^2 - 2*mass*"\[FormalR]" + (angularMomentum/mass)^2 + 
+         charge^2/(4*Pi)), {3, 3} -> "\[FormalR]"^2 + (angularMomentum/mass)^2*Cos["\[FormalTheta]"]^2, 
+      {4, 4} -> ((("\[FormalR]"^2 + (angularMomentum/mass)^2)^2 - (angularMomentum/mass)^2*("\[FormalR]"^2 - 2*mass*"\[FormalR]" + 
+            (angularMomentum/mass)^2 + charge^2/(4*Pi))*Sin["\[FormalTheta]"]^2)/("\[FormalR]"^2 + (angularMomentum/mass)^2*Cos["\[FormalTheta]"]^2))*
+        Sin["\[FormalTheta]"]^2, {1, 4} -> (((angularMomentum/mass)*("\[FormalR]"^2 - 2*mass*"\[FormalR]" + (angularMomentum/mass)^2 + 
+            charge^2/(4*Pi)) - ("\[FormalR]"^2 + (angularMomentum/mass)^2)*(angularMomentum/mass))/
+         ("\[FormalR]"^2 + (angularMomentum/mass)^2*Cos["\[FormalTheta]"]^2))*Sin["\[FormalTheta]"]^2, 
+      {4, 1} -> (((angularMomentum/mass)*("\[FormalR]"^2 - 2*mass*"\[FormalR]" + (angularMomentum/mass)^2 + charge^2/(4*Pi)) - 
+          ("\[FormalR]"^2 + (angularMomentum/mass)^2)*(angularMomentum/mass))/("\[FormalR]"^2 + (angularMomentum/mass)^2*Cos["\[FormalTheta]"]^2))*
+        Sin["\[FormalTheta]"]^2}]], {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, True, True]
+MetricTensor[{"KerrNewman", mass_, angularMomentum_, charge_}, coordinates_List] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> ((angularMomentum/mass)^2*Sin[coordinates[[3]]]^2 - coordinates[[2]]^2 + 
+          2*mass*coordinates[[2]] - (angularMomentum/mass)^2 - charge^2/(4*Pi))/(coordinates[[2]]^2 + 
+          (angularMomentum/mass)^2*Cos[coordinates[[3]]]^2), 
+       {2, 2} -> (coordinates[[2]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[3]]]^2)/
+         (coordinates[[2]]^2 - 2*mass*coordinates[[2]] + (angularMomentum/mass)^2 + charge^2/(4*Pi)), 
+       {3, 3} -> coordinates[[2]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[3]]]^2, 
+       {4, 4} -> (((coordinates[[2]]^2 + (angularMomentum/mass)^2)^2 - (angularMomentum/mass)^2*
+            (coordinates[[2]]^2 - 2*mass*coordinates[[2]] + (angularMomentum/mass)^2 + charge^2/(4*Pi))*
+            Sin[coordinates[[3]]]^2)/(coordinates[[2]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[3]]]^2))*
+         Sin[coordinates[[3]]]^2, {1, 4} -> (((angularMomentum/mass)*(coordinates[[2]]^2 - 2*mass*coordinates[[2]] + 
+             (angularMomentum/mass)^2 + charge^2/(4*Pi)) - (coordinates[[2]]^2 + (angularMomentum/mass)^2)*
+            (angularMomentum/mass))/(coordinates[[2]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[3]]]^2))*
+         Sin[coordinates[[3]]]^2, {4, 1} -> (((angularMomentum/mass)*(coordinates[[2]]^2 - 2*mass*coordinates[[2]] + 
+             (angularMomentum/mass)^2 + charge^2/(4*Pi)) - (coordinates[[2]]^2 + (angularMomentum/mass)^2)*
+            (angularMomentum/mass))/(coordinates[[2]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[3]]]^2))*
+         Sin[coordinates[[3]]]^2}]], coordinates, True, True] /; Length[coordinates] == 4
+MetricTensor[{"KerrNewman", mass_, angularMomentum_, charge_}, index1_, index2_] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> ((angularMomentum/mass)^2*Sin["\[FormalTheta]"]^2 - "\[FormalR]"^2 + 2*mass*"\[FormalR]" - 
+          (angularMomentum/mass)^2 - charge^2/(4*Pi))/("\[FormalR]"^2 + (angularMomentum/mass)^2*Cos["\[FormalTheta]"]^2), 
+       {2, 2} -> ("\[FormalR]"^2 + (angularMomentum/mass)^2*Cos["\[FormalTheta]"]^2)/("\[FormalR]"^2 - 2*mass*"\[FormalR]" + (angularMomentum/mass)^2 + 
+          charge^2/(4*Pi)), {3, 3} -> "\[FormalR]"^2 + (angularMomentum/mass)^2*Cos["\[FormalTheta]"]^2, 
+       {4, 4} -> ((("\[FormalR]"^2 + (angularMomentum/mass)^2)^2 - (angularMomentum/mass)^2*("\[FormalR]"^2 - 2*mass*"\[FormalR]" + 
+             (angularMomentum/mass)^2 + charge^2/(4*Pi))*Sin["\[FormalTheta]"]^2)/("\[FormalR]"^2 + (angularMomentum/mass)^2*Cos["\[FormalTheta]"]^2))*
+         Sin["\[FormalTheta]"]^2, {1, 4} -> (((angularMomentum/mass)*("\[FormalR]"^2 - 2*mass*"\[FormalR]" + (angularMomentum/mass)^2 + 
+             charge^2/(4*Pi)) - ("\[FormalR]"^2 + (angularMomentum/mass)^2)*(angularMomentum/mass))/
+          ("\[FormalR]"^2 + (angularMomentum/mass)^2*Cos["\[FormalTheta]"]^2))*Sin["\[FormalTheta]"]^2, 
+       {4, 1} -> (((angularMomentum/mass)*("\[FormalR]"^2 - 2*mass*"\[FormalR]" + (angularMomentum/mass)^2 + charge^2/(4*Pi)) - 
+           ("\[FormalR]"^2 + (angularMomentum/mass)^2)*(angularMomentum/mass))/("\[FormalR]"^2 + (angularMomentum/mass)^2*
+            Cos["\[FormalTheta]"]^2))*Sin["\[FormalTheta]"]^2}]], {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, index1, index2] /; 
+   BooleanQ[index1] && BooleanQ[index2]
+MetricTensor[{"KerrNewman", mass_, angularMomentum_, charge_}, coordinates_List, index1_, index2_] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> ((angularMomentum/mass)^2*Sin[coordinates[[3]]]^2 - coordinates[[2]]^2 + 
+          2*mass*coordinates[[2]] - (angularMomentum/mass)^2 - charge^2/(4*Pi))/(coordinates[[2]]^2 + 
+          (angularMomentum/mass)^2*Cos[coordinates[[3]]]^2), 
+       {2, 2} -> (coordinates[[2]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[3]]]^2)/
+         (coordinates[[2]]^2 - 2*mass*coordinates[[2]] + (angularMomentum/mass)^2 + charge^2/(4*Pi)), 
+       {3, 3} -> coordinates[[2]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[3]]]^2, 
+       {4, 4} -> (((coordinates[[2]]^2 + (angularMomentum/mass)^2)^2 - (angularMomentum/mass)^2*
+            (coordinates[[2]]^2 - 2*mass*coordinates[[2]] + (angularMomentum/mass)^2 + charge^2/(4*Pi))*
+            Sin[coordinates[[3]]]^2)/(coordinates[[2]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[3]]]^2))*
+         Sin[coordinates[[3]]]^2, {1, 4} -> (((angularMomentum/mass)*(coordinates[[2]]^2 - 2*mass*coordinates[[2]] + 
+             (angularMomentum/mass)^2 + charge^2/(4*Pi)) - (coordinates[[2]]^2 + (angularMomentum/mass)^2)*
+            (angularMomentum/mass))/(coordinates[[2]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[3]]]^2))*
+         Sin[coordinates[[3]]]^2, {4, 1} -> (((angularMomentum/mass)*(coordinates[[2]]^2 - 2*mass*coordinates[[2]] + 
+             (angularMomentum/mass)^2 + charge^2/(4*Pi)) - (coordinates[[2]]^2 + (angularMomentum/mass)^2)*
+            (angularMomentum/mass))/(coordinates[[2]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[3]]]^2))*
+         Sin[coordinates[[3]]]^2}]], coordinates, index1, index2] /; Length[coordinates] == 4 && BooleanQ[index1] && 
+    BooleanQ[index2]
 MetricTensor["Godel"] := MetricTensor[Normal[SparseArray[{{1, 1} -> -(1/(2*"\[FormalOmega]"^2)), {2, 2} -> 1/(2*"\[FormalOmega]"^2), 
       {3, 3} -> -(Exp[2*"\[FormalX]"]/(4*"\[FormalOmega]"^2)), {4, 4} -> 1/(2*"\[FormalOmega]"^2), {1, 3} -> -(Exp["\[FormalX]"]/(2*"\[FormalOmega]"^2)), 
       {3, 1} -> -(Exp["\[FormalX]"]/(2*"\[FormalOmega]"^2))}]], {"\[FormalT]", "\[FormalX]", "\[FormalY]", "\[FormalZ]"}, True, True]
@@ -606,6 +855,32 @@ MetricTensor[matrixRepresentation_List, coordinates_List, index1_, index2_]["Lor
       If[Length[positiveEigenvalues] == 1 || Length[negativeEigenvalues] == 1, True, False], Indeterminate]] /; 
    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
     BooleanQ[index1] && BooleanQ[index2]
+MetricTensor[matrixRepresentation_List, coordinates_List, index1_, index2_]["RiemannianConditions"] := 
+  Module[{eigenvalues, riemannianConditions}, eigenvalues = Eigenvalues[matrixRepresentation]; 
+     riemannianConditions = FullSimplify[(#1 > 0 & ) /@ eigenvalues]; If[riemannianConditions === True, {}, 
+      If[riemannianConditions === False, Indeterminate, If[Length[Select[riemannianConditions, #1 === False & ]] > 0, 
+        Indeterminate, DeleteDuplicates[Select[riemannianConditions, #1 =!= True & ]]]]]] /; 
+   Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2]
+MetricTensor[matrixRepresentation_List, coordinates_List, index1_, index2_]["PseudoRiemannianConditions"] := 
+  Module[{eigenvalues, pseudoRiemannianConditions}, eigenvalues = Eigenvalues[matrixRepresentation]; 
+     pseudoRiemannianConditions = FullSimplify[(#1 != 0 & ) /@ eigenvalues]; If[pseudoRiemannianConditions === True, {}, 
+      If[pseudoRiemannianConditions === False, Indeterminate, 
+       If[Length[Select[pseudoRiemannianConditions, #1 === False & ]] > 0, Indeterminate, 
+        DeleteDuplicates[Reverse /@ Sort /@ Select[pseudoRiemannianConditions, #1 =!= True & ]]]]]] /; 
+   Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2]
+MetricTensor[matrixRepresentation_List, coordinates_List, index1_, index2_]["LorentzianConditions"] := 
+  Module[{eigensystem, eigenvalues, eigenvectors, timeCoordinate, lorentzianConditions}, 
+    eigensystem = Eigensystem[matrixRepresentation]; eigenvalues = First[eigensystem]; eigenvectors = Last[eigensystem]; 
+     If[Length[Position[eigenvectors, {1, 0, 0, 0}]] > 0, 
+      timeCoordinate = First[First[Position[eigenvectors, {1, 0, 0, 0}]]]; lorentzianConditions = 
+        FullSimplify[(If[#1 == timeCoordinate, eigenvalues[[#1]] < 0, eigenvalues[[#1]] > 0] & ) /@ 
+          Range[Length[eigenvalues]]]; If[lorentzianConditions === True, {}, If[lorentzianConditions === False, 
+         Indeterminate, If[Length[Select[lorentzianConditions, #1 === False & ]] > 0, Indeterminate, 
+          DeleteDuplicates[Select[lorentzianConditions, #1 =!= True & ]]]]], Indeterminate]] /; 
+   Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2]
 MetricTensor[matrixRepresentation_List, coordinates_List, index1_, index2_]["MetricSingularities"] := 
   (Quiet[DeleteDuplicates[Catenate[
        (If[Head[Solve[#1, coordinates /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]]] === Solve, {{#1}}, 
@@ -724,12 +999,12 @@ MetricTensor[matrixRepresentation_List, coordinates_List, index1_, index2_]["Ang
 MetricTensor[matrixRepresentation_List, coordinates_List, index1_, index2_]["Properties"] := 
   {"MatrixRepresentation", "ReducedMatrixRepresentation", "Coordinates", "CoordinateOneForms", "Indices", "CovariantQ", 
     "ContravariantQ", "MixedQ", "Symbol", "Dimensions", "SymmetricQ", "DiagonalQ", "Signature", "RiemannianQ", 
-    "PseudoRiemannianQ", "LorentzianQ", "MetricSingularities", "Determinant", "ReducedDeterminant", "Trace", 
-    "ReducedTrace", "Eigenvalues", "ReducedEigenvalues", "Eigenvectors", "ReducedEigenvectors", "MetricTensor", 
-    "InverseMetricTensor", "LineElement", "ReducedLineElement", "VolumeForm", "ReducedVolumeForm", "TimelikeQ", 
-    "LightlikeQ", "SpacelikeQ", "LengthPureFunction", "AnglePureFunction", "Properties"} /; 
-   Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
-    BooleanQ[index1] && BooleanQ[index2]
+    "PseudoRiemannianQ", "LorentzianQ", "RiemannianConditions", "PseudoRiemannianConditions", "LorentzianConditions", 
+    "MetricSingularities", "Determinant", "ReducedDeterminant", "Trace", "ReducedTrace", "Eigenvalues", 
+    "ReducedEigenvalues", "Eigenvectors", "ReducedEigenvectors", "MetricTensor", "InverseMetricTensor", "LineElement", 
+    "ReducedLineElement", "VolumeForm", "ReducedVolumeForm", "TimelikeQ", "LightlikeQ", "SpacelikeQ", 
+    "LengthPureFunction", "AnglePureFunction", "Properties"} /; Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
 MetricTensor[MetricTensor[matrixRepresentation_List, coordinates_List, index1_, index2_], newCoordinates_List] := 
   MetricTensor[matrixRepresentation /. Thread[coordinates -> newCoordinates], newCoordinates, index1, index2] /; 
    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
