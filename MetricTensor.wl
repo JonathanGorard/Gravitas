@@ -1,8 +1,8 @@
 (* ::Package:: *)
 
 MetricTensor[] := {"Symmetric", "SymmetricField", "Asymmetric", "AsymmetricField", "Euclidean", "Minkowski", 
-   "Schwarzschild", "IsotropicSchwarzschild", "EddingtonFinkelstein", "Kerr", "ReissnerNordstrom", "KerrNewman", "Godel", 
-   "FLRW"}
+   "Schwarzschild", "IsotropicSchwarzschild", "EddingtonFinkelstein", "IngoingEddingtonFinkelstein", 
+   "OutgoingEddingtonFinkelstein", "Kerr", "ReissnerNordstrom", "KerrNewman", "Godel", "FLRW"}
 MetricTensor[dimensionCount_Integer] := 
   MetricTensor[Normal[SparseArray[(#1 -> Subscript["\[FormalG]", Sort[#1]] & ) /@ Tuples[Range[dimensionCount], 2]]], 
    (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[dimensionCount], True, True]
@@ -262,6 +262,66 @@ MetricTensor[{"EddingtonFinkelstein", mass_}, index1_, index2_] :=
    BooleanQ[index1] && BooleanQ[index2]
 MetricTensor[{"EddingtonFinkelstein", mass_}, coordinates_List, index1_, index2_] := 
   MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*mass)/coordinates[[2]]), {1, 2} -> \[PlusMinus]1, {2, 1} -> \[PlusMinus]1, 
+       {3, 3} -> coordinates[[2]]^2, {4, 4} -> coordinates[[2]]^2*Sin[coordinates[[3]]]^2}]], coordinates, index1, 
+    index2] /; Length[coordinates] == 4 && BooleanQ[index1] && BooleanQ[index2]
+MetricTensor["IngoingEddingtonFinkelstein"] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*"\[FormalCapitalM]")/"\[FormalR]"), {1, 2} -> 1, {2, 1} -> 1, {3, 3} -> "\[FormalR]"^2, 
+      {4, 4} -> "\[FormalR]"^2*Sin["\[FormalTheta]"]^2}]], {"\[FormalV]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, True, True]
+MetricTensor["IngoingEddingtonFinkelstein", coordinates_List] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*"\[FormalCapitalM]")/coordinates[[2]]), {1, 2} -> 1, {2, 1} -> 1, 
+       {3, 3} -> coordinates[[2]]^2, {4, 4} -> coordinates[[2]]^2*Sin[coordinates[[3]]]^2}]], coordinates, True, True] /; 
+   Length[coordinates] == 4
+MetricTensor["IngoingEddingtonFinkelstein", index1_, index2_] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*"\[FormalCapitalM]")/"\[FormalR]"), {1, 2} -> 1, {2, 1} -> 1, {3, 3} -> "\[FormalR]"^2, 
+       {4, 4} -> "\[FormalR]"^2*Sin["\[FormalTheta]"]^2}]], {"\[FormalV]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, index1, index2] /; 
+   BooleanQ[index1] && BooleanQ[index2]
+MetricTensor["IngoingEddingtonFinkelstein", coordinates_List, index1_, index2_] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*"\[FormalCapitalM]")/coordinates[[2]]), {1, 2} -> 1, {2, 1} -> 1, 
+       {3, 3} -> coordinates[[2]]^2, {4, 4} -> coordinates[[2]]^2*Sin[coordinates[[3]]]^2}]], coordinates, index1, 
+    index2] /; Length[coordinates] == 4 && BooleanQ[index1] && BooleanQ[index2]
+MetricTensor[{"IngoingEddingtonFinkelstein", mass_}] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*mass)/"\[FormalR]"), {1, 2} -> 1, {2, 1} -> 1, {3, 3} -> "\[FormalR]"^2, 
+      {4, 4} -> "\[FormalR]"^2*Sin["\[FormalTheta]"]^2}]], {"\[FormalV]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, True, True]
+MetricTensor[{"IngoingEddingtonFinkelstein", mass_}, coordinates_List] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*mass)/coordinates[[2]]), {1, 2} -> 1, {2, 1} -> 1, 
+       {3, 3} -> coordinates[[2]]^2, {4, 4} -> coordinates[[2]]^2*Sin[coordinates[[3]]]^2}]], coordinates, True, True] /; 
+   Length[coordinates] == 4
+MetricTensor[{"IngoingEddingtonFinkelstein", mass_}, index1_, index2_] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*mass)/"\[FormalR]"), {1, 2} -> 1, {2, 1} -> 1, {3, 3} -> "\[FormalR]"^2, 
+       {4, 4} -> "\[FormalR]"^2*Sin["\[FormalTheta]"]^2}]], {"\[FormalV]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, index1, index2] /; 
+   BooleanQ[index1] && BooleanQ[index2]
+MetricTensor[{"IngoingEddingtonFinkelstein", mass_}, coordinates_List, index1_, index2_] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*mass)/coordinates[[2]]), {1, 2} -> 1, {2, 1} -> 1, 
+       {3, 3} -> coordinates[[2]]^2, {4, 4} -> coordinates[[2]]^2*Sin[coordinates[[3]]]^2}]], coordinates, index1, 
+    index2] /; Length[coordinates] == 4 && BooleanQ[index1] && BooleanQ[index2]
+MetricTensor["OutgoingEddingtonFinkelstein"] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*"\[FormalCapitalM]")/"\[FormalR]"), {1, 2} -> -1, {2, 1} -> -1, {3, 3} -> "\[FormalR]"^2, 
+      {4, 4} -> "\[FormalR]"^2*Sin["\[FormalTheta]"]^2}]], {"\[FormalU]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, True, True]
+MetricTensor["OutgoingEddingtonFinkelstein", coordinates_List] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*"\[FormalCapitalM]")/coordinates[[2]]), {1, 2} -> -1, {2, 1} -> -1, 
+       {3, 3} -> coordinates[[2]]^2, {4, 4} -> coordinates[[2]]^2*Sin[coordinates[[3]]]^2}]], coordinates, True, True] /; 
+   Length[coordinates] == 4
+MetricTensor["OutgoingEddingtonFinkelstein", index1_, index2_] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*"\[FormalCapitalM]")/"\[FormalR]"), {1, 2} -> -1, {2, 1} -> -1, {3, 3} -> "\[FormalR]"^2, 
+       {4, 4} -> "\[FormalR]"^2*Sin["\[FormalTheta]"]^2}]], {"\[FormalU]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, index1, index2] /; 
+   BooleanQ[index1] && BooleanQ[index2]
+MetricTensor["OutgoingEddingtonFinkelstein", coordinates_List, index1_, index2_] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*"\[FormalCapitalM]")/coordinates[[2]]), {1, 2} -> -1, {2, 1} -> -1, 
+       {3, 3} -> coordinates[[2]]^2, {4, 4} -> coordinates[[2]]^2*Sin[coordinates[[3]]]^2}]], coordinates, index1, 
+    index2] /; Length[coordinates] == 4 && BooleanQ[index1] && BooleanQ[index2]
+MetricTensor[{"OutgoingEddingtonFinkelstein", mass_}] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*mass)/"\[FormalR]"), {1, 2} -> -1, {2, 1} -> -1, {3, 3} -> "\[FormalR]"^2, 
+      {4, 4} -> "\[FormalR]"^2*Sin["\[FormalTheta]"]^2}]], {"\[FormalU]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, True, True]
+MetricTensor[{"OutgoingEddingtonFinkelstein", mass_}, coordinates_List] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*mass)/coordinates[[2]]), {1, 2} -> -1, {2, 1} -> -1, 
+       {3, 3} -> coordinates[[2]]^2, {4, 4} -> coordinates[[2]]^2*Sin[coordinates[[3]]]^2}]], coordinates, True, True] /; 
+   Length[coordinates] == 4
+MetricTensor[{"OutgoingEddingtonFinkelstein", mass_}, index1_, index2_] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*mass)/"\[FormalR]"), {1, 2} -> -1, {2, 1} -> -1, {3, 3} -> "\[FormalR]"^2, 
+       {4, 4} -> "\[FormalR]"^2*Sin["\[FormalTheta]"]^2}]], {"\[FormalU]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, index1, index2] /; 
+   BooleanQ[index1] && BooleanQ[index2]
+MetricTensor[{"OutgoingEddingtonFinkelstein", mass_}, coordinates_List, index1_, index2_] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*mass)/coordinates[[2]]), {1, 2} -> -1, {2, 1} -> -1, 
        {3, 3} -> coordinates[[2]]^2, {4, 4} -> coordinates[[2]]^2*Sin[coordinates[[3]]]^2}]], coordinates, index1, 
     index2] /; Length[coordinates] == 4 && BooleanQ[index1] && BooleanQ[index2]
 MetricTensor["Kerr"] := MetricTensor[
