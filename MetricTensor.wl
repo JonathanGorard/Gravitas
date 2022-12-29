@@ -2,7 +2,8 @@
 
 MetricTensor[] := {"Symmetric", "SymmetricField", "Asymmetric", "AsymmetricField", "Euclidean", "Minkowski", 
    "Schwarzschild", "IsotropicSchwarzschild", "EddingtonFinkelstein", "IngoingEddingtonFinkelstein", 
-   "OutgoingEddingtonFinkelstein", "Kerr", "ReissnerNordstrom", "KerrNewman", "Godel", "FLRW"}
+   "OutgoingEddingtonFinkelstein", "GullstrandPainleve", "IngoingGullstrandPainleve", "OutgoingGullstrandPainleve", 
+   "KruskalSzekeres", "Kerr", "ReissnerNordstrom", "KerrNewman", "Godel", "FLRW"}
 MetricTensor[dimensionCount_Integer] := 
   MetricTensor[Normal[SparseArray[(#1 -> Subscript["\[FormalG]", Sort[#1]] & ) /@ Tuples[Range[dimensionCount], 2]]], 
    (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[dimensionCount], True, True]
@@ -324,6 +325,158 @@ MetricTensor[{"OutgoingEddingtonFinkelstein", mass_}, coordinates_List, index1_,
   MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*mass)/coordinates[[2]]), {1, 2} -> -1, {2, 1} -> -1, 
        {3, 3} -> coordinates[[2]]^2, {4, 4} -> coordinates[[2]]^2*Sin[coordinates[[3]]]^2}]], coordinates, index1, 
     index2] /; Length[coordinates] == 4 && BooleanQ[index1] && BooleanQ[index2]
+MetricTensor["GullstrandPainleve"] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*"\[FormalCapitalM]")/"\[FormalR]"), {2, 2} -> 1, {1, 2} -> \[PlusMinus]Sqrt[(2*"\[FormalCapitalM]")/"\[FormalR]"], 
+      {2, 1} -> \[PlusMinus]Sqrt[(2*"\[FormalCapitalM]")/"\[FormalR]"], {3, 3} -> "\[FormalR]"^2, {4, 4} -> "\[FormalR]"^2*Sin["\[FormalTheta]"]^2}]], 
+   {"\[FormalCapitalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, True, True]
+MetricTensor["GullstrandPainleve", coordinates_List] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*"\[FormalCapitalM]")/coordinates[[2]]), {2, 2} -> 1, 
+       {1, 2} -> \[PlusMinus]Sqrt[(2*"\[FormalCapitalM]")/coordinates[[2]]], {2, 1} -> \[PlusMinus]Sqrt[(2*"\[FormalCapitalM]")/coordinates[[2]]], 
+       {3, 3} -> coordinates[[2]]^2, {4, 4} -> coordinates[[2]]^2*Sin[coordinates[[3]]]^2}]], coordinates, True, True] /; 
+   Length[coordinates] == 4
+MetricTensor["GullstrandPainleve", index1_, index2_] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*"\[FormalCapitalM]")/"\[FormalR]"), {2, 2} -> 1, {1, 2} -> \[PlusMinus]Sqrt[(2*"\[FormalCapitalM]")/"\[FormalR]"], 
+       {2, 1} -> \[PlusMinus]Sqrt[(2*"\[FormalCapitalM]")/"\[FormalR]"], {3, 3} -> "\[FormalR]"^2, {4, 4} -> "\[FormalR]"^2*Sin["\[FormalTheta]"]^2}]], 
+    {"\[FormalCapitalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, index1, index2] /; BooleanQ[index1] && BooleanQ[index2]
+MetricTensor["GullstrandPainleve", coordinates_List, index1_, index2_] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*"\[FormalCapitalM]")/coordinates[[2]]), {2, 2} -> 1, 
+       {1, 2} -> \[PlusMinus]Sqrt[(2*"\[FormalCapitalM]")/coordinates[[2]]], {2, 1} -> \[PlusMinus]Sqrt[(2*"\[FormalCapitalM]")/coordinates[[2]]], 
+       {3, 3} -> coordinates[[2]]^2, {4, 4} -> coordinates[[2]]^2*Sin[coordinates[[3]]]^2}]], coordinates, index1, 
+    index2] /; Length[coordinates] == 4 && BooleanQ[index1] && BooleanQ[index2]
+MetricTensor[{"GullstrandPainleve", mass_}] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*mass)/"\[FormalR]"), {2, 2} -> 1, {1, 2} -> \[PlusMinus]Sqrt[(2*mass)/"\[FormalR]"], 
+      {2, 1} -> \[PlusMinus]Sqrt[(2*mass)/"\[FormalR]"], {3, 3} -> "\[FormalR]"^2, {4, 4} -> "\[FormalR]"^2*Sin["\[FormalTheta]"]^2}]], 
+   {"\[FormalCapitalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, True, True]
+MetricTensor[{"GullstrandPainleve", mass_}, coordinates_List] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*mass)/coordinates[[2]]), {2, 2} -> 1, 
+       {1, 2} -> \[PlusMinus]Sqrt[(2*mass)/coordinates[[2]]], {2, 1} -> \[PlusMinus]Sqrt[(2*mass)/coordinates[[2]]], 
+       {3, 3} -> coordinates[[2]]^2, {4, 4} -> coordinates[[2]]^2*Sin[coordinates[[3]]]^2}]], coordinates, True, True] /; 
+   Length[coordinates] == 4
+MetricTensor[{"GullstrandPainleve", mass_}, index1_, index2_] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*mass)/"\[FormalR]"), {2, 2} -> 1, {1, 2} -> \[PlusMinus]Sqrt[(2*mass)/"\[FormalR]"], 
+       {2, 1} -> \[PlusMinus]Sqrt[(2*mass)/"\[FormalR]"], {3, 3} -> "\[FormalR]"^2, {4, 4} -> "\[FormalR]"^2*Sin["\[FormalTheta]"]^2}]], 
+    {"\[FormalCapitalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, index1, index2] /; BooleanQ[index1] && BooleanQ[index2]
+MetricTensor[{"GullstrandPainleve", mass_}, coordinates_List, index1_, index2_] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*mass)/coordinates[[2]]), {2, 2} -> 1, 
+       {1, 2} -> \[PlusMinus]Sqrt[(2*mass)/coordinates[[2]]], {2, 1} -> \[PlusMinus]Sqrt[(2*mass)/coordinates[[2]]], 
+       {3, 3} -> coordinates[[2]]^2, {4, 4} -> coordinates[[2]]^2*Sin[coordinates[[3]]]^2}]], coordinates, index1, 
+    index2] /; Length[coordinates] == 4 && BooleanQ[index1] && BooleanQ[index2]
+MetricTensor["IngoingGullstrandPainleve"] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*"\[FormalCapitalM]")/"\[FormalR]"), {2, 2} -> 1, {1, 2} -> Sqrt[(2*"\[FormalCapitalM]")/"\[FormalR]"], 
+      {2, 1} -> Sqrt[(2*"\[FormalCapitalM]")/"\[FormalR]"], {3, 3} -> "\[FormalR]"^2, {4, 4} -> "\[FormalR]"^2*Sin["\[FormalTheta]"]^2}]], 
+   {"\[FormalCapitalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, True, True]
+MetricTensor["IngoingGullstrandPainleve", coordinates_List] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*"\[FormalCapitalM]")/coordinates[[2]]), {2, 2} -> 1, 
+       {1, 2} -> Sqrt[(2*"\[FormalCapitalM]")/coordinates[[2]]], {2, 1} -> Sqrt[(2*"\[FormalCapitalM]")/coordinates[[2]]], 
+       {3, 3} -> coordinates[[2]]^2, {4, 4} -> coordinates[[2]]^2*Sin[coordinates[[3]]]^2}]], coordinates, True, True] /; 
+   Length[coordinates] == 4
+MetricTensor["IngoingGullstrandPainleve", index1_, index2_] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*"\[FormalCapitalM]")/"\[FormalR]"), {2, 2} -> 1, {1, 2} -> Sqrt[(2*"\[FormalCapitalM]")/"\[FormalR]"], 
+       {2, 1} -> Sqrt[(2*"\[FormalCapitalM]")/"\[FormalR]"], {3, 3} -> "\[FormalR]"^2, {4, 4} -> "\[FormalR]"^2*Sin["\[FormalTheta]"]^2}]], 
+    {"\[FormalCapitalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, index1, index2] /; BooleanQ[index1] && BooleanQ[index2]
+MetricTensor["IngoingGullstrandPainleve", coordinates_List, index1_, index2_] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*"\[FormalCapitalM]")/coordinates[[2]]), {2, 2} -> 1, 
+       {1, 2} -> Sqrt[(2*"\[FormalCapitalM]")/coordinates[[2]]], {2, 1} -> Sqrt[(2*"\[FormalCapitalM]")/coordinates[[2]]], 
+       {3, 3} -> coordinates[[2]]^2, {4, 4} -> coordinates[[2]]^2*Sin[coordinates[[3]]]^2}]], coordinates, index1, 
+    index2] /; Length[coordinates] == 4 && BooleanQ[index1] && BooleanQ[index2]
+MetricTensor[{"IngoingGullstrandPainleve", mass_}] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*mass)/"\[FormalR]"), {2, 2} -> 1, {1, 2} -> Sqrt[(2*mass)/"\[FormalR]"], 
+      {2, 1} -> Sqrt[(2*mass)/"\[FormalR]"], {3, 3} -> "\[FormalR]"^2, {4, 4} -> "\[FormalR]"^2*Sin["\[FormalTheta]"]^2}]], {"\[FormalCapitalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, 
+   True, True]
+MetricTensor[{"IngoingGullstrandPainleve", mass_}, coordinates_List] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*mass)/coordinates[[2]]), {2, 2} -> 1, 
+       {1, 2} -> Sqrt[(2*mass)/coordinates[[2]]], {2, 1} -> Sqrt[(2*mass)/coordinates[[2]]], 
+       {3, 3} -> coordinates[[2]]^2, {4, 4} -> coordinates[[2]]^2*Sin[coordinates[[3]]]^2}]], coordinates, True, True] /; 
+   Length[coordinates] == 4
+MetricTensor[{"IngoingGullstrandPainleve", mass_}, index1_, index2_] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*mass)/"\[FormalR]"), {2, 2} -> 1, {1, 2} -> Sqrt[(2*mass)/"\[FormalR]"], 
+       {2, 1} -> Sqrt[(2*mass)/"\[FormalR]"], {3, 3} -> "\[FormalR]"^2, {4, 4} -> "\[FormalR]"^2*Sin["\[FormalTheta]"]^2}]], 
+    {"\[FormalCapitalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, index1, index2] /; BooleanQ[index1] && BooleanQ[index2]
+MetricTensor[{"IngoingGullstrandPainleve", mass_}, coordinates_List, index1_, index2_] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*mass)/coordinates[[2]]), {2, 2} -> 1, 
+       {1, 2} -> Sqrt[(2*mass)/coordinates[[2]]], {2, 1} -> Sqrt[(2*mass)/coordinates[[2]]], 
+       {3, 3} -> coordinates[[2]]^2, {4, 4} -> coordinates[[2]]^2*Sin[coordinates[[3]]]^2}]], coordinates, index1, 
+    index2] /; Length[coordinates] == 4 && BooleanQ[index1] && BooleanQ[index2]
+MetricTensor["OutgoingGullstrandPainleve"] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*"\[FormalCapitalM]")/"\[FormalR]"), {2, 2} -> 1, {1, 2} -> -Sqrt[(2*"\[FormalCapitalM]")/"\[FormalR]"], 
+      {2, 1} -> -Sqrt[(2*"\[FormalCapitalM]")/"\[FormalR]"], {3, 3} -> "\[FormalR]"^2, {4, 4} -> "\[FormalR]"^2*Sin["\[FormalTheta]"]^2}]], 
+   {"\[FormalCapitalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, True, True]
+MetricTensor["OutgoingGullstrandPainleve", coordinates_List] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*"\[FormalCapitalM]")/coordinates[[2]]), {2, 2} -> 1, 
+       {1, 2} -> -Sqrt[(2*"\[FormalCapitalM]")/coordinates[[2]]], {2, 1} -> -Sqrt[(2*"\[FormalCapitalM]")/coordinates[[2]]], 
+       {3, 3} -> coordinates[[2]]^2, {4, 4} -> coordinates[[2]]^2*Sin[coordinates[[3]]]^2}]], coordinates, True, True] /; 
+   Length[coordinates] == 4
+MetricTensor["OutgoingGullstrandPainleve", index1_, index2_] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*"\[FormalCapitalM]")/"\[FormalR]"), {2, 2} -> 1, {1, 2} -> -Sqrt[(2*"\[FormalCapitalM]")/"\[FormalR]"], 
+       {2, 1} -> -Sqrt[(2*"\[FormalCapitalM]")/"\[FormalR]"], {3, 3} -> "\[FormalR]"^2, {4, 4} -> "\[FormalR]"^2*Sin["\[FormalTheta]"]^2}]], 
+    {"\[FormalCapitalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, index1, index2] /; BooleanQ[index1] && BooleanQ[index2]
+MetricTensor["OutgoingGullstrandPainleve", coordinates_List, index1_, index2_] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*"\[FormalCapitalM]")/coordinates[[2]]), {2, 2} -> 1, 
+       {1, 2} -> -Sqrt[(2*"\[FormalCapitalM]")/coordinates[[2]]], {2, 1} -> -Sqrt[(2*"\[FormalCapitalM]")/coordinates[[2]]], 
+       {3, 3} -> coordinates[[2]]^2, {4, 4} -> coordinates[[2]]^2*Sin[coordinates[[3]]]^2}]], coordinates, index1, 
+    index2] /; Length[coordinates] == 4 && BooleanQ[index1] && BooleanQ[index2]
+MetricTensor[{"OutgoingGullstrandPainleve", mass_}] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*mass)/"\[FormalR]"), {2, 2} -> 1, {1, 2} -> -Sqrt[(2*mass)/"\[FormalR]"], 
+      {2, 1} -> -Sqrt[(2*mass)/"\[FormalR]"], {3, 3} -> "\[FormalR]"^2, {4, 4} -> "\[FormalR]"^2*Sin["\[FormalTheta]"]^2}]], 
+   {"\[FormalCapitalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, True, True]
+MetricTensor[{"OutgoingGullstrandPainleve", mass_}, coordinates_List] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*mass)/coordinates[[2]]), {2, 2} -> 1, 
+       {1, 2} -> -Sqrt[(2*mass)/coordinates[[2]]], {2, 1} -> -Sqrt[(2*mass)/coordinates[[2]]], 
+       {3, 3} -> coordinates[[2]]^2, {4, 4} -> coordinates[[2]]^2*Sin[coordinates[[3]]]^2}]], coordinates, True, True] /; 
+   Length[coordinates] == 4
+MetricTensor[{"OutgoingGullstrandPainleve", mass_}, index1_, index2_] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*mass)/"\[FormalR]"), {2, 2} -> 1, {1, 2} -> -Sqrt[(2*mass)/"\[FormalR]"], 
+       {2, 1} -> -Sqrt[(2*mass)/"\[FormalR]"], {3, 3} -> "\[FormalR]"^2, {4, 4} -> "\[FormalR]"^2*Sin["\[FormalTheta]"]^2}]], 
+    {"\[FormalCapitalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, index1, index2] /; BooleanQ[index1] && BooleanQ[index2]
+MetricTensor[{"OutgoingGullstrandPainleve", mass_}, coordinates_List, index1_, index2_] := 
+  MetricTensor[Normal[SparseArray[{{1, 1} -> -(1 - (2*mass)/coordinates[[2]]), {2, 2} -> 1, 
+       {1, 2} -> -Sqrt[(2*mass)/coordinates[[2]]], {2, 1} -> -Sqrt[(2*mass)/coordinates[[2]]], 
+       {3, 3} -> coordinates[[2]]^2, {4, 4} -> coordinates[[2]]^2*Sin[coordinates[[3]]]^2}]], coordinates, index1, 
+    index2] /; Length[coordinates] == 4 && BooleanQ[index1] && BooleanQ[index2]
+MetricTensor["KruskalSzekeres"] := Module[{radialCoordinate}, 
+   radialCoordinate = (2*"\[FormalCapitalM]")*(1 + ProductLog[("\[FormalCapitalX]"^2 - "\[FormalCapitalT]"^2)/E]); 
+    MetricTensor[DiagonalMatrix[{(-((32*"\[FormalCapitalM]"^3)/radialCoordinate))*Exp[-(radialCoordinate/(2*"\[FormalCapitalM]"))], 
+       ((32*"\[FormalCapitalM]"^3)/radialCoordinate)*Exp[-(radialCoordinate/(2*"\[FormalCapitalM]"))], radialCoordinate^2, 
+       radialCoordinate^2*Sin["\[FormalTheta]"]^2}], {"\[FormalCapitalT]", "\[FormalCapitalX]", "\[FormalTheta]", "\[FormalPhi]"}, True, True]]
+MetricTensor["KruskalSzekeres", coordinates_List] := 
+  Module[{radialCoordinate}, radialCoordinate = (2*"\[FormalCapitalM]")*(1 + ProductLog[(coordinates[[2]]^2 - coordinates[[1]]^2)/E]); 
+     MetricTensor[DiagonalMatrix[{(-((32*"\[FormalCapitalM]"^3)/radialCoordinate))*Exp[-(radialCoordinate/(2*"\[FormalCapitalM]"))], 
+        ((32*"\[FormalCapitalM]"^3)/radialCoordinate)*Exp[-(radialCoordinate/(2*"\[FormalCapitalM]"))], radialCoordinate^2, 
+        radialCoordinate^2*Sin[coordinates[[3]]]^2}], coordinates, True, True]] /; Length[coordinates] == 4
+MetricTensor["KruskalSzekeres", index1_, index2_] := 
+  Module[{radialCoordinate}, radialCoordinate = (2*"\[FormalCapitalM]")*(1 + ProductLog[("\[FormalCapitalX]"^2 - "\[FormalCapitalT]"^2)/E]); 
+     MetricTensor[DiagonalMatrix[{(-((32*"\[FormalCapitalM]"^3)/radialCoordinate))*Exp[-(radialCoordinate/(2*"\[FormalCapitalM]"))], 
+        ((32*"\[FormalCapitalM]"^3)/radialCoordinate)*Exp[-(radialCoordinate/(2*"\[FormalCapitalM]"))], radialCoordinate^2, 
+        radialCoordinate^2*Sin["\[FormalTheta]"]^2}], {"\[FormalCapitalT]", "\[FormalCapitalX]", "\[FormalTheta]", "\[FormalPhi]"}, index1, index2]] /; 
+   BooleanQ[index1] && BooleanQ[index2]
+MetricTensor["KruskalSzekeres", coordinates_List, index1_, index2_] := 
+  Module[{radialCoordinate}, radialCoordinate = (2*"\[FormalCapitalM]")*(1 + ProductLog[(coordinates[[2]]^2 - coordinates[[1]]^2)/E]); 
+     MetricTensor[DiagonalMatrix[{(-((32*"\[FormalCapitalM]"^3)/radialCoordinate))*Exp[-(radialCoordinate/(2*"\[FormalCapitalM]"))], 
+        ((32*"\[FormalCapitalM]"^3)/radialCoordinate)*Exp[-(radialCoordinate/(2*"\[FormalCapitalM]"))], radialCoordinate^2, 
+        radialCoordinate^2*Sin[coordinates[[3]]]^2}], coordinates, index1, index2]] /; 
+   Length[coordinates] == 4 && BooleanQ[index1] && BooleanQ[index2]
+MetricTensor[{"KruskalSzekeres", mass_}] := Module[{radialCoordinate}, 
+   radialCoordinate = (2*mass)*(1 + ProductLog[("\[FormalCapitalX]"^2 - "\[FormalCapitalT]"^2)/E]); 
+    MetricTensor[DiagonalMatrix[{(-((32*mass^3)/radialCoordinate))*Exp[-(radialCoordinate/(2*mass))], 
+       ((32*mass^3)/radialCoordinate)*Exp[-(radialCoordinate/(2*mass))], radialCoordinate^2, 
+       radialCoordinate^2*Sin["\[FormalTheta]"]^2}], {"\[FormalCapitalT]", "\[FormalCapitalX]", "\[FormalTheta]", "\[FormalPhi]"}, True, True]]
+MetricTensor[{"KruskalSzekeres", mass_}, coordinates_List] := 
+  Module[{radialCoordinate}, radialCoordinate = (2*mass)*(1 + ProductLog[(coordinates[[2]]^2 - coordinates[[1]]^2)/E]); 
+     MetricTensor[DiagonalMatrix[{(-((32*mass^3)/radialCoordinate))*Exp[-(radialCoordinate/(2*mass))], 
+        ((32*mass^3)/radialCoordinate)*Exp[-(radialCoordinate/(2*mass))], radialCoordinate^2, 
+        radialCoordinate^2*Sin[coordinates[[3]]]^2}], coordinates, True, True]] /; Length[coordinates] == 4
+MetricTensor[{"KruskalSzekeres", mass_}, index1_, index2_] := 
+  Module[{radialCoordinate}, radialCoordinate = (2*mass)*(1 + ProductLog[("\[FormalCapitalX]"^2 - "\[FormalCapitalT]"^2)/E]); 
+     MetricTensor[DiagonalMatrix[{(-((32*mass^3)/radialCoordinate))*Exp[-(radialCoordinate/(2*mass))], 
+        ((32*mass^3)/radialCoordinate)*Exp[-(radialCoordinate/(2*mass))], radialCoordinate^2, 
+        radialCoordinate^2*Sin["\[FormalTheta]"]^2}], {"\[FormalCapitalT]", "\[FormalCapitalX]", "\[FormalTheta]", "\[FormalPhi]"}, index1, index2]] /; 
+   BooleanQ[index1] && BooleanQ[index2]
+MetricTensor[{"KruskalSzekeres", mass_}, coordinates_List, index1_, index2_] := 
+  Module[{radialCoordinate}, radialCoordinate = (2*mass)*(1 + ProductLog[(coordinates[[2]]^2 - coordinates[[1]]^2)/E]); 
+     MetricTensor[DiagonalMatrix[{(-((32*mass^3)/radialCoordinate))*Exp[-(radialCoordinate/(2*mass))], 
+        ((32*mass^3)/radialCoordinate)*Exp[-(radialCoordinate/(2*mass))], radialCoordinate^2, 
+        radialCoordinate^2*Sin[coordinates[[3]]]^2}], coordinates, index1, index2]] /; 
+   Length[coordinates] == 4 && BooleanQ[index1] && BooleanQ[index2]
 MetricTensor["Kerr"] := MetricTensor[
    Normal[SparseArray[{{1, 1} -> -(1 - (2*"\[FormalCapitalM]"*"\[FormalR]")/("\[FormalR]"^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos["\[FormalTheta]"]^2)), 
       {2, 2} -> ("\[FormalR]"^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos["\[FormalTheta]"]^2)/("\[FormalR]"^2 - 2*"\[FormalCapitalM]"*"\[FormalR]" + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2), 
