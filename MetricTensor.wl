@@ -113,7 +113,7 @@ MetricTensor["AsymmetricField", coordinates_List, index1_, index2_] :=
   MetricTensor[Normal[SparseArray[(Module[{index = #1}, index -> Subscript["\[FormalG]", index] @@ coordinates] & ) /@ 
        Tuples[Range[4], 2]]], coordinates, index1, index2] /; Length[coordinates] == 4 && BooleanQ[index1] && 
     BooleanQ[index2]
-MetricTensor[{"AymmetricField", dimensionCount_Integer}] := 
+MetricTensor[{"AsymmetricField", dimensionCount_Integer}] := 
   MetricTensor[
    Normal[SparseArray[(Module[{index = #1}, index -> Subscript["\[FormalG]", index] @@ (Superscript["\[FormalX]", ToString[#1]] & ) /@ 
            Range[dimensionCount]] & ) /@ Tuples[Range[dimensionCount], 2]]], 
@@ -1086,9 +1086,9 @@ MetricTensor[matrixRepresentation_List, coordinates_List, index1_, index2_]["Pse
 MetricTensor[matrixRepresentation_List, coordinates_List, index1_, index2_]["LorentzianConditions"] := 
   Module[{eigensystem, eigenvalues, eigenvectors, timeCoordinate, lorentzianConditions}, 
     eigensystem = Eigensystem[matrixRepresentation]; eigenvalues = First[eigensystem]; eigenvectors = Last[eigensystem]; 
-     If[Length[Position[eigenvectors, {1, 0, 0, 0}]] > 0, 
-      timeCoordinate = First[First[Position[eigenvectors, {1, 0, 0, 0}]]]; lorentzianConditions = 
-        FullSimplify[(If[#1 == timeCoordinate, eigenvalues[[#1]] < 0, eigenvalues[[#1]] > 0] & ) /@ 
+     If[Length[Position[eigenvectors, Join[{1}, ConstantArray[0, Length[coordinates] - 1]]]] > 0, 
+      timeCoordinate = First[First[Position[eigenvectors, Join[{1}, ConstantArray[0, Length[coordinates] - 1]]]]]; 
+       lorentzianConditions = FullSimplify[(If[#1 == timeCoordinate, eigenvalues[[#1]] < 0, eigenvalues[[#1]] > 0] & ) /@ 
           Range[Length[eigenvalues]]]; If[lorentzianConditions === True, {}, If[lorentzianConditions === False, 
          Indeterminate, If[Length[Select[lorentzianConditions, #1 === False & ]] > 0, Indeterminate, 
           DeleteDuplicates[Select[lorentzianConditions, #1 =!= True & ]]]]], Indeterminate]] /; 
