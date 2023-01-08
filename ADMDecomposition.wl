@@ -4,8 +4,26 @@ ADMDecomposition["Schwarzschild"] := ADMDecomposition[
    MetricTensor[DiagonalMatrix[{1/(1 - (2*"\[FormalCapitalM]")/"\[FormalR]"), "\[FormalR]"^2, "\[FormalR]"^2*Sin["\[FormalTheta]"]^2}], {"\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, True, 
     True], "\[FormalT]", "\[FormalAlpha]" @@ {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, (Superscript["\[FormalBeta]", #1] @@ {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"} & ) /@ 
     Range[3]]
+ADMDecomposition["Schwarzschild", timeCoordinate_, coordinates_List] := 
+  ADMDecomposition[MetricTensor[DiagonalMatrix[{1/(1 - (2*"\[FormalCapitalM]")/coordinates[[1]]), coordinates[[1]]^2, 
+       coordinates[[1]]^2*Sin[coordinates[[2]]]^2}], coordinates, True, True], timeCoordinate, 
+    "\[FormalAlpha]" @@ Join[{timeCoordinate}, coordinates], (Superscript["\[FormalBeta]", #1] @@ Join[{timeCoordinate}, coordinates] & ) /@ 
+     Range[3]] /; Length[coordinates] == 3
 ADMDecomposition["Schwarzschild", timeCoordinate_, coordinates_List, lapseFunction_, shiftVector_List] := 
   ADMDecomposition[MetricTensor[DiagonalMatrix[{1/(1 - (2*"\[FormalCapitalM]")/coordinates[[1]]), coordinates[[1]]^2, 
+       coordinates[[1]]^2*Sin[coordinates[[2]]]^2}], coordinates, True, True], timeCoordinate, lapseFunction, 
+    shiftVector] /; Length[coordinates] == 3 && Length[shiftVector] == 3
+ADMDecomposition[{"Schwarzschild", mass_}] := ADMDecomposition[
+   MetricTensor[DiagonalMatrix[{1/(1 - (2*mass)/"\[FormalR]"), "\[FormalR]"^2, "\[FormalR]"^2*Sin["\[FormalTheta]"]^2}], {"\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, True, 
+    True], "\[FormalT]", "\[FormalAlpha]" @@ {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, (Superscript["\[FormalBeta]", #1] @@ {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"} & ) /@ 
+    Range[3]]
+ADMDecomposition[{"Schwarzschild", mass_}, timeCoordinate_, coordinates_List] := 
+  ADMDecomposition[MetricTensor[DiagonalMatrix[{1/(1 - (2*mass)/coordinates[[1]]), coordinates[[1]]^2, 
+       coordinates[[1]]^2*Sin[coordinates[[2]]]^2}], coordinates, True, True], timeCoordinate, 
+    "\[FormalAlpha]" @@ Join[{timeCoordinate}, coordinates], (Superscript["\[FormalBeta]", #1] @@ Join[{timeCoordinate}, coordinates] & ) /@ 
+     Range[3]] /; Length[coordinates] == 3
+ADMDecomposition[{"Schwarzschild", mass_}, timeCoordinate_, coordinates_List, lapseFunction_, shiftVector_List] := 
+  ADMDecomposition[MetricTensor[DiagonalMatrix[{1/(1 - (2*mass)/coordinates[[1]]), coordinates[[1]]^2, 
        coordinates[[1]]^2*Sin[coordinates[[2]]]^2}], coordinates, True, True], timeCoordinate, lapseFunction, 
     shiftVector] /; Length[coordinates] == 3 && Length[shiftVector] == 3
 ADMDecomposition["Kerr"] := ADMDecomposition[
@@ -13,24 +31,270 @@ ADMDecomposition["Kerr"] := ADMDecomposition[
       "\[FormalR]"^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos["\[FormalTheta]"]^2, ("\[FormalR]"^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2 + (2*"\[FormalR]"*("\[FormalCapitalJ]"^2/"\[FormalCapitalM]")*Sin["\[FormalTheta]"]^2)/
          ("\[FormalR]"^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos["\[FormalTheta]"]^2))*Sin["\[FormalTheta]"]^2}], {"\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, True, True], "\[FormalT]", 
    "\[FormalAlpha]" @@ {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, (Superscript["\[FormalBeta]", #1] @@ {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"} & ) /@ Range[3]]
+ADMDecomposition["Kerr", timeCoordinate_, coordinates_List] := 
+  ADMDecomposition[MetricTensor[DiagonalMatrix[{(coordinates[[1]]^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos[coordinates[[2]]]^2)/
+        (coordinates[[1]]^2 - 2*"\[FormalCapitalM]"*coordinates[[1]] + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2), coordinates[[1]]^2 + 
+        ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos[coordinates[[2]]]^2, (coordinates[[1]]^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2 + 
+         (2*coordinates[[1]]*("\[FormalCapitalJ]"^2/"\[FormalCapitalM]")*Sin[coordinates[[2]]]^2)/(coordinates[[1]]^2 + 
+           ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos[coordinates[[2]]]^2))*Sin[coordinates[[2]]]^2}], coordinates, True, True], timeCoordinate, 
+    "\[FormalAlpha]" @@ Join[{timeCoordinate}, coordinates], (Superscript["\[FormalBeta]", #1] @@ Join[{timeCoordinate}, coordinates] & ) /@ 
+     Range[3]] /; Length[coordinates] == 3
 ADMDecomposition["Kerr", timeCoordinate_, coordinates_List, lapseFunction_, shiftVector_List] := 
   ADMDecomposition[MetricTensor[DiagonalMatrix[{(coordinates[[1]]^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos[coordinates[[2]]]^2)/
         (coordinates[[1]]^2 - 2*"\[FormalCapitalM]"*coordinates[[1]] + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2), coordinates[[1]]^2 + 
         ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos[coordinates[[2]]]^2, (coordinates[[1]]^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2 + 
          (2*coordinates[[1]]*("\[FormalCapitalJ]"^2/"\[FormalCapitalM]")*Sin[coordinates[[2]]]^2)/(coordinates[[1]]^2 + 
-           ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos[coordinates[[2]]]^2))*Sin[coordinates[[1]]]^2}], coordinates, True, True], timeCoordinate, 
+           ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos[coordinates[[2]]]^2))*Sin[coordinates[[2]]]^2}], coordinates, True, True], timeCoordinate, 
     lapseFunction, shiftVector] /; Length[coordinates] == 3 && Length[shiftVector] == 3
+ADMDecomposition[{"Kerr", mass_}] := ADMDecomposition[
+   MetricTensor[DiagonalMatrix[{("\[FormalR]"^2 + ("\[FormalCapitalJ]"/mass)^2*Cos["\[FormalTheta]"]^2)/("\[FormalR]"^2 - 2*mass*"\[FormalR]" + ("\[FormalCapitalJ]"/mass)^2), 
+      "\[FormalR]"^2 + ("\[FormalCapitalJ]"/mass)^2*Cos["\[FormalTheta]"]^2, ("\[FormalR]"^2 + ("\[FormalCapitalJ]"/mass)^2 + (2*"\[FormalR]"*("\[FormalCapitalJ]"^2/mass)*Sin["\[FormalTheta]"]^2)/
+         ("\[FormalR]"^2 + ("\[FormalCapitalJ]"/mass)^2*Cos["\[FormalTheta]"]^2))*Sin["\[FormalTheta]"]^2}], {"\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, True, True], "\[FormalT]", 
+   "\[FormalAlpha]" @@ {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, (Superscript["\[FormalBeta]", #1] @@ {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"} & ) /@ Range[3]]
+ADMDecomposition[{"Kerr", mass_}, timeCoordinate_, coordinates_List] := 
+  ADMDecomposition[MetricTensor[DiagonalMatrix[{(coordinates[[1]]^2 + ("\[FormalCapitalJ]"/mass)^2*Cos[coordinates[[2]]]^2)/
+        (coordinates[[1]]^2 - 2*mass*coordinates[[1]] + ("\[FormalCapitalJ]"/mass)^2), coordinates[[1]]^2 + 
+        ("\[FormalCapitalJ]"/mass)^2*Cos[coordinates[[2]]]^2, (coordinates[[1]]^2 + ("\[FormalCapitalJ]"/mass)^2 + 
+         (2*coordinates[[1]]*("\[FormalCapitalJ]"^2/mass)*Sin[coordinates[[2]]]^2)/(coordinates[[1]]^2 + 
+           ("\[FormalCapitalJ]"/mass)^2*Cos[coordinates[[2]]]^2))*Sin[coordinates[[2]]]^2}], coordinates, True, True], timeCoordinate, 
+    "\[FormalAlpha]" @@ Join[{timeCoordinate}, coordinates], (Superscript["\[FormalBeta]", #1] @@ Join[{timeCoordinate}, coordinates] & ) /@ 
+     Range[3]] /; Length[coordinates] == 3
+ADMDecomposition[{"Kerr", mass_}, timeCoordinate_, coordinates_List, lapseFunction_, shiftVector_List] := 
+  ADMDecomposition[MetricTensor[DiagonalMatrix[{(coordinates[[1]]^2 + ("\[FormalCapitalJ]"/mass)^2*Cos[coordinates[[2]]]^2)/
+        (coordinates[[1]]^2 - 2*mass*coordinates[[1]] + ("\[FormalCapitalJ]"/mass)^2), coordinates[[1]]^2 + 
+        ("\[FormalCapitalJ]"/mass)^2*Cos[coordinates[[2]]]^2, (coordinates[[1]]^2 + ("\[FormalCapitalJ]"/mass)^2 + 
+         (2*coordinates[[1]]*("\[FormalCapitalJ]"^2/mass)*Sin[coordinates[[2]]]^2)/(coordinates[[1]]^2 + 
+           ("\[FormalCapitalJ]"/mass)^2*Cos[coordinates[[2]]]^2))*Sin[coordinates[[2]]]^2}], coordinates, True, True], timeCoordinate, 
+    lapseFunction, shiftVector] /; Length[coordinates] == 3 && Length[shiftVector] == 3
+ADMDecomposition[{"Kerr", mass_, angularMomentum_}] := 
+  ADMDecomposition[MetricTensor[DiagonalMatrix[{("\[FormalR]"^2 + (angularMomentum/mass)^2*Cos["\[FormalTheta]"]^2)/
+       ("\[FormalR]"^2 - 2*mass*"\[FormalR]" + (angularMomentum/mass)^2), "\[FormalR]"^2 + (angularMomentum/mass)^2*Cos["\[FormalTheta]"]^2, 
+      ("\[FormalR]"^2 + (angularMomentum/mass)^2 + (2*"\[FormalR]"*(angularMomentum^2/mass)*Sin["\[FormalTheta]"]^2)/
+         ("\[FormalR]"^2 + (angularMomentum/mass)^2*Cos["\[FormalTheta]"]^2))*Sin["\[FormalTheta]"]^2}], {"\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, True, True], "\[FormalT]", 
+   "\[FormalAlpha]" @@ {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, (Superscript["\[FormalBeta]", #1] @@ {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"} & ) /@ Range[3]]
+ADMDecomposition[{"Kerr", mass_, angularMomentum_}, timeCoordinate_, coordinates_List] := 
+  ADMDecomposition[MetricTensor[DiagonalMatrix[{(coordinates[[1]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[2]]]^2)/
+        (coordinates[[1]]^2 - 2*mass*coordinates[[1]] + (angularMomentum/mass)^2), 
+       coordinates[[1]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[2]]]^2, 
+       (coordinates[[1]]^2 + (angularMomentum/mass)^2 + (2*coordinates[[1]]*(angularMomentum^2/mass)*
+           Sin[coordinates[[2]]]^2)/(coordinates[[1]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[2]]]^2))*
+        Sin[coordinates[[2]]]^2}], coordinates, True, True], timeCoordinate, "\[FormalAlpha]" @@ Join[{timeCoordinate}, coordinates], 
+    (Superscript["\[FormalBeta]", #1] @@ Join[{timeCoordinate}, coordinates] & ) /@ Range[3]] /; Length[coordinates] == 3
+ADMDecomposition[{"Kerr", mass_, angularMomentum_}, timeCoordinate_, coordinates_List, lapseFunction_, 
+   shiftVector_List] := 
+  ADMDecomposition[MetricTensor[DiagonalMatrix[{(coordinates[[1]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[2]]]^2)/
+        (coordinates[[1]]^2 - 2*mass*coordinates[[1]] + (angularMomentum/mass)^2), 
+       coordinates[[1]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[2]]]^2, 
+       (coordinates[[1]]^2 + (angularMomentum/mass)^2 + (2*coordinates[[1]]*(angularMomentum^2/mass)*
+           Sin[coordinates[[2]]]^2)/(coordinates[[1]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[2]]]^2))*
+        Sin[coordinates[[2]]]^2}], coordinates, True, True], timeCoordinate, lapseFunction, shiftVector] /; 
+   Length[coordinates] == 3 && Length[shiftVector] == 3
+ADMDecomposition["ReissnerNordstrom"] := ADMDecomposition[
+   MetricTensor[DiagonalMatrix[{1/(1 - (2*"\[FormalCapitalM]")/"\[FormalR]" + "\[FormalCapitalQ]"^2/(4*Pi*"\[FormalR]"^2)), "\[FormalR]"^2, "\[FormalR]"^2*Sin["\[FormalTheta]"]^2}], 
+    {"\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, True, True], "\[FormalT]", "\[FormalAlpha]" @@ {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, 
+   (Superscript["\[FormalBeta]", #1] @@ {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"} & ) /@ Range[3]]
+ADMDecomposition["ReissnerNordstrom", timeCoordinate_, coordinates_List] := 
+  ADMDecomposition[MetricTensor[DiagonalMatrix[{1/(1 - (2*"\[FormalCapitalM]")/coordinates[[1]] + "\[FormalCapitalQ]"^2/(4*Pi*coordinates[[1]]^2)), 
+       coordinates[[1]]^2, coordinates[[1]]^2*Sin[coordinates[[2]]]^2}], coordinates, True, True], timeCoordinate, 
+    "\[FormalAlpha]" @@ Join[{timeCoordinate}, coordinates], (Superscript["\[FormalBeta]", #1] @@ Join[{timeCoordinate}, coordinates] & ) /@ 
+     Range[3]] /; Length[coordinates] == 3
+ADMDecomposition["ReissnerNordstrom", timeCoordinate_, coordinates_List, lapseFunction_, shiftVector_List] := 
+  ADMDecomposition[MetricTensor[DiagonalMatrix[{1/(1 - (2*"\[FormalCapitalM]")/coordinates[[1]] + "\[FormalCapitalQ]"^2/(4*Pi*coordinates[[1]]^2)), 
+       coordinates[[1]]^2, coordinates[[1]]^2*Sin[coordinates[[2]]]^2}], coordinates, True, True], timeCoordinate, 
+    lapseFunction, shiftVector] /; Length[coordinates] == 3 && Length[shiftVector] == 3
+ADMDecomposition[{"ReissnerNordstrom", mass_}] := 
+  ADMDecomposition[MetricTensor[DiagonalMatrix[{1/(1 - (2*mass)/"\[FormalR]" + "\[FormalCapitalQ]"^2/(4*Pi*"\[FormalR]"^2)), "\[FormalR]"^2, 
+      "\[FormalR]"^2*Sin["\[FormalTheta]"]^2}], {"\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, True, True], "\[FormalT]", "\[FormalAlpha]" @@ {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, 
+   (Superscript["\[FormalBeta]", #1] @@ {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"} & ) /@ Range[3]]
+ADMDecomposition[{"ReissnerNordstrom", mass_}, timeCoordinate_, coordinates_List] := 
+  ADMDecomposition[MetricTensor[DiagonalMatrix[{1/(1 - (2*mass)/coordinates[[1]] + "\[FormalCapitalQ]"^2/(4*Pi*coordinates[[1]]^2)), 
+       coordinates[[1]]^2, coordinates[[1]]^2*Sin[coordinates[[2]]]^2}], coordinates, True, True], timeCoordinate, 
+    "\[FormalAlpha]" @@ Join[{timeCoordinate}, coordinates], (Superscript["\[FormalBeta]", #1] @@ Join[{timeCoordinate}, coordinates] & ) /@ 
+     Range[3]] /; Length[coordinates] == 3
+ADMDecomposition[{"ReissnerNordstrom", mass_}, timeCoordinate_, coordinates_List, lapseFunction_, shiftVector_List] := 
+  ADMDecomposition[MetricTensor[DiagonalMatrix[{1/(1 - (2*mass)/coordinates[[1]] + "\[FormalCapitalQ]"^2/(4*Pi*coordinates[[1]]^2)), 
+       coordinates[[1]]^2, coordinates[[1]]^2*Sin[coordinates[[2]]]^2}], coordinates, True, True], timeCoordinate, 
+    lapseFunction, shiftVector] /; Length[coordinates] == 3 && Length[shiftVector] == 3
+ADMDecomposition[{"ReissnerNordstrom", mass_, charge_}] := 
+  ADMDecomposition[MetricTensor[DiagonalMatrix[{1/(1 - (2*mass)/"\[FormalR]" + charge^2/(4*Pi*"\[FormalR]"^2)), "\[FormalR]"^2, 
+      "\[FormalR]"^2*Sin["\[FormalTheta]"]^2}], {"\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, True, True], "\[FormalT]", "\[FormalAlpha]" @@ {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, 
+   (Superscript["\[FormalBeta]", #1] @@ {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"} & ) /@ Range[3]]
+ADMDecomposition[{"ReissnerNordstrom", mass_, charge_}, timeCoordinate_, coordinates_List] := 
+  ADMDecomposition[MetricTensor[DiagonalMatrix[{1/(1 - (2*mass)/coordinates[[1]] + charge^2/(4*Pi*coordinates[[1]]^2)), 
+       coordinates[[1]]^2, coordinates[[1]]^2*Sin[coordinates[[2]]]^2}], coordinates, True, True], timeCoordinate, 
+    "\[FormalAlpha]" @@ Join[{timeCoordinate}, coordinates], (Superscript["\[FormalBeta]", #1] @@ Join[{timeCoordinate}, coordinates] & ) /@ 
+     Range[3]] /; Length[coordinates] == 3
+ADMDecomposition[{"ReissnerNordstrom", mass_, charge_}, timeCoordinate_, coordinates_List, lapseFunction_, 
+   shiftVector_List] := 
+  ADMDecomposition[MetricTensor[DiagonalMatrix[{1/(1 - (2*mass)/coordinates[[1]] + charge^2/(4*Pi*coordinates[[1]]^2)), 
+       coordinates[[1]]^2, coordinates[[1]]^2*Sin[coordinates[[2]]]^2}], coordinates, True, True], timeCoordinate, 
+    lapseFunction, shiftVector] /; Length[coordinates] == 3 && Length[shiftVector] == 3
+ADMDecomposition["KerrNewman"] := ADMDecomposition[
+   MetricTensor[DiagonalMatrix[{("\[FormalR]"^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos["\[FormalTheta]"]^2)/("\[FormalR]"^2 - 2*"\[FormalCapitalM]"*"\[FormalR]" + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2 + 
+        "\[FormalCapitalQ]"^2/(4*Pi)), "\[FormalR]"^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos["\[FormalTheta]"]^2, 
+      ((("\[FormalR]"^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2)^2 - ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*("\[FormalR]"^2 - 2*"\[FormalCapitalM]"*"\[FormalR]" + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2 + "\[FormalCapitalQ]"^2/(4*Pi))*
+          Sin["\[FormalTheta]"]^2)/("\[FormalR]"^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos["\[FormalTheta]"]^2))*Sin["\[FormalTheta]"]^2}], {"\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, True, True], 
+   "\[FormalT]", "\[FormalAlpha]" @@ {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, (Superscript["\[FormalBeta]", #1] @@ {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"} & ) /@ Range[3]]
+ADMDecomposition["KerrNewman", timeCoordinate_, coordinates_List] := 
+  ADMDecomposition[MetricTensor[DiagonalMatrix[{(coordinates[[1]]^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos[coordinates[[2]]]^2)/
+        (coordinates[[1]]^2 - 2*"\[FormalCapitalM]"*coordinates[[1]] + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2 + "\[FormalCapitalQ]"^2/(4*Pi)), 
+       coordinates[[1]]^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos[coordinates[[2]]]^2, 
+       (((coordinates[[1]]^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2)^2 - ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*(coordinates[[1]]^2 - 2*"\[FormalCapitalM]"*coordinates[[1]] + 
+            ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2 + "\[FormalCapitalQ]"^2/(4*Pi))*Sin[coordinates[[2]]]^2)/(coordinates[[1]]^2 + 
+          ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos[coordinates[[2]]]^2))*Sin[coordinates[[2]]]^2}], coordinates, True, True], timeCoordinate, 
+    "\[FormalAlpha]" @@ Join[{timeCoordinate}, coordinates], (Superscript["\[FormalBeta]", #1] @@ Join[{timeCoordinate}, coordinates] & ) /@ 
+     Range[3]] /; Length[coordinates] == 3
+ADMDecomposition["KerrNewman", timeCoordinate_, coordinates_List, lapseFunction_, shiftVector_List] := 
+  ADMDecomposition[MetricTensor[DiagonalMatrix[{(coordinates[[1]]^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos[coordinates[[2]]]^2)/
+        (coordinates[[1]]^2 - 2*"\[FormalCapitalM]"*coordinates[[1]] + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2 + "\[FormalCapitalQ]"^2/(4*Pi)), 
+       coordinates[[1]]^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos[coordinates[[2]]]^2, 
+       (((coordinates[[1]]^2 + ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2)^2 - ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*(coordinates[[1]]^2 - 2*"\[FormalCapitalM]"*coordinates[[1]] + 
+            ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2 + "\[FormalCapitalQ]"^2/(4*Pi))*Sin[coordinates[[2]]]^2)/(coordinates[[1]]^2 + 
+          ("\[FormalCapitalJ]"/"\[FormalCapitalM]")^2*Cos[coordinates[[2]]]^2))*Sin[coordinates[[2]]]^2}], coordinates, True, True], timeCoordinate, 
+    lapseFunction, shiftVector] /; Length[coordinates] == 3 && Length[shiftVector] == 3
+ADMDecomposition[{"KerrNewman", mass_}] := ADMDecomposition[
+   MetricTensor[DiagonalMatrix[{("\[FormalR]"^2 + ("\[FormalCapitalJ]"/mass)^2*Cos["\[FormalTheta]"]^2)/("\[FormalR]"^2 - 2*mass*"\[FormalR]" + ("\[FormalCapitalJ]"/mass)^2 + 
+        "\[FormalCapitalQ]"^2/(4*Pi)), "\[FormalR]"^2 + ("\[FormalCapitalJ]"/mass)^2*Cos["\[FormalTheta]"]^2, 
+      ((("\[FormalR]"^2 + ("\[FormalCapitalJ]"/mass)^2)^2 - ("\[FormalCapitalJ]"/mass)^2*("\[FormalR]"^2 - 2*mass*"\[FormalR]" + ("\[FormalCapitalJ]"/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi))*
+          Sin["\[FormalTheta]"]^2)/("\[FormalR]"^2 + ("\[FormalCapitalJ]"/mass)^2*Cos["\[FormalTheta]"]^2))*Sin["\[FormalTheta]"]^2}], {"\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, True, True], 
+   "\[FormalT]", "\[FormalAlpha]" @@ {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, (Superscript["\[FormalBeta]", #1] @@ {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"} & ) /@ Range[3]]
+ADMDecomposition[{"KerrNewman", mass_}, timeCoordinate_, coordinates_List] := 
+  ADMDecomposition[MetricTensor[DiagonalMatrix[{(coordinates[[1]]^2 + ("\[FormalCapitalJ]"/mass)^2*Cos[coordinates[[2]]]^2)/
+        (coordinates[[1]]^2 - 2*mass*coordinates[[1]] + ("\[FormalCapitalJ]"/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi)), 
+       coordinates[[1]]^2 + ("\[FormalCapitalJ]"/mass)^2*Cos[coordinates[[2]]]^2, 
+       (((coordinates[[1]]^2 + ("\[FormalCapitalJ]"/mass)^2)^2 - ("\[FormalCapitalJ]"/mass)^2*(coordinates[[1]]^2 - 2*mass*coordinates[[1]] + 
+            ("\[FormalCapitalJ]"/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi))*Sin[coordinates[[2]]]^2)/(coordinates[[1]]^2 + 
+          ("\[FormalCapitalJ]"/mass)^2*Cos[coordinates[[2]]]^2))*Sin[coordinates[[2]]]^2}], coordinates, True, True], timeCoordinate, 
+    "\[FormalAlpha]" @@ Join[{timeCoordinate}, coordinates], (Superscript["\[FormalBeta]", #1] @@ Join[{timeCoordinate}, coordinates] & ) /@ 
+     Range[3]] /; Length[coordinates] == 3
+ADMDecomposition[{"KerrNewman", mass_}, timeCoordinate_, coordinates_List, lapseFunction_, shiftVector_List] := 
+  ADMDecomposition[MetricTensor[DiagonalMatrix[{(coordinates[[1]]^2 + ("\[FormalCapitalJ]"/mass)^2*Cos[coordinates[[2]]]^2)/
+        (coordinates[[1]]^2 - 2*mass*coordinates[[1]] + ("\[FormalCapitalJ]"/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi)), 
+       coordinates[[1]]^2 + ("\[FormalCapitalJ]"/mass)^2*Cos[coordinates[[2]]]^2, 
+       (((coordinates[[1]]^2 + ("\[FormalCapitalJ]"/mass)^2)^2 - ("\[FormalCapitalJ]"/mass)^2*(coordinates[[1]]^2 - 2*mass*coordinates[[1]] + 
+            ("\[FormalCapitalJ]"/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi))*Sin[coordinates[[2]]]^2)/(coordinates[[1]]^2 + 
+          ("\[FormalCapitalJ]"/mass)^2*Cos[coordinates[[2]]]^2))*Sin[coordinates[[2]]]^2}], coordinates, True, True], timeCoordinate, 
+    lapseFunction, shiftVector] /; Length[coordinates] == 3 && Length[shiftVector] == 3
+ADMDecomposition[{"KerrNewman", mass_, angularMomentum_}] := 
+  ADMDecomposition[MetricTensor[DiagonalMatrix[{("\[FormalR]"^2 + (angularMomentum/mass)^2*Cos["\[FormalTheta]"]^2)/
+       ("\[FormalR]"^2 - 2*mass*"\[FormalR]" + (angularMomentum/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi)), 
+      "\[FormalR]"^2 + (angularMomentum/mass)^2*Cos["\[FormalTheta]"]^2, 
+      ((("\[FormalR]"^2 + (angularMomentum/mass)^2)^2 - (angularMomentum/mass)^2*("\[FormalR]"^2 - 2*mass*"\[FormalR]" + 
+           (angularMomentum/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi))*Sin["\[FormalTheta]"]^2)/("\[FormalR]"^2 + (angularMomentum/mass)^2*Cos["\[FormalTheta]"]^2))*
+       Sin["\[FormalTheta]"]^2}], {"\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, True, True], "\[FormalT]", "\[FormalAlpha]" @@ {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, 
+   (Superscript["\[FormalBeta]", #1] @@ {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"} & ) /@ Range[3]]
+ADMDecomposition[{"KerrNewman", mass_, angularMomentum_}, timeCoordinate_, coordinates_List] := 
+  ADMDecomposition[MetricTensor[DiagonalMatrix[{(coordinates[[1]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[2]]]^2)/
+        (coordinates[[1]]^2 - 2*mass*coordinates[[1]] + (angularMomentum/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi)), 
+       coordinates[[1]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[2]]]^2, 
+       (((coordinates[[1]]^2 + (angularMomentum/mass)^2)^2 - (angularMomentum/mass)^2*(coordinates[[1]]^2 - 
+            2*mass*coordinates[[1]] + (angularMomentum/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi))*Sin[coordinates[[2]]]^2)/
+         (coordinates[[1]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[2]]]^2))*Sin[coordinates[[2]]]^2}], coordinates, 
+     True, True], timeCoordinate, "\[FormalAlpha]" @@ Join[{timeCoordinate}, coordinates], 
+    (Superscript["\[FormalBeta]", #1] @@ Join[{timeCoordinate}, coordinates] & ) /@ Range[3]] /; Length[coordinates] == 3
+ADMDecomposition[{"KerrNewman", mass_, angularMomentum_}, timeCoordinate_, coordinates_List, lapseFunction_, 
+   shiftVector_List] := 
+  ADMDecomposition[MetricTensor[DiagonalMatrix[{(coordinates[[1]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[2]]]^2)/
+        (coordinates[[1]]^2 - 2*mass*coordinates[[1]] + (angularMomentum/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi)), 
+       coordinates[[1]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[2]]]^2, 
+       (((coordinates[[1]]^2 + (angularMomentum/mass)^2)^2 - (angularMomentum/mass)^2*(coordinates[[1]]^2 - 
+            2*mass*coordinates[[1]] + (angularMomentum/mass)^2 + "\[FormalCapitalQ]"^2/(4*Pi))*Sin[coordinates[[2]]]^2)/
+         (coordinates[[1]]^2 + ("\[FormalCapitalJ]"/mass)^2*Cos[coordinates[[2]]]^2))*Sin[coordinates[[2]]]^2}], coordinates, True, 
+     True], timeCoordinate, lapseFunction, shiftVector] /; Length[coordinates] == 3 && Length[shiftVector] == 3
+ADMDecomposition[{"KerrNewman", mass_, angularMomentum_, charge_}] := 
+  ADMDecomposition[MetricTensor[DiagonalMatrix[{("\[FormalR]"^2 + (angularMomentum/mass)^2*Cos["\[FormalTheta]"]^2)/
+       ("\[FormalR]"^2 - 2*mass*"\[FormalR]" + (angularMomentum/mass)^2 + charge^2/(4*Pi)), 
+      "\[FormalR]"^2 + (angularMomentum/mass)^2*Cos["\[FormalTheta]"]^2, 
+      ((("\[FormalR]"^2 + (angularMomentum/mass)^2)^2 - (angularMomentum/mass)^2*("\[FormalR]"^2 - 2*mass*"\[FormalR]" + 
+           (angularMomentum/mass)^2 + charge^2/(4*Pi))*Sin["\[FormalTheta]"]^2)/("\[FormalR]"^2 + (angularMomentum/mass)^2*Cos["\[FormalTheta]"]^2))*
+       Sin["\[FormalTheta]"]^2}], {"\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, True, True], "\[FormalT]", "\[FormalAlpha]" @@ {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, 
+   (Superscript["\[FormalBeta]", #1] @@ {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"} & ) /@ Range[3]]
+ADMDecomposition[{"KerrNewman", mass_, angularMomentum_, charge_}, timeCoordinate_, coordinates_List] := 
+  ADMDecomposition[MetricTensor[DiagonalMatrix[{(coordinates[[1]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[2]]]^2)/
+        (coordinates[[1]]^2 - 2*mass*coordinates[[1]] + (angularMomentum/mass)^2 + charge^2/(4*Pi)), 
+       coordinates[[1]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[2]]]^2, 
+       (((coordinates[[1]]^2 + (angularMomentum/mass)^2)^2 - (angularMomentum/mass)^2*(coordinates[[1]]^2 - 
+            2*mass*coordinates[[1]] + (angularMomentum/mass)^2 + charge^2/(4*Pi))*Sin[coordinates[[2]]]^2)/
+         (coordinates[[1]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[2]]]^2))*Sin[coordinates[[2]]]^2}], coordinates, 
+     True, True], timeCoordinate, "\[FormalAlpha]" @@ Join[{timeCoordinate}, coordinates], 
+    (Superscript["\[FormalBeta]", #1] @@ Join[{timeCoordinate}, coordinates] & ) /@ Range[3]] /; Length[coordinates] == 3
+ADMDecomposition[{"KerrNewman", mass_, angularMomentum_, charge_}, timeCoordinate_, coordinates_List, lapseFunction_, 
+   shiftVector_List] := 
+  ADMDecomposition[MetricTensor[DiagonalMatrix[{(coordinates[[1]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[2]]]^2)/
+        (coordinates[[1]]^2 - 2*mass*coordinates[[1]] + (angularMomentum/mass)^2 + charge^2/(4*Pi)), 
+       coordinates[[1]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[2]]]^2, 
+       (((coordinates[[1]]^2 + (angularMomentum/mass)^2)^2 - (angularMomentum/mass)^2*(coordinates[[1]]^2 - 
+            2*mass*coordinates[[1]] + (angularMomentum/mass)^2 + charge^2/(4*Pi))*Sin[coordinates[[2]]]^2)/
+         (coordinates[[1]]^2 + (angularMomentum/mass)^2*Cos[coordinates[[2]]]^2))*Sin[coordinates[[2]]]^2}], coordinates, 
+     True, True], timeCoordinate, lapseFunction, shiftVector] /; Length[coordinates] == 3 && Length[shiftVector] == 3
 ADMDecomposition["BrillLindquist"] := Module[{brillLindquistPotential}, 
    brillLindquistPotential = 1 + (1/2)*("\[FormalCapitalM]"/Sqrt["\[FormalR]"^2*Sin["\[FormalTheta]"]^2 + ("\[FormalR]"*Cos["\[FormalTheta]"] - Subscript["\[FormalZ]", "0"])^2] + 
         "\[FormalCapitalM]"/Sqrt["\[FormalR]"^2*Sin["\[FormalTheta]"]^2 + ("\[FormalR]"*Cos["\[FormalTheta]"] + Subscript["\[FormalZ]", "0"])^2]); 
     ADMDecomposition[MetricTensor[DiagonalMatrix[{brillLindquistPotential^4, "\[FormalR]"^2*brillLindquistPotential^4, 
         ("\[FormalR]"^2*Sin["\[FormalTheta]"]^2)*brillLindquistPotential^4}], {"\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, True, True], "\[FormalT]", 
      "\[FormalAlpha]" @@ {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, (Superscript["\[FormalBeta]", #1] @@ {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"} & ) /@ Range[3]]]
+ADMDecomposition["BrillLindquist", timeCoordinate_, coordinates_List] := 
+  Module[{brillLindquistPotential}, brillLindquistPotential = 
+      1 + (1/2)*("\[FormalCapitalM]"/Sqrt[coordinates[[1]]^2*Sin[coordinates[[2]]]^2 + (coordinates[[1]]*Cos[coordinates[[2]]] - 
+              Subscript["\[FormalZ]", "0"])^2] + "\[FormalCapitalM]"/Sqrt[coordinates[[1]]^2*Sin[coordinates[[2]]]^2 + 
+            (coordinates[[1]]*Cos[coordinates[[2]]] + Subscript["\[FormalZ]", "0"])^2]); 
+     ADMDecomposition[MetricTensor[DiagonalMatrix[{brillLindquistPotential^4, coordinates[[1]]^2*
+          brillLindquistPotential^4, (coordinates[[1]]^2*Sin[coordinates[[2]]]^2)*brillLindquistPotential^4}], 
+       coordinates, True, True], timeCoordinate, "\[FormalAlpha]" @@ Join[{timeCoordinate}, coordinates], 
+      (Superscript["\[FormalBeta]", #1] @@ Join[{timeCoordinate}, coordinates] & ) /@ Range[3]]] /; Length[coordinates] == 3
 ADMDecomposition["BrillLindquist", timeCoordinate_, coordinates_List, lapseFunction_, shiftVector_List] := 
   Module[{brillLindquistPotential}, brillLindquistPotential = 
       1 + (1/2)*("\[FormalCapitalM]"/Sqrt[coordinates[[1]]^2*Sin[coordinates[[2]]]^2 + (coordinates[[1]]*Cos[coordinates[[2]]] - 
               Subscript["\[FormalZ]", "0"])^2] + "\[FormalCapitalM]"/Sqrt[coordinates[[1]]^2*Sin[coordinates[[2]]]^2 + 
             (coordinates[[1]]*Cos[coordinates[[2]]] + Subscript["\[FormalZ]", "0"])^2]); 
+     ADMDecomposition[MetricTensor[DiagonalMatrix[{brillLindquistPotential^4, coordinates[[1]]^2*
+          brillLindquistPotential^4, (coordinates[[1]]^2*Sin[coordinates[[2]]]^2)*brillLindquistPotential^4}], 
+       coordinates, True, True], timeCoordinate, lapseFunction, shiftVector]] /; 
+   Length[coordinates] == 3 && Length[shiftVector] == 3
+ADMDecomposition[{"BrillLindquist", mass_}] := Module[{brillLindquistPotential}, 
+   brillLindquistPotential = 1 + (1/2)*(mass/Sqrt["\[FormalR]"^2*Sin["\[FormalTheta]"]^2 + ("\[FormalR]"*Cos["\[FormalTheta]"] - Subscript["\[FormalZ]", "0"])^2] + 
+        mass/Sqrt["\[FormalR]"^2*Sin["\[FormalTheta]"]^2 + ("\[FormalR]"*Cos["\[FormalTheta]"] + Subscript["\[FormalZ]", "0"])^2]); 
+    ADMDecomposition[MetricTensor[DiagonalMatrix[{brillLindquistPotential^4, "\[FormalR]"^2*brillLindquistPotential^4, 
+        ("\[FormalR]"^2*Sin["\[FormalTheta]"]^2)*brillLindquistPotential^4}], {"\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, True, True], "\[FormalT]", 
+     "\[FormalAlpha]" @@ {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, (Superscript["\[FormalBeta]", #1] @@ {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"} & ) /@ Range[3]]]
+ADMDecomposition[{"BrillLindquist", mass_}, timeCoordinate_, coordinates_List] := 
+  Module[{brillLindquistPotential}, brillLindquistPotential = 
+      1 + (1/2)*(mass/Sqrt[coordinates[[1]]^2*Sin[coordinates[[2]]]^2 + (coordinates[[1]]*Cos[coordinates[[2]]] - 
+              Subscript["\[FormalZ]", "0"])^2] + mass/Sqrt[coordinates[[1]]^2*Sin[coordinates[[2]]]^2 + 
+            (coordinates[[1]]*Cos[coordinates[[2]]] + Subscript["\[FormalZ]", "0"])^2]); 
+     ADMDecomposition[MetricTensor[DiagonalMatrix[{brillLindquistPotential^4, coordinates[[1]]^2*
+          brillLindquistPotential^4, (coordinates[[1]]^2*Sin[coordinates[[2]]]^2)*brillLindquistPotential^4}], 
+       coordinates, True, True], timeCoordinate, "\[FormalAlpha]" @@ Join[{timeCoordinate}, coordinates], 
+      (Superscript["\[FormalBeta]", #1] @@ Join[{timeCoordinate}, coordinates] & ) /@ Range[3]]] /; Length[coordinates] == 3
+ADMDecomposition[{"BrillLindquist", mass_}, timeCoordinate_, coordinates_List, lapseFunction_, shiftVector_List] := 
+  Module[{brillLindquistPotential}, brillLindquistPotential = 
+      1 + (1/2)*(mass/Sqrt[coordinates[[1]]^2*Sin[coordinates[[2]]]^2 + (coordinates[[1]]*Cos[coordinates[[2]]] - 
+              Subscript["\[FormalZ]", "0"])^2] + mass/Sqrt[coordinates[[1]]^2*Sin[coordinates[[2]]]^2 + 
+            (coordinates[[1]]*Cos[coordinates[[2]]] + Subscript["\[FormalZ]", "0"])^2]); 
+     ADMDecomposition[MetricTensor[DiagonalMatrix[{brillLindquistPotential^4, coordinates[[1]]^2*
+          brillLindquistPotential^4, (coordinates[[1]]^2*Sin[coordinates[[2]]]^2)*brillLindquistPotential^4}], 
+       coordinates, True, True], timeCoordinate, lapseFunction, shiftVector]] /; 
+   Length[coordinates] == 3 && Length[shiftVector] == 3
+ADMDecomposition[{"BrillLindquist", mass_, position_}] := Module[{brillLindquistPotential}, 
+   brillLindquistPotential = 1 + (1/2)*(mass/Sqrt["\[FormalR]"^2*Sin["\[FormalTheta]"]^2 + ("\[FormalR]"*Cos["\[FormalTheta]"] - position)^2] + 
+        mass/Sqrt["\[FormalR]"^2*Sin["\[FormalTheta]"]^2 + ("\[FormalR]"*Cos["\[FormalTheta]"] + position)^2]); 
+    ADMDecomposition[MetricTensor[DiagonalMatrix[{brillLindquistPotential^4, "\[FormalR]"^2*brillLindquistPotential^4, 
+        ("\[FormalR]"^2*Sin["\[FormalTheta]"]^2)*brillLindquistPotential^4}], {"\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, True, True], "\[FormalT]", 
+     "\[FormalAlpha]" @@ {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, (Superscript["\[FormalBeta]", #1] @@ {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"} & ) /@ Range[3]]]
+ADMDecomposition[{"BrillLindquist", mass_, position_}, timeCoordinate_, coordinates_List] := 
+  Module[{brillLindquistPotential}, brillLindquistPotential = 
+      1 + (1/2)*(mass/Sqrt[coordinates[[1]]^2*Sin[coordinates[[2]]]^2 + (coordinates[[1]]*Cos[coordinates[[2]]] - 
+              position)^2] + mass/Sqrt[coordinates[[1]]^2*Sin[coordinates[[2]]]^2 + 
+            (coordinates[[1]]*Cos[coordinates[[2]]] + position)^2]); 
+     ADMDecomposition[MetricTensor[DiagonalMatrix[{brillLindquistPotential^4, coordinates[[1]]^2*
+          brillLindquistPotential^4, (coordinates[[1]]^2*Sin[coordinates[[2]]]^2)*brillLindquistPotential^4}], 
+       coordinates, True, True], timeCoordinate, "\[FormalAlpha]" @@ Join[{timeCoordinate}, coordinates], 
+      (Superscript["\[FormalBeta]", #1] @@ Join[{timeCoordinate}, coordinates] & ) /@ Range[3]]] /; Length[coordinates] == 3
+ADMDecomposition[{"BrillLindquist", mass_, position_}, timeCoordinate_, coordinates_List, lapseFunction_, 
+   shiftVector_List] := Module[{brillLindquistPotential}, 
+    brillLindquistPotential = 1 + (1/2)*(mass/Sqrt[coordinates[[1]]^2*Sin[coordinates[[2]]]^2 + 
+            (coordinates[[1]]*Cos[coordinates[[2]]] - position)^2] + 
+         mass/Sqrt[coordinates[[1]]^2*Sin[coordinates[[2]]]^2 + (coordinates[[1]]*Cos[coordinates[[2]]] + position)^2]); 
      ADMDecomposition[MetricTensor[DiagonalMatrix[{brillLindquistPotential^4, coordinates[[1]]^2*
           brillLindquistPotential^4, (coordinates[[1]]^2*Sin[coordinates[[2]]]^2)*brillLindquistPotential^4}], 
        coordinates, True, True], timeCoordinate, lapseFunction, shiftVector]] /; 
@@ -41,6 +305,12 @@ ADMDecomposition[(metricTensor_)[matrixRepresentation_List, coordinates_List, in
      Range[Length[matrixRepresentation]]] /; SymbolName[metricTensor] === "MetricTensor" && 
     Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
     BooleanQ[index1] && BooleanQ[index2]
+ADMDecomposition[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_], timeCoordinate_] := 
+  ADMDecomposition[MetricTensor[matrixRepresentation, coordinates, index1, index2], timeCoordinate, 
+    "\[FormalAlpha]" @@ Join[{timeCoordinate}, coordinates], (Superscript["\[FormalBeta]", #1] @@ Join[{timeCoordinate}, coordinates] & ) /@ 
+     Range[Length[matrixRepresentation]]] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2]
 ADMDecomposition[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_], timeCoordinate_, 
     lapseFunction_, shiftVector_List]["SpatialMetricTensor"] := 
   MetricTensor[matrixRepresentation, coordinates, index1, index2] /; SymbolName[metricTensor] === "MetricTensor" && 
@@ -48,10 +318,10 @@ ADMDecomposition[(metricTensor_)[matrixRepresentation_List, coordinates_List, in
     BooleanQ[index1] && BooleanQ[index2] && Length[shiftVector] == Length[matrixRepresentation]
 ADMDecomposition[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_], timeCoordinate_, 
     lapseFunction_, shiftVector_List]["SpacetimeMetricTensor"] := 
-  MetricTensor[Normal[SparseArray[
-      Join[{{1, 1} -> Total[(shiftVector[[#1]]^2 & ) /@ Range[Length[matrixRepresentation]]] - lapseFunction^2}, 
-       (Module[{index = #1}, {1, index + 1} -> Total[(matrixRepresentation[[index,#1]]*shiftVector[[#1]] & ) /@ 
-             Range[Length[matrixRepresentation]]]] & ) /@ Range[Length[matrixRepresentation]], 
+  MetricTensor[Normal[SparseArray[Join[{{1, 1} -> Total[(shiftVector[[#1]]^2 & ) /@ Range[Length[matrixRepresentation]]] - 
+          lapseFunction^2}, (Module[{index = #1}, {1, index + 1} -> 
+           Total[(matrixRepresentation[[index,#1]]*shiftVector[[#1]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ 
+        Range[Length[matrixRepresentation]], 
        (Module[{index = #1}, {index + 1, 1} -> Total[(matrixRepresentation[[#1,index]]*shiftVector[[#1]] & ) /@ 
              Range[Length[matrixRepresentation]]]] & ) /@ Range[Length[matrixRepresentation]], 
        ({First[#1] + 1, Last[#1] + 1} -> matrixRepresentation[[First[#1],Last[#1]]] & ) /@ 
@@ -78,8 +348,8 @@ ADMDecomposition[(metricTensor_)[matrixRepresentation_List, coordinates_List, in
                 Length[newMatrixRepresentation]]]] & ) /@ Range[Length[newMatrixRepresentation]], 
          ({First[#1] + 1, Last[#1] + 1} -> newMatrixRepresentation[[First[#1],Last[#1]]] & ) /@ 
           Tuples[Range[Length[newMatrixRepresentation]], 2]]]]; 
-     Normal[SparseArray[(Module[{index = #1}, index -> -Total[(newLapseFunction*Inverse[spacetimeMetricTensor][[index,
-                  #1]]*D[newTimeCoordinate, Join[{newTimeCoordinate}, newCoordinates][[#1]]] & ) /@ Range[
+     Normal[SparseArray[(Module[{index = #1}, index -> -Total[(newLapseFunction*Inverse[spacetimeMetricTensor][[index,#1]]*
+                 D[newTimeCoordinate, Join[{newTimeCoordinate}, newCoordinates][[#1]]] & ) /@ Range[
                 Length[spacetimeMetricTensor]]]] & ) /@ Range[Length[spacetimeMetricTensor]]]] /. 
       (ToExpression[#1] -> #1 & ) /@ Select[Join[coordinates, {timeCoordinate}], StringQ]] /; 
    SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
@@ -131,8 +401,8 @@ ADMDecomposition[(metricTensor_)[matrixRepresentation_List, coordinates_List, in
                 Length[newMatrixRepresentation]]]] & ) /@ Range[Length[newMatrixRepresentation]], 
          ({First[#1] + 1, Last[#1] + 1} -> newMatrixRepresentation[[First[#1],Last[#1]]] & ) /@ 
           Tuples[Range[Length[newMatrixRepresentation]], 2]]]]; 
-     Normal[SparseArray[(Module[{index = #1}, index -> -Total[(newLapseFunction*Inverse[spacetimeMetricTensor][[index,
-                  #1]]*Inactive[D][newTimeCoordinate, Join[{newTimeCoordinate}, newCoordinates][[#1]]] & ) /@ Range[
+     Normal[SparseArray[(Module[{index = #1}, index -> -Total[(newLapseFunction*Inverse[spacetimeMetricTensor][[index,#1]]*
+                 Inactive[D][newTimeCoordinate, Join[{newTimeCoordinate}, newCoordinates][[#1]]] & ) /@ Range[
                 Length[spacetimeMetricTensor]]]] & ) /@ Range[Length[spacetimeMetricTensor]]]] /. 
       (ToExpression[#1] -> #1 & ) /@ Select[Join[coordinates, {timeCoordinate}], StringQ]] /; 
    SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
@@ -280,9 +550,9 @@ ADMDecomposition[(metricTensor_)[matrixRepresentation_List, coordinates_List, in
                  D[spacetimeMetricTensor[[index[[2]],index[[3]]]], Join[{newTimeCoordinate}, newCoordinates][[
                    #1]]]) & ) /@ Range[Length[spacetimeMetricTensor]]]] & ) /@ 
          Tuples[Range[Length[spacetimeMetricTensor]], 3]]]; spacetimeRiemannTensor = 
-      Normal[SparseArray[(Module[{index = #1}, index -> D[spacetimeChristoffelSymbols[[index[[1]],index[[2]],index[[
-                4]]]], Join[{newTimeCoordinate}, newCoordinates][[index[[3]]]]] - D[spacetimeChristoffelSymbols[[index[[
-                1]],index[[2]],index[[3]]]], Join[{newTimeCoordinate}, newCoordinates][[index[[4]]]]] + 
+      Normal[SparseArray[(Module[{index = #1}, index -> D[spacetimeChristoffelSymbols[[index[[1]],index[[2]],index[[4]]]], 
+              Join[{newTimeCoordinate}, newCoordinates][[index[[3]]]]] - D[spacetimeChristoffelSymbols[[index[[1]],index[[
+                2]],index[[3]]]], Join[{newTimeCoordinate}, newCoordinates][[index[[4]]]]] + 
              Total[(spacetimeChristoffelSymbols[[index[[1]],#1,index[[3]]]]*spacetimeChristoffelSymbols[[#1,index[[2]],
                   index[[4]]]] & ) /@ Range[Length[spacetimeMetricTensor]]] - 
              Total[(spacetimeChristoffelSymbols[[index[[1]],#1,index[[4]]]]*spacetimeChristoffelSymbols[[#1,index[[2]],
@@ -366,9 +636,9 @@ ADMDecomposition[(metricTensor_)[matrixRepresentation_List, coordinates_List, in
                  D[spacetimeMetricTensor[[index[[2]],index[[3]]]], Join[{newTimeCoordinate}, newCoordinates][[
                    #1]]]) & ) /@ Range[Length[spacetimeMetricTensor]]]] & ) /@ 
          Tuples[Range[Length[spacetimeMetricTensor]], 3]]]; spacetimeRiemannTensor = 
-      Normal[SparseArray[(Module[{index = #1}, index -> D[spacetimeChristoffelSymbols[[index[[1]],index[[2]],index[[
-                4]]]], Join[{newTimeCoordinate}, newCoordinates][[index[[3]]]]] - D[spacetimeChristoffelSymbols[[index[[
-                1]],index[[2]],index[[3]]]], Join[{newTimeCoordinate}, newCoordinates][[index[[4]]]]] + 
+      Normal[SparseArray[(Module[{index = #1}, index -> D[spacetimeChristoffelSymbols[[index[[1]],index[[2]],index[[4]]]], 
+              Join[{newTimeCoordinate}, newCoordinates][[index[[3]]]]] - D[spacetimeChristoffelSymbols[[index[[1]],index[[
+                2]],index[[3]]]], Join[{newTimeCoordinate}, newCoordinates][[index[[4]]]]] + 
              Total[(spacetimeChristoffelSymbols[[index[[1]],#1,index[[3]]]]*spacetimeChristoffelSymbols[[#1,index[[2]],
                   index[[4]]]] & ) /@ Range[Length[spacetimeMetricTensor]]] - 
              Total[(spacetimeChristoffelSymbols[[index[[1]],#1,index[[4]]]]*spacetimeChristoffelSymbols[[#1,index[[2]],
@@ -445,9 +715,9 @@ ADMDecomposition[(metricTensor_)[matrixRepresentation_List, coordinates_List, in
                  D[spacetimeMetricTensor[[index[[2]],index[[3]]]], Join[{newTimeCoordinate}, newCoordinates][[
                    #1]]]) & ) /@ Range[Length[spacetimeMetricTensor]]]] & ) /@ 
          Tuples[Range[Length[spacetimeMetricTensor]], 3]]]; spacetimeRiemannTensor = 
-      Normal[SparseArray[(Module[{index = #1}, index -> D[spacetimeChristoffelSymbols[[index[[1]],index[[2]],index[[
-                4]]]], Join[{newTimeCoordinate}, newCoordinates][[index[[3]]]]] - D[spacetimeChristoffelSymbols[[index[[
-                1]],index[[2]],index[[3]]]], Join[{newTimeCoordinate}, newCoordinates][[index[[4]]]]] + 
+      Normal[SparseArray[(Module[{index = #1}, index -> D[spacetimeChristoffelSymbols[[index[[1]],index[[2]],index[[4]]]], 
+              Join[{newTimeCoordinate}, newCoordinates][[index[[3]]]]] - D[spacetimeChristoffelSymbols[[index[[1]],index[[
+                2]],index[[3]]]], Join[{newTimeCoordinate}, newCoordinates][[index[[4]]]]] + 
              Total[(spacetimeChristoffelSymbols[[index[[1]],#1,index[[3]]]]*spacetimeChristoffelSymbols[[#1,index[[2]],
                   index[[4]]]] & ) /@ Range[Length[spacetimeMetricTensor]]] - 
              Total[(spacetimeChristoffelSymbols[[index[[1]],#1,index[[4]]]]*spacetimeChristoffelSymbols[[#1,index[[2]],
@@ -467,9 +737,9 @@ ADMDecomposition[(metricTensor_)[matrixRepresentation_List, coordinates_List, in
         (Module[{index = #1}, index -> Total[(D[mixedExtrinsicCurvatureTensor[[index,#1]], newCoordinates[[#1]]] & ) /@ 
                Range[Length[newMatrixRepresentation]]] + Total[(spatialChristoffelSymbols[[First[#1],First[#1],Last[#1]]]*
                  mixedExtrinsicCurvatureTensor[[index,Last[#1]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 
-                2]] - Total[(spatialChristoffelSymbols[[Last[#1],First[#1],index]]*mixedExtrinsicCurvatureTensor[[
-                  Last[#1],First[#1]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 2]] - 
-             D[extrinsicCurvatureTrace, newCoordinates[[index]]]] & ) /@ Range[Length[newMatrixRepresentation]]]]; 
+                2]] - Total[(spatialChristoffelSymbols[[Last[#1],First[#1],index]]*mixedExtrinsicCurvatureTensor[[Last[#1],
+                  First[#1]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 2]] - D[extrinsicCurvatureTrace, 
+              newCoordinates[[index]]]] & ) /@ Range[Length[newMatrixRepresentation]]]]; 
      rightHandSide = Normal[SparseArray[
         (Module[{index = #1}, index -> Total[((-spacetimeRicciTensor[[First[#1],Last[#1]]])*normalVector[[Last[#1]]]*
                 projectionOperator[[index + 1,First[#1]]] & ) /@ Tuples[Range[Length[spacetimeMetricTensor]], 2]]] & ) /@ 
@@ -526,9 +796,9 @@ ADMDecomposition[(metricTensor_)[matrixRepresentation_List, coordinates_List, in
                  D[spacetimeMetricTensor[[index[[2]],index[[3]]]], Join[{newTimeCoordinate}, newCoordinates][[
                    #1]]]) & ) /@ Range[Length[spacetimeMetricTensor]]]] & ) /@ 
          Tuples[Range[Length[spacetimeMetricTensor]], 3]]]; spacetimeRiemannTensor = 
-      Normal[SparseArray[(Module[{index = #1}, index -> D[spacetimeChristoffelSymbols[[index[[1]],index[[2]],index[[
-                4]]]], Join[{newTimeCoordinate}, newCoordinates][[index[[3]]]]] - D[spacetimeChristoffelSymbols[[index[[
-                1]],index[[2]],index[[3]]]], Join[{newTimeCoordinate}, newCoordinates][[index[[4]]]]] + 
+      Normal[SparseArray[(Module[{index = #1}, index -> D[spacetimeChristoffelSymbols[[index[[1]],index[[2]],index[[4]]]], 
+              Join[{newTimeCoordinate}, newCoordinates][[index[[3]]]]] - D[spacetimeChristoffelSymbols[[index[[1]],index[[
+                2]],index[[3]]]], Join[{newTimeCoordinate}, newCoordinates][[index[[4]]]]] + 
              Total[(spacetimeChristoffelSymbols[[index[[1]],#1,index[[3]]]]*spacetimeChristoffelSymbols[[#1,index[[2]],
                   index[[4]]]] & ) /@ Range[Length[spacetimeMetricTensor]]] - 
              Total[(spacetimeChristoffelSymbols[[index[[1]],#1,index[[4]]]]*spacetimeChristoffelSymbols[[#1,index[[2]],
@@ -548,9 +818,9 @@ ADMDecomposition[(metricTensor_)[matrixRepresentation_List, coordinates_List, in
         (Module[{index = #1}, index -> Total[(D[mixedExtrinsicCurvatureTensor[[index,#1]], newCoordinates[[#1]]] & ) /@ 
                Range[Length[newMatrixRepresentation]]] + Total[(spatialChristoffelSymbols[[First[#1],First[#1],Last[#1]]]*
                  mixedExtrinsicCurvatureTensor[[index,Last[#1]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 
-                2]] - Total[(spatialChristoffelSymbols[[Last[#1],First[#1],index]]*mixedExtrinsicCurvatureTensor[[
-                  Last[#1],First[#1]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 2]] - 
-             D[extrinsicCurvatureTrace, newCoordinates[[index]]]] & ) /@ Range[Length[newMatrixRepresentation]]]]; 
+                2]] - Total[(spatialChristoffelSymbols[[Last[#1],First[#1],index]]*mixedExtrinsicCurvatureTensor[[Last[#1],
+                  First[#1]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 2]] - D[extrinsicCurvatureTrace, 
+              newCoordinates[[index]]]] & ) /@ Range[Length[newMatrixRepresentation]]]]; 
      rightHandSide = Normal[SparseArray[
         (Module[{index = #1}, index -> Total[((-spacetimeRicciTensor[[First[#1],Last[#1]]])*normalVector[[Last[#1]]]*
                 projectionOperator[[index + 1,First[#1]]] & ) /@ Tuples[Range[Length[spacetimeMetricTensor]], 2]]] & ) /@ 
@@ -761,9 +1031,9 @@ ADMDecomposition[(metricTensor_)[matrixRepresentation_List, coordinates_List, in
                  D[spacetimeMetricTensor[[index[[2]],index[[3]]]], Join[{newTimeCoordinate}, newCoordinates][[
                    #1]]]) & ) /@ Range[Length[spacetimeMetricTensor]]]] & ) /@ 
          Tuples[Range[Length[spacetimeMetricTensor]], 3]]]; spacetimeRiemannTensor = 
-      Normal[SparseArray[(Module[{index = #1}, index -> D[spacetimeChristoffelSymbols[[index[[1]],index[[2]],index[[
-                4]]]], Join[{newTimeCoordinate}, newCoordinates][[index[[3]]]]] - D[spacetimeChristoffelSymbols[[index[[
-                1]],index[[2]],index[[3]]]], Join[{newTimeCoordinate}, newCoordinates][[index[[4]]]]] + 
+      Normal[SparseArray[(Module[{index = #1}, index -> D[spacetimeChristoffelSymbols[[index[[1]],index[[2]],index[[4]]]], 
+              Join[{newTimeCoordinate}, newCoordinates][[index[[3]]]]] - D[spacetimeChristoffelSymbols[[index[[1]],index[[
+                2]],index[[3]]]], Join[{newTimeCoordinate}, newCoordinates][[index[[4]]]]] + 
              Total[(spacetimeChristoffelSymbols[[index[[1]],#1,index[[3]]]]*spacetimeChristoffelSymbols[[#1,index[[2]],
                   index[[4]]]] & ) /@ Range[Length[spacetimeMetricTensor]]] - 
              Total[(spacetimeChristoffelSymbols[[index[[1]],#1,index[[4]]]]*spacetimeChristoffelSymbols[[#1,index[[2]],
@@ -796,11 +1066,11 @@ ADMDecomposition[(metricTensor_)[matrixRepresentation_List, coordinates_List, in
                      Range[Length[newMatrixRepresentation]]])] & ) /@ Range[Length[newMatrixRepresentation]]] - 
              newLapseFunction*Total[(spacetimeRicciTensor[[#1 + 1,Last[index] + 1]]*Inverse[newMatrixRepresentation][[#1,
                    First[index]]] & ) /@ Range[Length[newMatrixRepresentation]]]] & ) /@ 
-         Tuples[Range[Length[newMatrixRepresentation]], 2]]]; 
-     Thread[Catenate[leftHandSide] == Catenate[rightHandSide]] /. (ToExpression[#1] -> #1 & ) /@ 
-       Select[Join[coordinates, {timeCoordinate}], StringQ]] /; SymbolName[metricTensor] === "MetricTensor" && 
-    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
-    BooleanQ[index1] && BooleanQ[index2] && Length[shiftVector] == Length[matrixRepresentation]
+         Tuples[Range[Length[newMatrixRepresentation]], 2]]]; Thread[Catenate[leftHandSide] == Catenate[rightHandSide]] /. 
+      (ToExpression[#1] -> #1 & ) /@ Select[Join[coordinates, {timeCoordinate}], StringQ]] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2] && 
+    Length[shiftVector] == Length[matrixRepresentation]
 ADMDecomposition[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_], timeCoordinate_, 
     lapseFunction_, shiftVector_List]["HamiltonianConstraint"] := 
   Module[{newMatrixRepresentation, newCoordinates, newTimeCoordinate, newLapseFunction, newShiftVector, shiftCovector, 
@@ -861,9 +1131,9 @@ ADMDecomposition[(metricTensor_)[matrixRepresentation_List, coordinates_List, in
                  D[spacetimeMetricTensor[[index[[2]],index[[3]]]], Join[{newTimeCoordinate}, newCoordinates][[
                    #1]]]) & ) /@ Range[Length[spacetimeMetricTensor]]]] & ) /@ 
          Tuples[Range[Length[spacetimeMetricTensor]], 3]]]; spacetimeRiemannTensor = 
-      Normal[SparseArray[(Module[{index = #1}, index -> D[spacetimeChristoffelSymbols[[index[[1]],index[[2]],index[[
-                4]]]], Join[{newTimeCoordinate}, newCoordinates][[index[[3]]]]] - D[spacetimeChristoffelSymbols[[index[[
-                1]],index[[2]],index[[3]]]], Join[{newTimeCoordinate}, newCoordinates][[index[[4]]]]] + 
+      Normal[SparseArray[(Module[{index = #1}, index -> D[spacetimeChristoffelSymbols[[index[[1]],index[[2]],index[[4]]]], 
+              Join[{newTimeCoordinate}, newCoordinates][[index[[3]]]]] - D[spacetimeChristoffelSymbols[[index[[1]],index[[
+                2]],index[[3]]]], Join[{newTimeCoordinate}, newCoordinates][[index[[4]]]]] + 
              Total[(spacetimeChristoffelSymbols[[index[[1]],#1,index[[3]]]]*spacetimeChristoffelSymbols[[#1,index[[2]],
                   index[[4]]]] & ) /@ Range[Length[spacetimeMetricTensor]]] - 
              Total[(spacetimeChristoffelSymbols[[index[[1]],#1,index[[4]]]]*spacetimeChristoffelSymbols[[#1,index[[2]],
@@ -946,9 +1216,9 @@ ADMDecomposition[(metricTensor_)[matrixRepresentation_List, coordinates_List, in
                  D[spacetimeMetricTensor[[index[[2]],index[[3]]]], Join[{newTimeCoordinate}, newCoordinates][[
                    #1]]]) & ) /@ Range[Length[spacetimeMetricTensor]]]] & ) /@ 
          Tuples[Range[Length[spacetimeMetricTensor]], 3]]]; spacetimeRiemannTensor = 
-      Normal[SparseArray[(Module[{index = #1}, index -> D[spacetimeChristoffelSymbols[[index[[1]],index[[2]],index[[
-                4]]]], Join[{newTimeCoordinate}, newCoordinates][[index[[3]]]]] - D[spacetimeChristoffelSymbols[[index[[
-                1]],index[[2]],index[[3]]]], Join[{newTimeCoordinate}, newCoordinates][[index[[4]]]]] + 
+      Normal[SparseArray[(Module[{index = #1}, index -> D[spacetimeChristoffelSymbols[[index[[1]],index[[2]],index[[4]]]], 
+              Join[{newTimeCoordinate}, newCoordinates][[index[[3]]]]] - D[spacetimeChristoffelSymbols[[index[[1]],index[[
+                2]],index[[3]]]], Join[{newTimeCoordinate}, newCoordinates][[index[[4]]]]] + 
              Total[(spacetimeChristoffelSymbols[[index[[1]],#1,index[[3]]]]*spacetimeChristoffelSymbols[[#1,index[[2]],
                   index[[4]]]] & ) /@ Range[Length[spacetimeMetricTensor]]] - 
              Total[(spacetimeChristoffelSymbols[[index[[1]],#1,index[[4]]]]*spacetimeChristoffelSymbols[[#1,index[[2]],
@@ -1019,9 +1289,9 @@ ADMDecomposition[(metricTensor_)[matrixRepresentation_List, coordinates_List, in
                  D[spacetimeMetricTensor[[index[[2]],index[[3]]]], Join[{newTimeCoordinate}, newCoordinates][[
                    #1]]]) & ) /@ Range[Length[spacetimeMetricTensor]]]] & ) /@ 
          Tuples[Range[Length[spacetimeMetricTensor]], 3]]]; spacetimeRiemannTensor = 
-      Normal[SparseArray[(Module[{index = #1}, index -> D[spacetimeChristoffelSymbols[[index[[1]],index[[2]],index[[
-                4]]]], Join[{newTimeCoordinate}, newCoordinates][[index[[3]]]]] - D[spacetimeChristoffelSymbols[[index[[
-                1]],index[[2]],index[[3]]]], Join[{newTimeCoordinate}, newCoordinates][[index[[4]]]]] + 
+      Normal[SparseArray[(Module[{index = #1}, index -> D[spacetimeChristoffelSymbols[[index[[1]],index[[2]],index[[4]]]], 
+              Join[{newTimeCoordinate}, newCoordinates][[index[[3]]]]] - D[spacetimeChristoffelSymbols[[index[[1]],index[[
+                2]],index[[3]]]], Join[{newTimeCoordinate}, newCoordinates][[index[[4]]]]] + 
              Total[(spacetimeChristoffelSymbols[[index[[1]],#1,index[[3]]]]*spacetimeChristoffelSymbols[[#1,index[[2]],
                   index[[4]]]] & ) /@ Range[Length[spacetimeMetricTensor]]] - 
              Total[(spacetimeChristoffelSymbols[[index[[1]],#1,index[[4]]]]*spacetimeChristoffelSymbols[[#1,index[[2]],
@@ -1095,9 +1365,9 @@ ADMDecomposition[(metricTensor_)[matrixRepresentation_List, coordinates_List, in
                  D[spacetimeMetricTensor[[index[[2]],index[[3]]]], Join[{newTimeCoordinate}, newCoordinates][[
                    #1]]]) & ) /@ Range[Length[spacetimeMetricTensor]]]] & ) /@ 
          Tuples[Range[Length[spacetimeMetricTensor]], 3]]]; spacetimeRiemannTensor = 
-      Normal[SparseArray[(Module[{index = #1}, index -> D[spacetimeChristoffelSymbols[[index[[1]],index[[2]],index[[
-                4]]]], Join[{newTimeCoordinate}, newCoordinates][[index[[3]]]]] - D[spacetimeChristoffelSymbols[[index[[
-                1]],index[[2]],index[[3]]]], Join[{newTimeCoordinate}, newCoordinates][[index[[4]]]]] + 
+      Normal[SparseArray[(Module[{index = #1}, index -> D[spacetimeChristoffelSymbols[[index[[1]],index[[2]],index[[4]]]], 
+              Join[{newTimeCoordinate}, newCoordinates][[index[[3]]]]] - D[spacetimeChristoffelSymbols[[index[[1]],index[[
+                2]],index[[3]]]], Join[{newTimeCoordinate}, newCoordinates][[index[[4]]]]] + 
              Total[(spacetimeChristoffelSymbols[[index[[1]],#1,index[[3]]]]*spacetimeChristoffelSymbols[[#1,index[[2]],
                   index[[4]]]] & ) /@ Range[Length[spacetimeMetricTensor]]] - 
              Total[(spacetimeChristoffelSymbols[[index[[1]],#1,index[[4]]]]*spacetimeChristoffelSymbols[[#1,index[[2]],
@@ -1145,8 +1415,7 @@ ADMDecomposition /: MakeBoxes[admDecomposition:ADMDecomposition[(metricTensor_)[
         ImageSize -> Dynamic[{Automatic, 3.5*(CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[Magnification])}], 
         Frame -> False, FrameTicks -> None]; BoxForm`ArrangeSummaryBox["ADMDecomposition", admDecomposition, icon, 
        {{BoxForm`SummaryItem[{"Dimensions: ", dimensions}], BoxForm`SummaryItem[{"Signature: ", signature}]}, 
-        {BoxForm`SummaryItem[{"Time Coordinate: ", timeCoordinate}], BoxForm`SummaryItem[
-          {"Spatial Coordinates: ", coordinates}]}}, {{}}, format, "Interpretable" -> Automatic]] /; 
-    SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
-     Length[coordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2] && 
-     Length[shiftVector] == Length[matrixRepresentation]
+        {BoxForm`SummaryItem[{"Time Coordinate: ", timeCoordinate}], BoxForm`SummaryItem[{"Spatial Coordinates: ", 
+           coordinates}]}}, {{}}, format, "Interpretable" -> Automatic]] /; SymbolName[metricTensor] === "MetricTensor" && 
+     Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+     BooleanQ[index1] && BooleanQ[index2] && Length[shiftVector] == Length[matrixRepresentation]
