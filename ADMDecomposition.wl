@@ -1994,13 +1994,13 @@ ADMDecomposition[(metricTensor_)[matrixRepresentation_List, coordinates_List, in
                 Inverse[spacetimeMetricTensor][[Last[#1],Last[index]]]*spacetimeEinsteinTensor[[First[#1],
                  Last[#1]]] & ) /@ Tuples[Range[Length[spacetimeMetricTensor]], 2]]] & ) /@ 
          Tuples[Range[Length[spacetimeMetricTensor]], 2]]]; 
-     (1/2)*(spatialRicciScalar + extrinsicCurvatureTrace^2 - 
-         Total[(mixedExtrinsicCurvatureTensor[[First[#1],Last[#1]]]*mixedExtrinsicCurvatureTensor[[Last[#1],
-              First[#1]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 2]]) - 
-       newLapseFunction^2*contravariantSpacetimeEinsteinTensor[[1,1]] /. (ToExpression[#1] -> #1 & ) /@ 
-       Select[Join[coordinates, {timeCoordinate}], StringQ]] /; SymbolName[metricTensor] === "MetricTensor" && 
-    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
-    BooleanQ[index1] && BooleanQ[index2] && Length[shiftVector] == Length[matrixRepresentation]
+     (spatialRicciScalar + extrinsicCurvatureTrace^2 - Total[(mixedExtrinsicCurvatureTensor[[First[#1],Last[#1]]]*
+            mixedExtrinsicCurvatureTensor[[Last[#1],First[#1]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 
+           2]]) - 2*newLapseFunction^2*contravariantSpacetimeEinsteinTensor[[1,1]] /. 
+      (ToExpression[#1] -> #1 & ) /@ Select[Join[coordinates, {timeCoordinate}], StringQ]] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2] && 
+    Length[shiftVector] == Length[matrixRepresentation]
 ADMDecomposition[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_], timeCoordinate_, 
     lapseFunction_, shiftVector_List]["ReducedHamiltonianConstraint"] := 
   Module[{newMatrixRepresentation, newCoordinates, newTimeCoordinate, newLapseFunction, newShiftVector, shiftCovector, 
@@ -2079,13 +2079,100 @@ ADMDecomposition[(metricTensor_)[matrixRepresentation_List, coordinates_List, in
                 Inverse[spacetimeMetricTensor][[Last[#1],Last[index]]]*spacetimeEinsteinTensor[[First[#1],
                  Last[#1]]] & ) /@ Tuples[Range[Length[spacetimeMetricTensor]], 2]]] & ) /@ 
          Tuples[Range[Length[spacetimeMetricTensor]], 2]]]; 
-     FullSimplify[(1/2)*(spatialRicciScalar + extrinsicCurvatureTrace^2 - 
-          Total[(mixedExtrinsicCurvatureTensor[[First[#1],Last[#1]]]*mixedExtrinsicCurvatureTensor[[Last[#1],First[
-                #1]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 2]]) - 
-        newLapseFunction^2*contravariantSpacetimeEinsteinTensor[[1,1]] /. (ToExpression[#1] -> #1 & ) /@ 
+     FullSimplify[(spatialRicciScalar + extrinsicCurvatureTrace^2 - 
+         Total[(mixedExtrinsicCurvatureTensor[[First[#1],Last[#1]]]*mixedExtrinsicCurvatureTensor[[Last[#1],
+              First[#1]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 2]]) - 
+        2*newLapseFunction^2*contravariantSpacetimeEinsteinTensor[[1,1]] /. (ToExpression[#1] -> #1 & ) /@ 
         Select[Join[coordinates, {timeCoordinate}], StringQ]]] /; SymbolName[metricTensor] === "MetricTensor" && 
     Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
     BooleanQ[index1] && BooleanQ[index2] && Length[shiftVector] == Length[matrixRepresentation]
+ADMDecomposition[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_], timeCoordinate_, 
+    lapseFunction_, shiftVector_List]["SymbolicHamiltonianConstraint"] := 
+  Module[{newMatrixRepresentation, newCoordinates, newTimeCoordinate, newLapseFunction, newShiftVector, shiftCovector, 
+     spatialChristoffelSymbols, extrinsicCurvatureTensor, mixedExtrinsicCurvatureTensor, extrinsicCurvatureTrace, 
+     spatialRiemannTensor, spatialRicciTensor, spatialRicciScalar, spacetimeMetricTensor, spacetimeChristoffelSymbols, 
+     spacetimeRiemannTensor, spacetimeRicciTensor, spacetimeRicciScalar, spacetimeEinsteinTensor, 
+     contravariantSpacetimeEinsteinTensor}, newMatrixRepresentation = matrixRepresentation /. 
+       (#1 -> ToExpression[#1] & ) /@ Select[Join[coordinates, {timeCoordinate}], StringQ]; 
+     newCoordinates = coordinates /. (#1 -> ToExpression[#1] & ) /@ Select[Join[coordinates, {timeCoordinate}], StringQ]; 
+     newTimeCoordinate = timeCoordinate /. (#1 -> ToExpression[#1] & ) /@ Select[Join[coordinates, {timeCoordinate}], 
+         StringQ]; newLapseFunction = lapseFunction /. (#1 -> ToExpression[#1] & ) /@ 
+        Select[Join[coordinates, {timeCoordinate}], StringQ]; newShiftVector = 
+      shiftVector /. (#1 -> ToExpression[#1] & ) /@ Select[Join[coordinates, {timeCoordinate}], StringQ]; 
+     shiftCovector = Normal[SparseArray[
+        (Module[{index = #1}, index -> Total[(newMatrixRepresentation[[index,#1]]*newShiftVector[[#1]] & ) /@ 
+              Range[Length[newMatrixRepresentation]]]] & ) /@ Range[Length[newMatrixRepresentation]]]]; 
+     spatialChristoffelSymbols = Normal[SparseArray[
+        (Module[{index = #1}, index -> Total[((1/2)*Inverse[newMatrixRepresentation][[index[[1]],#1]]*
+                (Inactive[D][newMatrixRepresentation[[#1,index[[3]]]], newCoordinates[[index[[2]]]]] + 
+                 Inactive[D][newMatrixRepresentation[[index[[2]],#1]], newCoordinates[[index[[3]]]]] - 
+                 Inactive[D][newMatrixRepresentation[[index[[2]],index[[3]]]], newCoordinates[[#1]]]) & ) /@ 
+              Range[Length[newMatrixRepresentation]]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 3]]]; 
+     extrinsicCurvatureTensor = Normal[SparseArray[
+        (Module[{index = #1}, index -> (1/(2*newLapseFunction))*(Inactive[D][shiftCovector[[First[index]]], 
+               newCoordinates[[Last[index]]]] - Total[(spatialChristoffelSymbols[[#1,Last[index],First[index]]]*
+                  shiftCovector[[#1]] & ) /@ Range[Length[newMatrixRepresentation]]] + Inactive[D][shiftCovector[[
+                Last[index]]], newCoordinates[[First[index]]]] - Total[(spatialChristoffelSymbols[[#1,First[index],
+                   Last[index]]]*shiftCovector[[#1]] & ) /@ Range[Length[newMatrixRepresentation]]] - 
+              Inactive[D][newMatrixRepresentation[[First[index],Last[index]]], newTimeCoordinate])] & ) /@ 
+         Tuples[Range[Length[newMatrixRepresentation]], 2]]]; mixedExtrinsicCurvatureTensor = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inverse[newMatrixRepresentation][[First[index],#1]]*
+                extrinsicCurvatureTensor[[#1,Last[index]]] & ) /@ Range[Length[newMatrixRepresentation]]]] & ) /@ 
+         Tuples[Range[Length[newMatrixRepresentation]], 2]]]; extrinsicCurvatureTrace = 
+      Total[(Inverse[newMatrixRepresentation][[First[#1],Last[#1]]]*extrinsicCurvatureTensor[[First[#1],Last[#1]]] & ) /@ 
+        Tuples[Range[Length[newMatrixRepresentation]], 2]]; spatialRiemannTensor = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Inactive[D][spatialChristoffelSymbols[[index[[1]],index[[
+                2]],index[[4]]]], newCoordinates[[index[[3]]]]] - Inactive[D][spatialChristoffelSymbols[[index[[1]],
+               index[[2]],index[[3]]]], newCoordinates[[index[[4]]]]] + Total[(spatialChristoffelSymbols[[index[[1]],#1,
+                  index[[3]]]]*spatialChristoffelSymbols[[#1,index[[2]],index[[4]]]] & ) /@ Range[
+                Length[newMatrixRepresentation]]] - Total[(spatialChristoffelSymbols[[index[[1]],#1,index[[4]]]]*
+                 spatialChristoffelSymbols[[#1,index[[2]],index[[3]]]] & ) /@ Range[Length[
+                 newMatrixRepresentation]]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 4]]]; 
+     spatialRicciTensor = Normal[SparseArray[
+        (Module[{index = #1}, index -> Total[(spatialRiemannTensor[[#1,First[index],#1,Last[index]]] & ) /@ 
+              Range[Length[newMatrixRepresentation]]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 2]]]; 
+     spatialRicciScalar = Total[(Inverse[newMatrixRepresentation][[First[#1],Last[#1]]]*spatialRicciTensor[[First[#1],
+           Last[#1]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 2]]; 
+     spacetimeMetricTensor = Normal[SparseArray[
+        Join[{{1, 1} -> Total[(newShiftVector[[#1]]^2 & ) /@ Range[Length[newMatrixRepresentation]]] - 
+            newLapseFunction^2}, (Module[{index = #1}, {1, index + 1} -> Total[(newMatrixRepresentation[[index,#1]]*
+                 newShiftVector[[#1]] & ) /@ Range[Length[newMatrixRepresentation]]]] & ) /@ 
+          Range[Length[newMatrixRepresentation]], (Module[{index = #1}, {index + 1, 1} -> 
+             Total[(newMatrixRepresentation[[#1,index]]*newShiftVector[[#1]] & ) /@ Range[
+                Length[newMatrixRepresentation]]]] & ) /@ Range[Length[newMatrixRepresentation]], 
+         ({First[#1] + 1, Last[#1] + 1} -> newMatrixRepresentation[[First[#1],Last[#1]]] & ) /@ 
+          Tuples[Range[Length[newMatrixRepresentation]], 2]]]]; spacetimeChristoffelSymbols = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[((1/2)*Inverse[spacetimeMetricTensor][[index[[1]],#1]]*
+                (Inactive[D][spacetimeMetricTensor[[#1,index[[3]]]], Join[{newTimeCoordinate}, newCoordinates][[
+                   index[[2]]]]] + Inactive[D][spacetimeMetricTensor[[index[[2]],#1]], Join[{newTimeCoordinate}, 
+                    newCoordinates][[index[[3]]]]] - Inactive[D][spacetimeMetricTensor[[index[[2]],index[[3]]]], 
+                  Join[{newTimeCoordinate}, newCoordinates][[#1]]]) & ) /@ Range[Length[spacetimeMetricTensor]]]] & ) /@ 
+         Tuples[Range[Length[spacetimeMetricTensor]], 3]]]; spacetimeRiemannTensor = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Inactive[D][spacetimeChristoffelSymbols[[index[[1]],index[[
+                2]],index[[4]]]], Join[{newTimeCoordinate}, newCoordinates][[index[[3]]]]] - 
+             Inactive[D][spacetimeChristoffelSymbols[[index[[1]],index[[2]],index[[3]]]], Join[{newTimeCoordinate}, 
+                newCoordinates][[index[[4]]]]] + Total[(spacetimeChristoffelSymbols[[index[[1]],#1,index[[3]]]]*
+                 spacetimeChristoffelSymbols[[#1,index[[2]],index[[4]]]] & ) /@ Range[Length[spacetimeMetricTensor]]] - 
+             Total[(spacetimeChristoffelSymbols[[index[[1]],#1,index[[4]]]]*spacetimeChristoffelSymbols[[#1,index[[2]],
+                  index[[3]]]] & ) /@ Range[Length[spacetimeMetricTensor]]]] & ) /@ 
+         Tuples[Range[Length[spacetimeMetricTensor]], 4]]]; spacetimeRicciTensor = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[(spacetimeRiemannTensor[[#1,First[index],#1,
+                Last[index]]] & ) /@ Range[Length[spacetimeMetricTensor]]]] & ) /@ 
+         Tuples[Range[Length[spacetimeMetricTensor]], 2]]]; spacetimeRicciScalar = 
+      Total[(Inverse[spacetimeMetricTensor][[First[#1],Last[#1]]]*spacetimeRicciTensor[[First[#1],Last[#1]]] & ) /@ 
+        Tuples[Range[Length[spacetimeMetricTensor]], 2]]; spacetimeEinsteinTensor = 
+      spacetimeRicciTensor - (1/2)*spacetimeRicciScalar*spacetimeMetricTensor; contravariantSpacetimeEinsteinTensor = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inverse[spacetimeMetricTensor][[First[index],First[#1]]]*
+                Inverse[spacetimeMetricTensor][[Last[#1],Last[index]]]*spacetimeEinsteinTensor[[First[#1],
+                 Last[#1]]] & ) /@ Tuples[Range[Length[spacetimeMetricTensor]], 2]]] & ) /@ 
+         Tuples[Range[Length[spacetimeMetricTensor]], 2]]]; 
+     (spatialRicciScalar + extrinsicCurvatureTrace^2 - Total[(mixedExtrinsicCurvatureTensor[[First[#1],Last[#1]]]*
+            mixedExtrinsicCurvatureTensor[[Last[#1],First[#1]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 
+           2]]) - 2*newLapseFunction^2*contravariantSpacetimeEinsteinTensor[[1,1]] /. 
+      (ToExpression[#1] -> #1 & ) /@ Select[Join[coordinates, {timeCoordinate}], StringQ]] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2] && 
+    Length[shiftVector] == Length[matrixRepresentation]
 ADMDecomposition[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_], timeCoordinate_, 
     lapseFunction_, shiftVector_List]["MomentumConstraints"] := 
   Module[{newMatrixRepresentation, newCoordinates, newTimeCoordinate, newLapseFunction, newShiftVector, shiftCovector, 
@@ -2238,6 +2325,84 @@ ADMDecomposition[(metricTensor_)[matrixRepresentation_List, coordinates_List, in
         Select[Join[coordinates, {timeCoordinate}], StringQ]]] /; SymbolName[metricTensor] === "MetricTensor" && 
     Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
     BooleanQ[index1] && BooleanQ[index2] && Length[shiftVector] == Length[matrixRepresentation]
+ADMDecomposition[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_], timeCoordinate_, 
+    lapseFunction_, shiftVector_List]["SymbolicMomentumConstraints"] := 
+  Module[{newMatrixRepresentation, newCoordinates, newTimeCoordinate, newLapseFunction, newShiftVector, shiftCovector, 
+     spatialChristoffelSymbols, extrinsicCurvatureTensor, mixedExtrinsicCurvatureTensor, extrinsicCurvatureTrace, 
+     spacetimeMetricTensor, spacetimeChristoffelSymbols, spacetimeRiemannTensor, spacetimeRicciTensor, 
+     spacetimeRicciScalar, spacetimeEinsteinTensor, mixedSpacetimeEinsteinTensor}, 
+    newMatrixRepresentation = matrixRepresentation /. (#1 -> ToExpression[#1] & ) /@ 
+        Select[Join[coordinates, {timeCoordinate}], StringQ]; newCoordinates = 
+      coordinates /. (#1 -> ToExpression[#1] & ) /@ Select[Join[coordinates, {timeCoordinate}], StringQ]; 
+     newTimeCoordinate = timeCoordinate /. (#1 -> ToExpression[#1] & ) /@ Select[Join[coordinates, {timeCoordinate}], 
+         StringQ]; newLapseFunction = lapseFunction /. (#1 -> ToExpression[#1] & ) /@ 
+        Select[Join[coordinates, {timeCoordinate}], StringQ]; newShiftVector = 
+      shiftVector /. (#1 -> ToExpression[#1] & ) /@ Select[Join[coordinates, {timeCoordinate}], StringQ]; 
+     shiftCovector = Normal[SparseArray[
+        (Module[{index = #1}, index -> Total[(newMatrixRepresentation[[index,#1]]*newShiftVector[[#1]] & ) /@ 
+              Range[Length[newMatrixRepresentation]]]] & ) /@ Range[Length[newMatrixRepresentation]]]]; 
+     spatialChristoffelSymbols = Normal[SparseArray[
+        (Module[{index = #1}, index -> Total[((1/2)*Inverse[newMatrixRepresentation][[index[[1]],#1]]*
+                (Inactive[D][newMatrixRepresentation[[#1,index[[3]]]], newCoordinates[[index[[2]]]]] + 
+                 Inactive[D][newMatrixRepresentation[[index[[2]],#1]], newCoordinates[[index[[3]]]]] - 
+                 Inactive[D][newMatrixRepresentation[[index[[2]],index[[3]]]], newCoordinates[[#1]]]) & ) /@ 
+              Range[Length[newMatrixRepresentation]]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 3]]]; 
+     extrinsicCurvatureTensor = Normal[SparseArray[
+        (Module[{index = #1}, index -> (1/(2*newLapseFunction))*(Inactive[D][shiftCovector[[First[index]]], 
+               newCoordinates[[Last[index]]]] - Total[(spatialChristoffelSymbols[[#1,Last[index],First[index]]]*
+                  shiftCovector[[#1]] & ) /@ Range[Length[newMatrixRepresentation]]] + Inactive[D][shiftCovector[[
+                Last[index]]], newCoordinates[[First[index]]]] - Total[(spatialChristoffelSymbols[[#1,First[index],
+                   Last[index]]]*shiftCovector[[#1]] & ) /@ Range[Length[newMatrixRepresentation]]] - 
+              Inactive[D][newMatrixRepresentation[[First[index],Last[index]]], newTimeCoordinate])] & ) /@ 
+         Tuples[Range[Length[newMatrixRepresentation]], 2]]]; mixedExtrinsicCurvatureTensor = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inverse[newMatrixRepresentation][[#1,Last[index]]]*
+                extrinsicCurvatureTensor[[First[index],#1]] & ) /@ Range[Length[newMatrixRepresentation]]]] & ) /@ 
+         Tuples[Range[Length[newMatrixRepresentation]], 2]]]; extrinsicCurvatureTrace = 
+      Total[(Inverse[newMatrixRepresentation][[First[#1],Last[#1]]]*extrinsicCurvatureTensor[[First[#1],Last[#1]]] & ) /@ 
+        Tuples[Range[Length[newMatrixRepresentation]], 2]]; spacetimeMetricTensor = 
+      Normal[SparseArray[Join[{{1, 1} -> Total[(newShiftVector[[#1]]^2 & ) /@ Range[Length[newMatrixRepresentation]]] - 
+            newLapseFunction^2}, (Module[{index = #1}, {1, index + 1} -> Total[(newMatrixRepresentation[[index,#1]]*
+                 newShiftVector[[#1]] & ) /@ Range[Length[newMatrixRepresentation]]]] & ) /@ 
+          Range[Length[newMatrixRepresentation]], (Module[{index = #1}, {index + 1, 1} -> 
+             Total[(newMatrixRepresentation[[#1,index]]*newShiftVector[[#1]] & ) /@ Range[
+                Length[newMatrixRepresentation]]]] & ) /@ Range[Length[newMatrixRepresentation]], 
+         ({First[#1] + 1, Last[#1] + 1} -> newMatrixRepresentation[[First[#1],Last[#1]]] & ) /@ 
+          Tuples[Range[Length[newMatrixRepresentation]], 2]]]]; spacetimeChristoffelSymbols = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[((1/2)*Inverse[spacetimeMetricTensor][[index[[1]],#1]]*
+                (Inactive[D][spacetimeMetricTensor[[#1,index[[3]]]], Join[{newTimeCoordinate}, newCoordinates][[
+                   index[[2]]]]] + Inactive[D][spacetimeMetricTensor[[index[[2]],#1]], Join[{newTimeCoordinate}, 
+                    newCoordinates][[index[[3]]]]] - Inactive[D][spacetimeMetricTensor[[index[[2]],index[[3]]]], 
+                  Join[{newTimeCoordinate}, newCoordinates][[#1]]]) & ) /@ Range[Length[spacetimeMetricTensor]]]] & ) /@ 
+         Tuples[Range[Length[spacetimeMetricTensor]], 3]]]; spacetimeRiemannTensor = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Inactive[D][spacetimeChristoffelSymbols[[index[[1]],index[[
+                2]],index[[4]]]], Join[{newTimeCoordinate}, newCoordinates][[index[[3]]]]] - 
+             Inactive[D][spacetimeChristoffelSymbols[[index[[1]],index[[2]],index[[3]]]], Join[{newTimeCoordinate}, 
+                newCoordinates][[index[[4]]]]] + Total[(spacetimeChristoffelSymbols[[index[[1]],#1,index[[3]]]]*
+                 spacetimeChristoffelSymbols[[#1,index[[2]],index[[4]]]] & ) /@ Range[Length[spacetimeMetricTensor]]] - 
+             Total[(spacetimeChristoffelSymbols[[index[[1]],#1,index[[4]]]]*spacetimeChristoffelSymbols[[#1,index[[2]],
+                  index[[3]]]] & ) /@ Range[Length[spacetimeMetricTensor]]]] & ) /@ 
+         Tuples[Range[Length[spacetimeMetricTensor]], 4]]]; spacetimeRicciTensor = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[(spacetimeRiemannTensor[[#1,First[index],#1,
+                Last[index]]] & ) /@ Range[Length[spacetimeMetricTensor]]]] & ) /@ 
+         Tuples[Range[Length[spacetimeMetricTensor]], 2]]]; spacetimeRicciScalar = 
+      Total[(Inverse[spacetimeMetricTensor][[First[#1],Last[#1]]]*spacetimeRicciTensor[[First[#1],Last[#1]]] & ) /@ 
+        Tuples[Range[Length[spacetimeMetricTensor]], 2]]; spacetimeEinsteinTensor = 
+      spacetimeRicciTensor - (1/2)*spacetimeRicciScalar*spacetimeMetricTensor; mixedSpacetimeEinsteinTensor = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inverse[spacetimeMetricTensor][[#1,Last[index]]]*
+                spacetimeEinsteinTensor[[First[index],#1]] & ) /@ Range[Length[spacetimeMetricTensor]]]] & ) /@ 
+         Tuples[Range[Length[spacetimeMetricTensor]], 2]]]; 
+     Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inactive[D][mixedExtrinsicCurvatureTensor[[index,#1]], 
+                 newCoordinates[[#1]]] & ) /@ Range[Length[newMatrixRepresentation]]] + 
+             Total[(spatialChristoffelSymbols[[First[#1],First[#1],Last[#1]]]*mixedExtrinsicCurvatureTensor[[index,
+                  Last[#1]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 2]] - 
+             Total[(spatialChristoffelSymbols[[Last[#1],First[#1],index]]*mixedExtrinsicCurvatureTensor[[Last[#1],
+                  First[#1]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 2]] - 
+             Inactive[D][extrinsicCurvatureTrace, newCoordinates[[index]]] - newLapseFunction*
+              mixedSpacetimeEinsteinTensor[[index + 1,1]]] & ) /@ Range[Length[newMatrixRepresentation]]]] /. 
+      (ToExpression[#1] -> #1 & ) /@ Select[Join[coordinates, {timeCoordinate}], StringQ]] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2] && 
+    Length[shiftVector] == Length[matrixRepresentation]
 ADMDecomposition /: MakeBoxes[admDecomposition:ADMDecomposition[(metricTensor_)[matrixRepresentation_List, 
        coordinates_List, index1_, index2_], timeCoordinate_, lapseFunction_, shiftVector_List], format_] := 
    Module[{spacetimeMetricTensor, type, symbol, dimensions, eigenvalues, positiveEigenvalues, negativeEigenvalues, 
