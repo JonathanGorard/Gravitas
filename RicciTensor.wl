@@ -1,9 +1,22 @@
 (* ::Package:: *)
 
 RicciTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_]] := 
-  RicciTensor[MetricTensor[matrixRepresentation, coordinates, metricIndex1, metricIndex2], True, True] /; 
-   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+  RicciTensor[ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, metricIndex1, metricIndex2], True, 
+    True] /; SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
     Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2]
+RicciTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+   newCoordinates_List] := RicciTensor[ResourceFunction["MetricTensor"][matrixRepresentation /. 
+      Thread[coordinates -> newCoordinates], newCoordinates, metricIndex1, metricIndex2], True, True] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && Length[newCoordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2]
+RicciTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+   newCoordinates_List, index1_, index2_] := 
+  RicciTensor[ResourceFunction["MetricTensor"][matrixRepresentation /. Thread[coordinates -> newCoordinates], 
+     newCoordinates, metricIndex1, metricIndex2], index1, index2] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    Length[newCoordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    BooleanQ[index1] && BooleanQ[index2]
 RicciTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], index1_, index2_][
    "MatrixRepresentation"] := Module[{newMatrixRepresentation, newCoordinates, christoffelSymbols, riemannTensor, 
      ricciTensor}, newMatrixRepresentation = matrixRepresentation /. (#1 -> ToExpression[#1] & ) /@ 
@@ -179,7 +192,7 @@ RicciTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricI
     Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
     BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && BooleanQ[index1] && BooleanQ[index2]
 RicciTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], index1_, index2_][
-   "MetricTensor"] := MetricTensor[matrixRepresentation, coordinates, metricIndex1, metricIndex2] /; 
+   "MetricTensor"] := ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, metricIndex1, metricIndex2] /; 
    SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
     Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
     BooleanQ[index1] && BooleanQ[index2]
@@ -686,6 +699,37 @@ RicciTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricI
     Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
     BooleanQ[index1] && BooleanQ[index2]
 RicciTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], index1_, index2_][
+   "RiemannianConditions"] := Module[{eigenvalues, riemannianConditions}, 
+    eigenvalues = Eigenvalues[matrixRepresentation]; riemannianConditions = FullSimplify[(#1 > 0 & ) /@ eigenvalues]; 
+     If[riemannianConditions === True, {}, If[riemannianConditions === False, Indeterminate, 
+       If[Length[Select[riemannianConditions, #1 === False & ]] > 0, Indeterminate, 
+        DeleteDuplicates[Select[riemannianConditions, #1 =!= True & ]]]]]] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    BooleanQ[index1] && BooleanQ[index2]
+RicciTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], index1_, index2_][
+   "PseudoRiemannianConditions"] := Module[{eigenvalues, pseudoRiemannianConditions}, 
+    eigenvalues = Eigenvalues[matrixRepresentation]; pseudoRiemannianConditions = 
+      FullSimplify[(#1 != 0 & ) /@ eigenvalues]; If[pseudoRiemannianConditions === True, {}, 
+      If[pseudoRiemannianConditions === False, Indeterminate, 
+       If[Length[Select[pseudoRiemannianConditions, #1 === False & ]] > 0, Indeterminate, 
+        DeleteDuplicates[Reverse /@ Sort /@ Select[pseudoRiemannianConditions, #1 =!= True & ]]]]]] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    BooleanQ[index1] && BooleanQ[index2]
+RicciTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], index1_, index2_][
+   "LorentzianConditions"] := Module[{eigensystem, eigenvalues, eigenvectors, timeCoordinate, lorentzianConditions}, 
+    eigensystem = Eigensystem[matrixRepresentation]; eigenvalues = First[eigensystem]; eigenvectors = Last[eigensystem]; 
+     If[Length[Position[eigenvectors, Join[{1}, ConstantArray[0, Length[coordinates] - 1]]]] > 0, 
+      timeCoordinate = First[First[Position[eigenvectors, Join[{1}, ConstantArray[0, Length[coordinates] - 1]]]]]; 
+       lorentzianConditions = FullSimplify[(If[#1 == timeCoordinate, eigenvalues[[#1]] < 0, eigenvalues[[#1]] > 0] & ) /@ 
+          Range[Length[eigenvalues]]]; If[lorentzianConditions === True, {}, If[lorentzianConditions === False, 
+         Indeterminate, If[Length[Select[lorentzianConditions, #1 === False & ]] > 0, Indeterminate, 
+          DeleteDuplicates[Select[lorentzianConditions, #1 =!= True & ]]]]], Indeterminate]] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    BooleanQ[index1] && BooleanQ[index2]
+RicciTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], index1_, index2_][
    "CurvatureSingularities"] := Module[{newMatrixRepresentation, newCoordinates, christoffelSymbols, riemannTensor, 
      ricciTensor}, newMatrixRepresentation = matrixRepresentation /. (#1 -> ToExpression[#1] & ) /@ 
         Select[coordinates, StringQ]; newCoordinates = coordinates /. (#1 -> ToExpression[#1] & ) /@ 
@@ -782,6 +826,29 @@ RicciTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricI
     Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
     BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && BooleanQ[index1] && BooleanQ[index2]
 RicciTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], index1_, index2_][
+   "SymbolicDeterminant"] := Module[{newMatrixRepresentation, newCoordinates, christoffelSymbols, riemannTensor}, 
+    newMatrixRepresentation = matrixRepresentation /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newCoordinates = coordinates /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     christoffelSymbols = Normal[SparseArray[
+        (Module[{index = #1}, index -> Total[((1/2)*Inverse[newMatrixRepresentation][[index[[1]],#1]]*
+                (Inactive[D][newMatrixRepresentation[[#1,index[[3]]]], newCoordinates[[index[[2]]]]] + 
+                 Inactive[D][newMatrixRepresentation[[index[[2]],#1]], newCoordinates[[index[[3]]]]] - 
+                 Inactive[D][newMatrixRepresentation[[index[[2]],index[[3]]]], newCoordinates[[#1]]]) & ) /@ 
+              Range[Length[newMatrixRepresentation]]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 3]]]; 
+     riemannTensor = Normal[SparseArray[(Module[{index = #1}, index -> Inactive[D][christoffelSymbols[[index[[1]],
+                index[[2]],index[[4]]]], newCoordinates[[index[[3]]]]] - Inactive[D][christoffelSymbols[[index[[1]],
+                index[[2]],index[[3]]]], newCoordinates[[index[[4]]]]] + Total[(christoffelSymbols[[index[[1]],#1,
+                   index[[3]]]]*christoffelSymbols[[#1,index[[2]],index[[4]]]] & ) /@ 
+                Range[Length[newMatrixRepresentation]]] - Total[(christoffelSymbols[[index[[1]],#1,index[[4]]]]*
+                  christoffelSymbols[[#1,index[[2]],index[[3]]]] & ) /@ Range[Length[newMatrixRepresentation]]]] & ) /@ 
+          Tuples[Range[Length[newMatrixRepresentation]], 4]]] /. (ToExpression[#1] -> #1 & ) /@ 
+        Select[coordinates, StringQ]; 
+     Det[Normal[SparseArray[(Module[{index = #1}, index -> Total[(riemannTensor[[#1,First[index],#1,Last[index]]] & ) /@ 
+              Range[Length[matrixRepresentation]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 2]]]]] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    BooleanQ[index1] && BooleanQ[index2]
+RicciTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], index1_, index2_][
    "Eigenvalues"] := Module[{newMatrixRepresentation, newCoordinates, christoffelSymbols, riemannTensor}, 
     newMatrixRepresentation = matrixRepresentation /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
      newCoordinates = coordinates /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
@@ -872,13 +939,13 @@ RicciTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricI
     Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
     BooleanQ[index1] && BooleanQ[index2]
 RicciTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], index1_, index2_][
-   "CovariantRicciTensor"] := RicciTensor[MetricTensor[matrixRepresentation, coordinates, metricIndex1, metricIndex2], 
-    True, True] /; SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
-    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
-    BooleanQ[index1] && BooleanQ[index2]
+   "CovariantRicciTensor"] := RicciTensor[ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, 
+     metricIndex1, metricIndex2], True, True] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && BooleanQ[index1] && BooleanQ[index2]
 RicciTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], index1_, index2_][
-   "ContravariantRicciTensor"] := RicciTensor[MetricTensor[matrixRepresentation, coordinates, metricIndex1, 
-     metricIndex2], False, False] /; SymbolName[metricTensor] === "MetricTensor" && 
+   "ContravariantRicciTensor"] := RicciTensor[ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, 
+     metricIndex1, metricIndex2], False, False] /; SymbolName[metricTensor] === "MetricTensor" && 
     Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
     BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && BooleanQ[index1] && BooleanQ[index2]
 RicciTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], index1_, index2_][
@@ -930,6 +997,33 @@ RicciTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricI
      ricciScalar = Total[(Inverse[matrixRepresentation][[First[#1],Last[#1]]]*ricciTensor[[First[#1],Last[#1]]] & ) /@ 
         Tuples[Range[Length[matrixRepresentation]], 2]]; FullSimplify["\[FormalCapitalV]"["\[FormalEpsilon]"]/"\[FormalMu]"["\[FormalEpsilon]"] == 
        1 - (ricciScalar/(6*(Length[matrixRepresentation] + 2)))*"\[FormalEpsilon]"^2 + "\[FormalCapitalO]"["\[FormalEpsilon]"]^3]] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    BooleanQ[index1] && BooleanQ[index2]
+RicciTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], index1_, index2_][
+   "SymbolicScalarVolumeExpansion"] := Module[{newMatrixRepresentation, newCoordinates, christoffelSymbols, 
+     riemannTensor, ricciTensor, ricciScalar}, 
+    newMatrixRepresentation = matrixRepresentation /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newCoordinates = coordinates /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     christoffelSymbols = Normal[SparseArray[
+        (Module[{index = #1}, index -> Total[((1/2)*Inverse[newMatrixRepresentation][[index[[1]],#1]]*
+                (Inactive[D][newMatrixRepresentation[[#1,index[[3]]]], newCoordinates[[index[[2]]]]] + 
+                 Inactive[D][newMatrixRepresentation[[index[[2]],#1]], newCoordinates[[index[[3]]]]] - 
+                 Inactive[D][newMatrixRepresentation[[index[[2]],index[[3]]]], newCoordinates[[#1]]]) & ) /@ 
+              Range[Length[newMatrixRepresentation]]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 3]]]; 
+     riemannTensor = Normal[SparseArray[(Module[{index = #1}, index -> Inactive[D][christoffelSymbols[[index[[1]],
+                index[[2]],index[[4]]]], newCoordinates[[index[[3]]]]] - Inactive[D][christoffelSymbols[[index[[1]],
+                index[[2]],index[[3]]]], newCoordinates[[index[[4]]]]] + Total[(christoffelSymbols[[index[[1]],#1,
+                   index[[3]]]]*christoffelSymbols[[#1,index[[2]],index[[4]]]] & ) /@ 
+                Range[Length[newMatrixRepresentation]]] - Total[(christoffelSymbols[[index[[1]],#1,index[[4]]]]*
+                  christoffelSymbols[[#1,index[[2]],index[[3]]]] & ) /@ Range[Length[newMatrixRepresentation]]]] & ) /@ 
+          Tuples[Range[Length[newMatrixRepresentation]], 4]]] /. (ToExpression[#1] -> #1 & ) /@ 
+        Select[coordinates, StringQ]; ricciTensor = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[(riemannTensor[[#1,First[index],#1,Last[index]]] & ) /@ 
+              Range[Length[matrixRepresentation]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 2]]]; 
+     ricciScalar = Total[(Inverse[matrixRepresentation][[First[#1],Last[#1]]]*ricciTensor[[First[#1],Last[#1]]] & ) /@ 
+        Tuples[Range[Length[matrixRepresentation]], 2]]; "\[FormalCapitalV]"["\[FormalEpsilon]"]/"\[FormalMu]"["\[FormalEpsilon]"] == 
+      1 - (ricciScalar/(6*(Length[matrixRepresentation] + 2)))*"\[FormalEpsilon]"^2 + "\[FormalCapitalO]"["\[FormalEpsilon]"]^3] /; 
    SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
     Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
     BooleanQ[index1] && BooleanQ[index2]
@@ -996,23 +1090,69 @@ RicciTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricI
     Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
     BooleanQ[index1] && BooleanQ[index2]
 RicciTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], index1_, index2_][
+   "SymbolicVolumeFormExpansion"] := Module[{newMatrixRepresentation, newCoordinates, christoffelSymbols, riemannTensor, 
+     ricciTensor, coordinateOneForms}, newMatrixRepresentation = matrixRepresentation /. 
+       (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newCoordinates = coordinates /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     christoffelSymbols = Normal[SparseArray[
+        (Module[{index = #1}, index -> Total[((1/2)*Inverse[newMatrixRepresentation][[index[[1]],#1]]*
+                (Inactive[D][newMatrixRepresentation[[#1,index[[3]]]], newCoordinates[[index[[2]]]]] + 
+                 Inactive[D][newMatrixRepresentation[[index[[2]],#1]], newCoordinates[[index[[3]]]]] - 
+                 Inactive[D][newMatrixRepresentation[[index[[2]],index[[3]]]], newCoordinates[[#1]]]) & ) /@ 
+              Range[Length[newMatrixRepresentation]]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 3]]]; 
+     riemannTensor = Normal[SparseArray[(Module[{index = #1}, index -> Inactive[D][christoffelSymbols[[index[[1]],
+                index[[2]],index[[4]]]], newCoordinates[[index[[3]]]]] - Inactive[D][christoffelSymbols[[index[[1]],
+                index[[2]],index[[3]]]], newCoordinates[[index[[4]]]]] + Total[(christoffelSymbols[[index[[1]],#1,
+                   index[[3]]]]*christoffelSymbols[[#1,index[[2]],index[[4]]]] & ) /@ 
+                Range[Length[newMatrixRepresentation]]] - Total[(christoffelSymbols[[index[[1]],#1,index[[4]]]]*
+                  christoffelSymbols[[#1,index[[2]],index[[3]]]] & ) /@ Range[Length[newMatrixRepresentation]]]] & ) /@ 
+          Tuples[Range[Length[newMatrixRepresentation]], 4]]] /. (ToExpression[#1] -> #1 & ) /@ 
+        Select[coordinates, StringQ]; ricciTensor = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[(riemannTensor[[#1,First[index],#1,Last[index]]] & ) /@ 
+              Range[Length[matrixRepresentation]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 2]]]; 
+     coordinateOneForms = (If[Head[#1] === Subscript, Subscript[StringJoin["\[FormalD]", ToString[First[#1]]], 
+          ToString[Last[#1]]], If[Head[#1] === Superscript, Superscript[StringJoin["\[FormalD]", ToString[First[#1]]], 
+           ToString[Last[#1]]], StringJoin["\[FormalD]", ToString[#1]]]] & ) /@ coordinates; 
+     "\[FormalD]\[FormalCapitalV]"/"\[FormalD]\[FormalMu]" == 1 - (1/6)*Total[(ricciTensor[[First[#1],Last[#1]]]*coordinateOneForms[[First[#1]]]*
+            coordinateOneForms[[Last[#1]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 2]] + 
+       "\[FormalCapitalO]"[Abs[Sqrt[Total[(matrixRepresentation[[First[#1],Last[#1]]]*coordinateOneForms[[First[#1]]]*
+               coordinateOneForms[[Last[#1]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 2]]]]^3]] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    BooleanQ[index1] && BooleanQ[index2]
+RicciTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], index1_, index2_][
    "Properties"] := {"MatrixRepresentation", "ReducedMatrixRepresentation", "SymbolicMatrixRepresentation", 
     "RicciScalar", "ReducedRicciScalar", "SymbolicRicciScalar", "MetricTensor", "Coordinates", "CoordinateOneForms", 
     "Indices", "CovariantQ", "ContravariantQ", "MixedQ", "Symbol", "RicciFlatQ", "VanishingRicciScalarQ", 
     "RicciFlatConditions", "VanishingRicciScalarCondition", "CovariantDerivatives", "ReducedCovariantDerivatives", 
     "SymbolicCovariantDerivatives", "BianchiIdentities", "SymbolicBianchiIdentities", "Dimensions", "SymmetricQ", 
-    "DiagonalQ", "Signature", "RiemannianQ", "PseudoRiemannianQ", "LorentzianQ", "CurvatureSingularities", 
-    "ScalarCurvatureSingularities", "Determinant", "ReducedDeterminant", "Eigenvalues", "ReducedEigenvalues", 
-    "Eigenvectors", "ReducedEigenvectors", "CovariantRicciTensor", "ContravariantRicciTensor", "ScalarVolumeExpansion", 
-    "ReducedScalarVolumeExpansion", "VolumeFormExpansion", "ReducedVolumeFormExpansion", "Properties"} /; 
-   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
-    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    "DiagonalQ", "Signature", "RiemannianQ", "PseudoRiemannianQ", "LorentzianQ", "RiemannianConditions", 
+    "PseudoRiemannianConditions", "LorentzianConditions", "CurvatureSingularities", "ScalarCurvatureSingularities", 
+    "Determinant", "ReducedDeterminant", "SymbolicDeterminant", "Eigenvalues", "ReducedEigenvalues", "Eigenvectors", 
+    "ReducedEigenvectors", "CovariantRicciTensor", "ContravariantRicciTensor", "ScalarVolumeExpansion", 
+    "ReducedScalarVolumeExpansion", "SymbolicScalarVolumeExpansion", "VolumeFormExpansion", "ReducedVolumeFormExpansion", 
+    "SymbolicVolumeFormExpansion", "Properties"} /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && BooleanQ[index1] && BooleanQ[index2]
+RicciTensor[RicciTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+    index1_, index2_], newCoordinates_List] := 
+  RicciTensor[ResourceFunction["MetricTensor"][matrixRepresentation /. Thread[coordinates -> newCoordinates], 
+     newCoordinates, metricIndex1, metricIndex2], index1, index2] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    Length[newCoordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
     BooleanQ[index1] && BooleanQ[index2]
 RicciTensor[RicciTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
     index1_, index2_], newIndex1_, newIndex2_] := 
-  RicciTensor[MetricTensor[matrixRepresentation, coordinates, metricIndex1, metricIndex2], newIndex1, newIndex2] /; 
-   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+  RicciTensor[ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, metricIndex1, metricIndex2], newIndex1, 
+    newIndex2] /; SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
     Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    BooleanQ[index1] && BooleanQ[index2] && BooleanQ[newIndex1] && BooleanQ[newIndex2]
+RicciTensor[RicciTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+    index1_, index2_], newCoordinates_List, newIndex1_, newIndex2_] := 
+  RicciTensor[ResourceFunction["MetricTensor"][matrixRepresentation /. Thread[coordinates -> newCoordinates], 
+     newCoordinates, metricIndex1, metricIndex2], newIndex1, newIndex2] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    Length[newCoordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
     BooleanQ[index1] && BooleanQ[index2] && BooleanQ[newIndex1] && BooleanQ[newIndex2]
 RicciTensor /: MakeBoxes[ricciTensor:RicciTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, 
        metricIndex1_, metricIndex2_], index1_, index2_], format_] := 
