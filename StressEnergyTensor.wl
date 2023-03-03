@@ -1,5 +1,221 @@
 (* ::Package:: *)
 
+StressEnergyTensor[] := {"Symmetric", "SymmetricField", "Asymmetric", "AsymmetricField", "PerfectFluid", 
+   "PerfectFluidField", "Dust", "DustField", "Radiation", "RadiationField", "ElectromagneticField", "MassiveScalarField"}
+StressEnergyTensor[dimensionCount_Integer] := StressEnergyTensor[ResourceFunction["MetricTensor"][
+    DiagonalMatrix[Join[{-1}, ConstantArray[1, dimensionCount - 1]]], 
+    Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[dimensionCount - 1]], True, True], 
+   Normal[SparseArray[(#1 -> Superscript["\[FormalCapitalT]", Sort[#1]] & ) /@ Tuples[Range[dimensionCount], 2]]], False, False]
+StressEnergyTensor[dimensionCount_Integer, (metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, 
+    metricIndex2_]] := StressEnergyTensor[ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, 
+     metricIndex1, metricIndex2], Normal[SparseArray[(#1 -> Superscript["\[FormalCapitalT]", Sort[#1]] & ) /@ 
+       Tuples[Range[dimensionCount], 2]]], False, False] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[matrixRepresentation] == dimensionCount
+StressEnergyTensor[dimensionCount_Integer, index1_, index2_] := 
+  StressEnergyTensor[ResourceFunction["MetricTensor"][DiagonalMatrix[Join[{-1}, ConstantArray[1, dimensionCount - 1]]], 
+     Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[dimensionCount - 1]], True, True], 
+    Normal[SparseArray[(#1 -> Superscript["\[FormalCapitalT]", Sort[#1]] & ) /@ Tuples[Range[dimensionCount], 2]]], index1, index2] /; 
+   BooleanQ[index1] && BooleanQ[index2]
+StressEnergyTensor[dimensionCount_Integer, (metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, 
+    metricIndex2_], index1_, index2_] := StressEnergyTensor[ResourceFunction["MetricTensor"][matrixRepresentation, 
+     coordinates, metricIndex1, metricIndex2], Normal[SparseArray[(#1 -> Superscript["\[FormalCapitalT]", Sort[#1]] & ) /@ 
+       Tuples[Range[dimensionCount], 2]]], index1, index2] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && BooleanQ[index1] && BooleanQ[index2] && 
+    Length[matrixRepresentation] == dimensionCount
+StressEnergyTensor["Symmetric"] := StressEnergyTensor[ResourceFunction["MetricTensor"][
+    DiagonalMatrix[Join[{-1}, ConstantArray[1, 3]]], Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[3]], 
+    True, True], Normal[SparseArray[(#1 -> Superscript["\[FormalCapitalT]", Sort[#1]] & ) /@ Tuples[Range[4], 2]]], False, False]
+StressEnergyTensor["Symmetric", (metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, 
+    metricIndex2_]] := StressEnergyTensor[ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, 
+     metricIndex1, metricIndex2], Normal[SparseArray[(#1 -> Superscript["\[FormalCapitalT]", Sort[#1]] & ) /@ Tuples[Range[4], 2]]], 
+    False, False] /; SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    Length[matrixRepresentation] == 4
+StressEnergyTensor["Symmetric", index1_, index2_] := 
+  StressEnergyTensor[ResourceFunction["MetricTensor"][DiagonalMatrix[Join[{-1}, ConstantArray[1, 3]]], 
+     Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[3]], True, True], 
+    Normal[SparseArray[(#1 -> Superscript["\[FormalCapitalT]", Sort[#1]] & ) /@ Tuples[Range[4], 2]]], index1, index2] /; 
+   BooleanQ[index1] && BooleanQ[index2]
+StressEnergyTensor["Symmetric", (metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, 
+    metricIndex2_], index1_, index2_] := StressEnergyTensor[ResourceFunction["MetricTensor"][matrixRepresentation, 
+     coordinates, metricIndex1, metricIndex2], Normal[SparseArray[(#1 -> Superscript["\[FormalCapitalT]", Sort[#1]] & ) /@ 
+       Tuples[Range[4], 2]]], index1, index2] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && BooleanQ[index1] && BooleanQ[index2] && 
+    Length[matrixRepresentation] == 4
+StressEnergyTensor[{"Symmetric", dimensionCount_Integer}] := 
+  StressEnergyTensor[ResourceFunction["MetricTensor"][DiagonalMatrix[Join[{-1}, ConstantArray[1, dimensionCount - 1]]], 
+    Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[dimensionCount - 1]], True, True], 
+   Normal[SparseArray[(#1 -> Superscript["\[FormalCapitalT]", Sort[#1]] & ) /@ Tuples[Range[dimensionCount], 2]]], False, False]
+StressEnergyTensor[{"Symmetric", dimensionCount_Integer}, (metricTensor_)[matrixRepresentation_List, coordinates_List, 
+    metricIndex1_, metricIndex2_]] := StressEnergyTensor[ResourceFunction["MetricTensor"][matrixRepresentation, 
+     coordinates, metricIndex1, metricIndex2], Normal[SparseArray[(#1 -> Superscript["\[FormalCapitalT]", Sort[#1]] & ) /@ 
+       Tuples[Range[dimensionCount], 2]]], False, False] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[matrixRepresentation] == dimensionCount
+StressEnergyTensor[{"Symmetric", dimensionCount_Integer}, index1_, index2_] := 
+  StressEnergyTensor[ResourceFunction["MetricTensor"][DiagonalMatrix[Join[{-1}, ConstantArray[1, dimensionCount - 1]]], 
+     Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[dimensionCount - 1]], True, True], 
+    Normal[SparseArray[(#1 -> Superscript["\[FormalCapitalT]", Sort[#1]] & ) /@ Tuples[Range[dimensionCount], 2]]], index1, index2] /; 
+   BooleanQ[index1] && BooleanQ[index2]
+StressEnergyTensor[{"Symmetric", dimensionCount_Integer}, (metricTensor_)[matrixRepresentation_List, coordinates_List, 
+    metricIndex1_, metricIndex2_], index1_, index2_] := 
+  StressEnergyTensor[ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, metricIndex1, metricIndex2], 
+    Normal[SparseArray[(#1 -> Superscript["\[FormalCapitalT]", Sort[#1]] & ) /@ Tuples[Range[dimensionCount], 2]]], index1, index2] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    BooleanQ[index1] && BooleanQ[index2] && Length[matrixRepresentation] == dimensionCount
+StressEnergyTensor["SymmetricField"] := StressEnergyTensor[ResourceFunction["MetricTensor"][
+    DiagonalMatrix[Join[{-1}, ConstantArray[1, 3]]], Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[3]], 
+    True, True], 
+   Normal[SparseArray[(Module[{index = #1}, index -> Superscript["\[FormalCapitalT]", Sort[index]] @@ 
+          Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[3]]] & ) /@ Tuples[Range[4], 2]]], False, False]
+StressEnergyTensor["SymmetricField", (metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, 
+    metricIndex2_]] := StressEnergyTensor[ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, 
+     metricIndex1, metricIndex2], 
+    Normal[SparseArray[(Module[{index = #1}, index -> Superscript["\[FormalCapitalT]", Sort[index]] @@ coordinates] & ) /@ 
+       Tuples[Range[4], 2]]], False, False] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[matrixRepresentation] == 4
+StressEnergyTensor["SymmetricField", index1_, index2_] := 
+  StressEnergyTensor[ResourceFunction["MetricTensor"][DiagonalMatrix[Join[{-1}, ConstantArray[1, 3]]], 
+     Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[3]], True, True], 
+    Normal[SparseArray[(Module[{index = #1}, index -> Superscript["\[FormalCapitalT]", Sort[index]] @@ 
+           Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[3]]] & ) /@ Tuples[Range[4], 2]]], index1, 
+    index2] /; BooleanQ[index1] && BooleanQ[index2]
+StressEnergyTensor["SymmetricField", (metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, 
+    metricIndex2_], index1_, index2_] := StressEnergyTensor[ResourceFunction["MetricTensor"][matrixRepresentation, 
+     coordinates, metricIndex1, metricIndex2], 
+    Normal[SparseArray[(Module[{index = #1}, index -> Superscript["\[FormalCapitalT]", Sort[index]] @@ coordinates] & ) /@ 
+       Tuples[Range[4], 2]]], index1, index2] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && BooleanQ[index1] && BooleanQ[index2] && 
+    Length[matrixRepresentation] == 4
+StressEnergyTensor[{"SymmetricField", dimensionCount_Integer}] := 
+  StressEnergyTensor[ResourceFunction["MetricTensor"][DiagonalMatrix[Join[{-1}, ConstantArray[1, dimensionCount - 1]]], 
+    Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[dimensionCount - 1]], True, True], 
+   Normal[SparseArray[(Module[{index = #1}, index -> Superscript["\[FormalCapitalT]", Sort[index]] @@ 
+          Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[dimensionCount - 1]]] & ) /@ 
+      Tuples[Range[dimensionCount], 2]]], False, False]
+StressEnergyTensor[{"SymmetricField", dimensionCount_Integer}, (metricTensor_)[matrixRepresentation_List, 
+    coordinates_List, metricIndex1_, metricIndex2_]] := 
+  StressEnergyTensor[ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, metricIndex1, metricIndex2], 
+    Normal[SparseArray[(Module[{index = #1}, index -> Superscript["\[FormalCapitalT]", Sort[index]] @@ coordinates] & ) /@ 
+       Tuples[Range[dimensionCount], 2]]], False, False] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[matrixRepresentation] == dimensionCount
+StressEnergyTensor[{"SymmetricField", dimensionCount_Integer}, index1_, index2_] := 
+  StressEnergyTensor[ResourceFunction["MetricTensor"][DiagonalMatrix[Join[{-1}, ConstantArray[1, dimensionCount - 1]]], 
+     Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[dimensionCount - 1]], True, True], 
+    Normal[SparseArray[(Module[{index = #1}, index -> Superscript["\[FormalCapitalT]", Sort[index]] @@ 
+           Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[dimensionCount - 1]]] & ) /@ 
+       Tuples[Range[dimensionCount], 2]]], index1, index2] /; BooleanQ[index1] && BooleanQ[index2]
+StressEnergyTensor[{"SymmetricField", dimensionCount_Integer}, (metricTensor_)[matrixRepresentation_List, 
+    coordinates_List, metricIndex1_, metricIndex2_], index1_, index2_] := 
+  StressEnergyTensor[ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, metricIndex1, metricIndex2], 
+    Normal[SparseArray[(Module[{index = #1}, index -> Superscript["\[FormalCapitalT]", Sort[index]] @@ coordinates] & ) /@ 
+       Tuples[Range[dimensionCount], 2]]], index1, index2] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && BooleanQ[index1] && BooleanQ[index2] && 
+    Length[matrixRepresentation] == dimensionCount
+StressEnergyTensor["Asymmetric"] := StressEnergyTensor[ResourceFunction["MetricTensor"][
+    DiagonalMatrix[Join[{-1}, ConstantArray[1, 3]]], Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[3]], 
+    True, True], Normal[SparseArray[(#1 -> Superscript["\[FormalCapitalT]", #1] & ) /@ Tuples[Range[4], 2]]], False, False]
+StressEnergyTensor["Asymmetric", (metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, 
+    metricIndex2_]] := StressEnergyTensor[ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, 
+     metricIndex1, metricIndex2], Normal[SparseArray[(#1 -> Superscript["\[FormalCapitalT]", #1] & ) /@ Tuples[Range[4], 2]]], False, 
+    False] /; SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    Length[matrixRepresentation] == 4
+StressEnergyTensor["Asymmetric", index1_, index2_] := 
+  StressEnergyTensor[ResourceFunction["MetricTensor"][DiagonalMatrix[Join[{-1}, ConstantArray[1, 3]]], 
+     Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[3]], True, True], 
+    Normal[SparseArray[(#1 -> Superscript["\[FormalCapitalT]", #1] & ) /@ Tuples[Range[4], 2]]], index1, index2] /; 
+   BooleanQ[index1] && BooleanQ[index2]
+StressEnergyTensor["Asymmetric", (metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, 
+    metricIndex2_], index1_, index2_] := StressEnergyTensor[ResourceFunction["MetricTensor"][matrixRepresentation, 
+     coordinates, metricIndex1, metricIndex2], Normal[SparseArray[(#1 -> Superscript["\[FormalCapitalT]", #1] & ) /@ 
+       Tuples[Range[4], 2]]], index1, index2] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && BooleanQ[index1] && BooleanQ[index2] && 
+    Length[matrixRepresentation] == 4
+StressEnergyTensor[{"Asymmetric", dimensionCount_Integer}] := 
+  StressEnergyTensor[ResourceFunction["MetricTensor"][DiagonalMatrix[Join[{-1}, ConstantArray[1, dimensionCount - 1]]], 
+    Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[dimensionCount - 1]], True, True], 
+   Normal[SparseArray[(#1 -> Superscript["\[FormalCapitalT]", #1] & ) /@ Tuples[Range[dimensionCount], 2]]], False, False]
+StressEnergyTensor[{"Asymmetric", dimensionCount_Integer}, (metricTensor_)[matrixRepresentation_List, coordinates_List, 
+    metricIndex1_, metricIndex2_]] := StressEnergyTensor[ResourceFunction["MetricTensor"][matrixRepresentation, 
+     coordinates, metricIndex1, metricIndex2], Normal[SparseArray[(#1 -> Superscript["\[FormalCapitalT]", #1] & ) /@ 
+       Tuples[Range[dimensionCount], 2]]], False, False] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[matrixRepresentation] == dimensionCount
+StressEnergyTensor[{"Asymmetric", dimensionCount_Integer}, index1_, index2_] := 
+  StressEnergyTensor[ResourceFunction["MetricTensor"][DiagonalMatrix[Join[{-1}, ConstantArray[1, dimensionCount - 1]]], 
+     Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[dimensionCount - 1]], True, True], 
+    Normal[SparseArray[(#1 -> Superscript["\[FormalCapitalT]", #1] & ) /@ Tuples[Range[dimensionCount], 2]]], index1, index2] /; 
+   BooleanQ[index1] && BooleanQ[index2]
+StressEnergyTensor[{"Asymmetric", dimensionCount_Integer}, (metricTensor_)[matrixRepresentation_List, coordinates_List, 
+    metricIndex1_, metricIndex2_], index1_, index2_] := 
+  StressEnergyTensor[ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, metricIndex1, metricIndex2], 
+    Normal[SparseArray[(#1 -> Superscript["\[FormalCapitalT]", #1] & ) /@ Tuples[Range[dimensionCount], 2]]], index1, index2] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    BooleanQ[index1] && BooleanQ[index2] && Length[matrixRepresentation] == dimensionCount
+StressEnergyTensor["AsymmetricField"] := StressEnergyTensor[ResourceFunction["MetricTensor"][
+    DiagonalMatrix[Join[{-1}, ConstantArray[1, 3]]], Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[3]], 
+    True, True], 
+   Normal[SparseArray[(Module[{index = #1}, index -> Superscript["\[FormalCapitalT]", index] @@ 
+          Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[3]]] & ) /@ Tuples[Range[4], 2]]], False, False]
+StressEnergyTensor["AsymmetricField", (metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, 
+    metricIndex2_]] := StressEnergyTensor[ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, 
+     metricIndex1, metricIndex2], 
+    Normal[SparseArray[(Module[{index = #1}, index -> Superscript["\[FormalCapitalT]", index] @@ coordinates] & ) /@ 
+       Tuples[Range[4], 2]]], False, False] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[matrixRepresentation] == 4
+StressEnergyTensor["AsymmetricField", index1_, index2_] := 
+  StressEnergyTensor[ResourceFunction["MetricTensor"][DiagonalMatrix[Join[{-1}, ConstantArray[1, 3]]], 
+     Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[3]], True, True], 
+    Normal[SparseArray[(Module[{index = #1}, index -> Superscript["\[FormalCapitalT]", index] @@ 
+           Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[3]]] & ) /@ Tuples[Range[4], 2]]], index1, 
+    index2] /; BooleanQ[index1] && BooleanQ[index2]
+StressEnergyTensor["AsymmetricField", (metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, 
+    metricIndex2_], index1_, index2_] := StressEnergyTensor[ResourceFunction["MetricTensor"][matrixRepresentation, 
+     coordinates, metricIndex1, metricIndex2], 
+    Normal[SparseArray[(Module[{index = #1}, index -> Superscript["\[FormalCapitalT]", index] @@ coordinates] & ) /@ 
+       Tuples[Range[4], 2]]], index1, index2] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && BooleanQ[index1] && BooleanQ[index2] && 
+    Length[matrixRepresentation] == 4
+StressEnergyTensor[{"AsymmetricField", dimensionCount_Integer}] := 
+  StressEnergyTensor[ResourceFunction["MetricTensor"][DiagonalMatrix[Join[{-1}, ConstantArray[1, dimensionCount - 1]]], 
+    Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[dimensionCount - 1]], True, True], 
+   Normal[SparseArray[(Module[{index = #1}, index -> Superscript["\[FormalCapitalT]", index] @@ 
+          Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[dimensionCount - 1]]] & ) /@ 
+      Tuples[Range[dimensionCount], 2]]], False, False]
+StressEnergyTensor[{"AsymmetricField", dimensionCount_Integer}, (metricTensor_)[matrixRepresentation_List, 
+    coordinates_List, metricIndex1_, metricIndex2_]] := 
+  StressEnergyTensor[ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, metricIndex1, metricIndex2], 
+    Normal[SparseArray[(Module[{index = #1}, index -> Superscript["\[FormalCapitalT]", index] @@ coordinates] & ) /@ 
+       Tuples[Range[dimensionCount], 2]]], False, False] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[matrixRepresentation] == dimensionCount
+StressEnergyTensor[{"AsymmetricField", dimensionCount_Integer}, index1_, index2_] := 
+  StressEnergyTensor[ResourceFunction["MetricTensor"][DiagonalMatrix[Join[{-1}, ConstantArray[1, dimensionCount - 1]]], 
+     Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[dimensionCount - 1]], True, True], 
+    Normal[SparseArray[(Module[{index = #1}, index -> Superscript["\[FormalCapitalT]", index] @@ 
+           Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[dimensionCount - 1]]] & ) /@ 
+       Tuples[Range[dimensionCount], 2]]], index1, index2] /; BooleanQ[index1] && BooleanQ[index2]
+StressEnergyTensor[{"AsymmetricField", dimensionCount_Integer}, (metricTensor_)[matrixRepresentation_List, 
+    coordinates_List, metricIndex1_, metricIndex2_], index1_, index2_] := 
+  StressEnergyTensor[ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, metricIndex1, metricIndex2], 
+    Normal[SparseArray[(Module[{index = #1}, index -> Superscript["\[FormalCapitalT]", index] @@ coordinates] & ) /@ 
+       Tuples[Range[dimensionCount], 2]]], index1, index2] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && BooleanQ[index1] && BooleanQ[index2] && 
+    Length[matrixRepresentation] == dimensionCount
 StressEnergyTensor["PerfectFluid"] := StressEnergyTensor[ResourceFunction["MetricTensor"][
     DiagonalMatrix[Join[{-1}, ConstantArray[1, 3]]], Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[3]], 
     True, True], 
@@ -1006,6 +1222,110 @@ StressEnergyTensor[{"ElectromagneticField", electromagneticFourPotential_List, v
                    Last[#1]]]*contravariantElectromagneticTensor[[First[#1],Last[#1]]] & ) /@ 
                 Tuples[Range[Length[electromagneticPotential]], 2]]] & ) /@ 
          Tuples[Range[Length[electromagneticPotential]], 2]]], False, False]]
+StressEnergyTensor[{"ElectromagneticField", electromagneticFourPotential_List, vacuumPermeability_}, 
+   (metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_]] := 
+  Module[{electromagneticPotential, newMatrixRepresentation, newElectromagneticPotential, newCoordinates, 
+     covariantElectromagneticPotential, electromagneticTensor, contravariantElectromagneticTensor, 
+     mixedElectromagneticTensor}, electromagneticPotential = 
+      (Module[{index = #1}, electromagneticFourPotential[[index]] @@ coordinates] & ) /@ 
+       Range[Length[electromagneticFourPotential]]; newMatrixRepresentation = matrixRepresentation /. 
+       (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; newElectromagneticPotential = 
+      electromagneticPotential /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newCoordinates = coordinates /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     covariantElectromagneticPotential = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[(newMatrixRepresentation[[index,#1]]*
+                newElectromagneticPotential[[#1]] & ) /@ Range[Length[newElectromagneticPotential]]]] & ) /@ 
+         Range[Length[newElectromagneticPotential]]]]; electromagneticTensor = 
+      Normal[SparseArray[(#1 -> D[covariantElectromagneticPotential[[Last[#1]]], newCoordinates[[First[#1]]]] - 
+             D[covariantElectromagneticPotential[[First[#1]]], newCoordinates[[Last[#1]]]] & ) /@ 
+          Tuples[Range[Length[newElectromagneticPotential]], 2]]] /. (ToExpression[#1] -> #1 & ) /@ 
+        Select[coordinates, StringQ]; contravariantElectromagneticTensor = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inverse[matrixRepresentation][[First[index],First[#1]]]*
+                Inverse[matrixRepresentation][[Last[#1],Last[index]]]*electromagneticTensor[[First[#1],Last[#1]]] & ) /@ 
+              Tuples[Range[Length[electromagneticPotential]], 2]]] & ) /@ Tuples[Range[Length[electromagneticPotential]], 
+          2]]]; mixedElectromagneticTensor = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inverse[matrixRepresentation][[First[index],#1]]*
+                electromagneticTensor[[#1,Last[index]]] & ) /@ Range[Length[electromagneticPotential]]]] & ) /@ 
+         Tuples[Range[Length[electromagneticPotential]], 2]]]; StressEnergyTensor[ResourceFunction["MetricTensor"][
+       matrixRepresentation, coordinates, metricIndex1, metricIndex2], (1/vacuumPermeability)*
+       Normal[SparseArray[(Module[{index = #1}, index -> Total[(contravariantElectromagneticTensor[[First[index],#1]]*
+                  mixedElectromagneticTensor[[Last[index],#1]] & ) /@ Range[Length[electromagneticPotential]]] - 
+              (1/4)*Total[(Inverse[matrixRepresentation][[First[index],Last[index]]]*electromagneticTensor[[First[#1],
+                    Last[#1]]]*contravariantElectromagneticTensor[[First[#1],Last[#1]]] & ) /@ 
+                 Tuples[Range[Length[electromagneticPotential]], 2]]] & ) /@ 
+          Tuples[Range[Length[electromagneticPotential]], 2]]], False, False]] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    Length[electromagneticFourPotential] == Length[matrixRepresentation]
+StressEnergyTensor[{"ElectromagneticField", electromagneticFourPotential_List, vacuumPermeability_}, index1_, index2_] := 
+  Module[{matrixRepresentation, electromagneticPotential, coordinates, newMatrixRepresentation, 
+     newElectromagneticPotential, newCoordinates, covariantElectromagneticPotential, electromagneticTensor, 
+     contravariantElectromagneticTensor, mixedElectromagneticTensor}, 
+    matrixRepresentation = DiagonalMatrix[Join[{-1}, ConstantArray[1, Length[electromagneticFourPotential] - 1]]]; 
+     electromagneticPotential = (Module[{index = #1}, electromagneticFourPotential[[index]] @@ 
+          Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[Length[electromagneticFourPotential] - 1]]] & ) /@ 
+       Range[Length[electromagneticFourPotential]]; coordinates = Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ 
+        Range[Length[electromagneticFourPotential] - 1]]; newMatrixRepresentation = 
+      matrixRepresentation /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newElectromagneticPotential = electromagneticPotential /. (#1 -> ToExpression[#1] & ) /@ 
+        Select[coordinates, StringQ]; newCoordinates = coordinates /. (#1 -> ToExpression[#1] & ) /@ 
+        Select[coordinates, StringQ]; covariantElectromagneticPotential = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[(newMatrixRepresentation[[index,#1]]*
+                newElectromagneticPotential[[#1]] & ) /@ Range[Length[newElectromagneticPotential]]]] & ) /@ 
+         Range[Length[newElectromagneticPotential]]]]; electromagneticTensor = 
+      Normal[SparseArray[(#1 -> D[covariantElectromagneticPotential[[Last[#1]]], newCoordinates[[First[#1]]]] - 
+             D[covariantElectromagneticPotential[[First[#1]]], newCoordinates[[Last[#1]]]] & ) /@ 
+          Tuples[Range[Length[newElectromagneticPotential]], 2]]] /. (ToExpression[#1] -> #1 & ) /@ 
+        Select[coordinates, StringQ]; contravariantElectromagneticTensor = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inverse[matrixRepresentation][[First[index],First[#1]]]*
+                Inverse[matrixRepresentation][[Last[#1],Last[index]]]*electromagneticTensor[[First[#1],Last[#1]]] & ) /@ 
+              Tuples[Range[Length[electromagneticPotential]], 2]]] & ) /@ Tuples[Range[Length[electromagneticPotential]], 
+          2]]]; mixedElectromagneticTensor = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inverse[matrixRepresentation][[First[index],#1]]*
+                electromagneticTensor[[#1,Last[index]]] & ) /@ Range[Length[electromagneticPotential]]]] & ) /@ 
+         Tuples[Range[Length[electromagneticPotential]], 2]]]; StressEnergyTensor[ResourceFunction["MetricTensor"][
+       matrixRepresentation, coordinates, True, True], (1/vacuumPermeability)*
+       Normal[SparseArray[(Module[{index = #1}, index -> Total[(contravariantElectromagneticTensor[[First[index],#1]]*
+                  mixedElectromagneticTensor[[Last[index],#1]] & ) /@ Range[Length[electromagneticPotential]]] - 
+              (1/4)*Total[(Inverse[matrixRepresentation][[First[index],Last[index]]]*electromagneticTensor[[First[#1],
+                    Last[#1]]]*contravariantElectromagneticTensor[[First[#1],Last[#1]]] & ) /@ 
+                 Tuples[Range[Length[electromagneticPotential]], 2]]] & ) /@ 
+          Tuples[Range[Length[electromagneticPotential]], 2]]], index1, index2]] /; BooleanQ[index1] && BooleanQ[index2]
+StressEnergyTensor[{"ElectromagneticField", electromagneticFourPotential_List, vacuumPermeability_}, 
+   (metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], index1_, index2_] := 
+  Module[{electromagneticPotential, newMatrixRepresentation, newElectromagneticPotential, newCoordinates, 
+     covariantElectromagneticPotential, electromagneticTensor, contravariantElectromagneticTensor, 
+     mixedElectromagneticTensor}, electromagneticPotential = 
+      (Module[{index = #1}, electromagneticFourPotential[[index]] @@ coordinates] & ) /@ 
+       Range[Length[electromagneticFourPotential]]; newMatrixRepresentation = matrixRepresentation /. 
+       (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; newElectromagneticPotential = 
+      electromagneticPotential /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newCoordinates = coordinates /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     covariantElectromagneticPotential = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[(newMatrixRepresentation[[index,#1]]*
+                newElectromagneticPotential[[#1]] & ) /@ Range[Length[newElectromagneticPotential]]]] & ) /@ 
+         Range[Length[newElectromagneticPotential]]]]; electromagneticTensor = 
+      Normal[SparseArray[(#1 -> D[covariantElectromagneticPotential[[Last[#1]]], newCoordinates[[First[#1]]]] - 
+             D[covariantElectromagneticPotential[[First[#1]]], newCoordinates[[Last[#1]]]] & ) /@ 
+          Tuples[Range[Length[newElectromagneticPotential]], 2]]] /. (ToExpression[#1] -> #1 & ) /@ 
+        Select[coordinates, StringQ]; contravariantElectromagneticTensor = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inverse[matrixRepresentation][[First[index],First[#1]]]*
+                Inverse[matrixRepresentation][[Last[#1],Last[index]]]*electromagneticTensor[[First[#1],Last[#1]]] & ) /@ 
+              Tuples[Range[Length[electromagneticPotential]], 2]]] & ) /@ Tuples[Range[Length[electromagneticPotential]], 
+          2]]]; mixedElectromagneticTensor = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inverse[matrixRepresentation][[First[index],#1]]*
+                electromagneticTensor[[#1,Last[index]]] & ) /@ Range[Length[electromagneticPotential]]]] & ) /@ 
+         Tuples[Range[Length[electromagneticPotential]], 2]]]; StressEnergyTensor[ResourceFunction["MetricTensor"][
+       matrixRepresentation, coordinates, metricIndex1, metricIndex2], (1/vacuumPermeability)*
+       Normal[SparseArray[(Module[{index = #1}, index -> Total[(contravariantElectromagneticTensor[[First[index],#1]]*
+                  mixedElectromagneticTensor[[Last[index],#1]] & ) /@ Range[Length[electromagneticPotential]]] - 
+              (1/4)*Total[(Inverse[matrixRepresentation][[First[index],Last[index]]]*electromagneticTensor[[First[#1],
+                    Last[#1]]]*contravariantElectromagneticTensor[[First[#1],Last[#1]]] & ) /@ 
+                 Tuples[Range[Length[electromagneticPotential]], 2]]] & ) /@ 
+          Tuples[Range[Length[electromagneticPotential]], 2]]], index1, index2]] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    BooleanQ[index1] && BooleanQ[index2] && Length[electromagneticFourPotential] == Length[matrixRepresentation]
 StressEnergyTensor["MassiveScalarField"] := Module[{matrixRepresentation, scalarField, conjugateScalarField, coordinates, 
     newMatrixRepresentation, newScalarField, newConjugateScalarField, newCoordinates}, 
    matrixRepresentation = DiagonalMatrix[Join[{-1}, ConstantArray[1, 3]]]; 
@@ -1048,6 +1368,210 @@ StressEnergyTensor["MassiveScalarField", (metricTensor_)[matrixRepresentation_Li
         Select[coordinates, StringQ], False, False]] /; SymbolName[metricTensor] === "MetricTensor" && 
     Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
     BooleanQ[metricIndex1] && BooleanQ[metricIndex2]
+StressEnergyTensor["MassiveScalarField", index1_, index2_] := 
+  Module[{matrixRepresentation, scalarField, conjugateScalarField, coordinates, newMatrixRepresentation, newScalarField, 
+     newConjugateScalarField, newCoordinates}, matrixRepresentation = DiagonalMatrix[Join[{-1}, ConstantArray[1, 3]]]; 
+     scalarField = "\[FormalPsi]" @@ Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[3]]; 
+     conjugateScalarField = OverBar["\[FormalPsi]"] @@ Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[3]]; 
+     coordinates = Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[3]]; 
+     newMatrixRepresentation = matrixRepresentation /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newScalarField = scalarField /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newConjugateScalarField = conjugateScalarField /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newCoordinates = coordinates /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     StressEnergyTensor[ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, True, True], 
+      Normal[SparseArray[(Module[{index = #1}, index -> (1/"\[FormalM]")*Total[((Inverse[newMatrixRepresentation][[First[index],
+                      First[#1]]]*Inverse[newMatrixRepresentation][[Last[#1],Last[index]]] + 
+                    Inverse[newMatrixRepresentation][[First[index],Last[#1]]]*Inverse[newMatrixRepresentation][[First[#1],
+                      Last[index]]] - Inverse[newMatrixRepresentation][[First[index],Last[index]]]*
+                     Inverse[newMatrixRepresentation][[First[#1],Last[#1]]])*D[newConjugateScalarField, newCoordinates[[
+                     First[#1]]]]*D[newScalarField, newCoordinates[[Last[#1]]]] & ) /@ Tuples[
+                  Range[Length[newMatrixRepresentation]], 2]] - Inverse[newMatrixRepresentation][[First[index],
+                Last[index]]]*"\[FormalM]"*newConjugateScalarField*newScalarField] & ) /@ 
+          Tuples[Range[Length[newMatrixRepresentation]], 2]]] /. (ToExpression[#1] -> #1 & ) /@ 
+        Select[coordinates, StringQ], index1, index2]] /; BooleanQ[index1] && BooleanQ[index2]
+StressEnergyTensor["MassiveScalarField", (metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, 
+    metricIndex2_], index1_, index2_] := Module[{scalarField, conjugateScalarField, newMatrixRepresentation, 
+     newScalarField, newConjugateScalarField, newCoordinates}, scalarField = "\[FormalPsi]" @@ coordinates; 
+     conjugateScalarField = OverBar["\[FormalPsi]"] @@ coordinates; newMatrixRepresentation = 
+      matrixRepresentation /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newScalarField = scalarField /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newConjugateScalarField = conjugateScalarField /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newCoordinates = coordinates /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     StressEnergyTensor[ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, metricIndex1, metricIndex2], 
+      Normal[SparseArray[(Module[{index = #1}, index -> (1/"\[FormalM]")*Total[((Inverse[newMatrixRepresentation][[First[index],
+                      First[#1]]]*Inverse[newMatrixRepresentation][[Last[#1],Last[index]]] + 
+                    Inverse[newMatrixRepresentation][[First[index],Last[#1]]]*Inverse[newMatrixRepresentation][[First[#1],
+                      Last[index]]] - Inverse[newMatrixRepresentation][[First[index],Last[index]]]*
+                     Inverse[newMatrixRepresentation][[First[#1],Last[#1]]])*D[newConjugateScalarField, newCoordinates[[
+                     First[#1]]]]*D[newScalarField, newCoordinates[[Last[#1]]]] & ) /@ Tuples[
+                  Range[Length[newMatrixRepresentation]], 2]] - Inverse[newMatrixRepresentation][[First[index],
+                Last[index]]]*"\[FormalM]"*newConjugateScalarField*newScalarField] & ) /@ 
+          Tuples[Range[Length[newMatrixRepresentation]], 2]]] /. (ToExpression[#1] -> #1 & ) /@ 
+        Select[coordinates, StringQ], index1, index2]] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && BooleanQ[index1] && BooleanQ[index2]
+StressEnergyTensor[{"MassiveScalarField", mass_}] := Module[{matrixRepresentation, scalarField, conjugateScalarField, 
+    coordinates, newMatrixRepresentation, newScalarField, newConjugateScalarField, newCoordinates}, 
+   matrixRepresentation = DiagonalMatrix[Join[{-1}, ConstantArray[1, 3]]]; 
+    scalarField = "\[FormalPsi]" @@ Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[3]]; 
+    conjugateScalarField = OverBar["\[FormalPsi]"] @@ Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[3]]; 
+    coordinates = Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[3]]; 
+    newMatrixRepresentation = matrixRepresentation /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+    newScalarField = scalarField /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+    newConjugateScalarField = conjugateScalarField /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+    newCoordinates = coordinates /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+    StressEnergyTensor[ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, True, True], 
+     Normal[SparseArray[(Module[{index = #1}, index -> (1/mass)*Total[((Inverse[newMatrixRepresentation][[First[index],
+                     First[#1]]]*Inverse[newMatrixRepresentation][[Last[#1],Last[index]]] + 
+                   Inverse[newMatrixRepresentation][[First[index],Last[#1]]]*Inverse[newMatrixRepresentation][[First[#1],
+                     Last[index]]] - Inverse[newMatrixRepresentation][[First[index],Last[index]]]*
+                    Inverse[newMatrixRepresentation][[First[#1],Last[#1]]])*D[newConjugateScalarField, newCoordinates[[
+                    First[#1]]]]*D[newScalarField, newCoordinates[[Last[#1]]]] & ) /@ Tuples[
+                 Range[Length[newMatrixRepresentation]], 2]] - Inverse[newMatrixRepresentation][[First[index],Last[
+                index]]]*mass*newConjugateScalarField*newScalarField] & ) /@ 
+         Tuples[Range[Length[newMatrixRepresentation]], 2]]] /. (ToExpression[#1] -> #1 & ) /@ 
+       Select[coordinates, StringQ], False, False]]
+StressEnergyTensor[{"MassiveScalarField", mass_}, (metricTensor_)[matrixRepresentation_List, coordinates_List, 
+    metricIndex1_, metricIndex2_]] := Module[{scalarField, conjugateScalarField, newMatrixRepresentation, newScalarField, 
+     newConjugateScalarField, newCoordinates}, scalarField = "\[FormalPsi]" @@ coordinates; 
+     conjugateScalarField = OverBar["\[FormalPsi]"] @@ coordinates; newMatrixRepresentation = 
+      matrixRepresentation /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newScalarField = scalarField /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newConjugateScalarField = conjugateScalarField /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newCoordinates = coordinates /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     StressEnergyTensor[ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, metricIndex1, metricIndex2], 
+      Normal[SparseArray[(Module[{index = #1}, index -> (1/mass)*Total[((Inverse[newMatrixRepresentation][[First[index],
+                      First[#1]]]*Inverse[newMatrixRepresentation][[Last[#1],Last[index]]] + 
+                    Inverse[newMatrixRepresentation][[First[index],Last[#1]]]*Inverse[newMatrixRepresentation][[First[#1],
+                      Last[index]]] - Inverse[newMatrixRepresentation][[First[index],Last[index]]]*
+                     Inverse[newMatrixRepresentation][[First[#1],Last[#1]]])*D[newConjugateScalarField, newCoordinates[[
+                     First[#1]]]]*D[newScalarField, newCoordinates[[Last[#1]]]] & ) /@ Tuples[
+                  Range[Length[newMatrixRepresentation]], 2]] - Inverse[newMatrixRepresentation][[First[index],
+                Last[index]]]*mass*newConjugateScalarField*newScalarField] & ) /@ 
+          Tuples[Range[Length[newMatrixRepresentation]], 2]]] /. (ToExpression[#1] -> #1 & ) /@ 
+        Select[coordinates, StringQ], False, False]] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2]
+StressEnergyTensor[{"MassiveScalarField", mass_}, index1_, index2_] := 
+  Module[{matrixRepresentation, scalarField, conjugateScalarField, coordinates, newMatrixRepresentation, newScalarField, 
+     newConjugateScalarField, newCoordinates}, matrixRepresentation = DiagonalMatrix[Join[{-1}, ConstantArray[1, 3]]]; 
+     scalarField = "\[FormalPsi]" @@ Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[3]]; 
+     conjugateScalarField = OverBar["\[FormalPsi]"] @@ Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[3]]; 
+     coordinates = Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[3]]; 
+     newMatrixRepresentation = matrixRepresentation /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newScalarField = scalarField /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newConjugateScalarField = conjugateScalarField /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newCoordinates = coordinates /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     StressEnergyTensor[ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, True, True], 
+      Normal[SparseArray[(Module[{index = #1}, index -> (1/mass)*Total[((Inverse[newMatrixRepresentation][[First[index],
+                      First[#1]]]*Inverse[newMatrixRepresentation][[Last[#1],Last[index]]] + 
+                    Inverse[newMatrixRepresentation][[First[index],Last[#1]]]*Inverse[newMatrixRepresentation][[First[#1],
+                      Last[index]]] - Inverse[newMatrixRepresentation][[First[index],Last[index]]]*
+                     Inverse[newMatrixRepresentation][[First[#1],Last[#1]]])*D[newConjugateScalarField, newCoordinates[[
+                     First[#1]]]]*D[newScalarField, newCoordinates[[Last[#1]]]] & ) /@ Tuples[
+                  Range[Length[newMatrixRepresentation]], 2]] - Inverse[newMatrixRepresentation][[First[index],
+                Last[index]]]*mass*newConjugateScalarField*newScalarField] & ) /@ 
+          Tuples[Range[Length[newMatrixRepresentation]], 2]]] /. (ToExpression[#1] -> #1 & ) /@ 
+        Select[coordinates, StringQ], index1, index2]] /; BooleanQ[index1] && BooleanQ[index2]
+StressEnergyTensor[{"MassiveScalarField", mass_}, (metricTensor_)[matrixRepresentation_List, coordinates_List, 
+    metricIndex1_, metricIndex2_], index1_, index2_] := 
+  Module[{scalarField, conjugateScalarField, newMatrixRepresentation, newScalarField, newConjugateScalarField, 
+     newCoordinates}, scalarField = "\[FormalPsi]" @@ coordinates; conjugateScalarField = OverBar["\[FormalPsi]"] @@ coordinates; 
+     newMatrixRepresentation = matrixRepresentation /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newScalarField = scalarField /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newConjugateScalarField = conjugateScalarField /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newCoordinates = coordinates /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     StressEnergyTensor[ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, metricIndex1, metricIndex2], 
+      Normal[SparseArray[(Module[{index = #1}, index -> (1/mass)*Total[((Inverse[newMatrixRepresentation][[First[index],
+                      First[#1]]]*Inverse[newMatrixRepresentation][[Last[#1],Last[index]]] + 
+                    Inverse[newMatrixRepresentation][[First[index],Last[#1]]]*Inverse[newMatrixRepresentation][[First[#1],
+                      Last[index]]] - Inverse[newMatrixRepresentation][[First[index],Last[index]]]*
+                     Inverse[newMatrixRepresentation][[First[#1],Last[#1]]])*D[newConjugateScalarField, newCoordinates[[
+                     First[#1]]]]*D[newScalarField, newCoordinates[[Last[#1]]]] & ) /@ Tuples[
+                  Range[Length[newMatrixRepresentation]], 2]] - Inverse[newMatrixRepresentation][[First[index],
+                Last[index]]]*mass*newConjugateScalarField*newScalarField] & ) /@ 
+          Tuples[Range[Length[newMatrixRepresentation]], 2]]] /. (ToExpression[#1] -> #1 & ) /@ 
+        Select[coordinates, StringQ], index1, index2]] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && BooleanQ[index1] && BooleanQ[index2]
+StressEnergyTensor[{"MassiveScalarField", mass_, scalarFunction_}] := 
+  Module[{matrixRepresentation, scalarField, coordinates, newMatrixRepresentation, newScalarField, newCoordinates}, 
+   matrixRepresentation = DiagonalMatrix[Join[{-1}, ConstantArray[1, 3]]]; 
+    scalarField = scalarFunction @@ Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[3]]; 
+    coordinates = Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[3]]; 
+    newMatrixRepresentation = matrixRepresentation /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+    newScalarField = scalarField /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+    newCoordinates = coordinates /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+    StressEnergyTensor[ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, True, True], 
+     Normal[SparseArray[(Module[{index = #1}, index -> (1/mass)*Total[((Inverse[newMatrixRepresentation][[First[index],
+                     First[#1]]]*Inverse[newMatrixRepresentation][[Last[#1],Last[index]]] + 
+                   Inverse[newMatrixRepresentation][[First[index],Last[#1]]]*Inverse[newMatrixRepresentation][[First[#1],
+                     Last[index]]] - Inverse[newMatrixRepresentation][[First[index],Last[index]]]*
+                    Inverse[newMatrixRepresentation][[First[#1],Last[#1]]])*Conjugate[D[newScalarField, newCoordinates[[
+                     First[#1]]]]]*D[newScalarField, newCoordinates[[Last[#1]]]] & ) /@ Tuples[
+                 Range[Length[newMatrixRepresentation]], 2]] - Inverse[newMatrixRepresentation][[First[index],Last[
+                index]]]*mass*Conjugate[newScalarField]*newScalarField] & ) /@ 
+         Tuples[Range[Length[newMatrixRepresentation]], 2]]] /. (ToExpression[#1] -> #1 & ) /@ 
+       Select[coordinates, StringQ], False, False]]
+StressEnergyTensor[{"MassiveScalarField", mass_, scalarFunction_}, (metricTensor_)[matrixRepresentation_List, 
+    coordinates_List, metricIndex1_, metricIndex2_]] := 
+  Module[{scalarField, newMatrixRepresentation, newScalarField, newCoordinates}, 
+    scalarField = scalarFunction @@ coordinates; newMatrixRepresentation = matrixRepresentation /. 
+       (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newScalarField = scalarField /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newCoordinates = coordinates /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     StressEnergyTensor[ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, metricIndex1, metricIndex2], 
+      Normal[SparseArray[(Module[{index = #1}, index -> (1/mass)*Total[((Inverse[newMatrixRepresentation][[First[index],
+                      First[#1]]]*Inverse[newMatrixRepresentation][[Last[#1],Last[index]]] + 
+                    Inverse[newMatrixRepresentation][[First[index],Last[#1]]]*Inverse[newMatrixRepresentation][[First[#1],
+                      Last[index]]] - Inverse[newMatrixRepresentation][[First[index],Last[index]]]*
+                     Inverse[newMatrixRepresentation][[First[#1],Last[#1]]])*Conjugate[D[newScalarField, newCoordinates[[
+                      First[#1]]]]]*D[newScalarField, newCoordinates[[Last[#1]]]] & ) /@ Tuples[
+                  Range[Length[newMatrixRepresentation]], 2]] - Inverse[newMatrixRepresentation][[First[index],
+                Last[index]]]*mass*Conjugate[newScalarField]*newScalarField] & ) /@ 
+          Tuples[Range[Length[newMatrixRepresentation]], 2]]] /. (ToExpression[#1] -> #1 & ) /@ 
+        Select[coordinates, StringQ], False, False]] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2]
+StressEnergyTensor[{"MassiveScalarField", mass_, scalarFunction_}, index1_, index2_] := 
+  Module[{matrixRepresentation, scalarField, coordinates, newMatrixRepresentation, newScalarField, newCoordinates}, 
+    matrixRepresentation = DiagonalMatrix[Join[{-1}, ConstantArray[1, 3]]]; 
+     scalarField = scalarFunction @@ Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[3]]; 
+     coordinates = Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[3]]; 
+     newMatrixRepresentation = matrixRepresentation /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newScalarField = scalarField /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newCoordinates = coordinates /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     StressEnergyTensor[ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, True, True], 
+      Normal[SparseArray[(Module[{index = #1}, index -> (1/mass)*Total[((Inverse[newMatrixRepresentation][[First[index],
+                      First[#1]]]*Inverse[newMatrixRepresentation][[Last[#1],Last[index]]] + 
+                    Inverse[newMatrixRepresentation][[First[index],Last[#1]]]*Inverse[newMatrixRepresentation][[First[#1],
+                      Last[index]]] - Inverse[newMatrixRepresentation][[First[index],Last[index]]]*
+                     Inverse[newMatrixRepresentation][[First[#1],Last[#1]]])*Conjugate[D[newScalarField, newCoordinates[[
+                      First[#1]]]]]*D[newScalarField, newCoordinates[[Last[#1]]]] & ) /@ Tuples[
+                  Range[Length[newMatrixRepresentation]], 2]] - Inverse[newMatrixRepresentation][[First[index],
+                Last[index]]]*mass*Conjugate[newScalarField]*newScalarField] & ) /@ 
+          Tuples[Range[Length[newMatrixRepresentation]], 2]]] /. (ToExpression[#1] -> #1 & ) /@ 
+        Select[coordinates, StringQ], index1, index2]] /; BooleanQ[index1] && BooleanQ[index2]
+StressEnergyTensor[{"MassiveScalarField", mass_, scalarFunction_}, (metricTensor_)[matrixRepresentation_List, 
+    coordinates_List, metricIndex1_, metricIndex2_], index1_, index2_] := 
+  Module[{scalarField, newMatrixRepresentation, newScalarField, newCoordinates}, 
+    scalarField = scalarFunction @@ coordinates; newMatrixRepresentation = matrixRepresentation /. 
+       (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newScalarField = scalarField /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newCoordinates = coordinates /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     StressEnergyTensor[ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, metricIndex1, metricIndex2], 
+      Normal[SparseArray[(Module[{index = #1}, index -> (1/mass)*Total[((Inverse[newMatrixRepresentation][[First[index],
+                      First[#1]]]*Inverse[newMatrixRepresentation][[Last[#1],Last[index]]] + 
+                    Inverse[newMatrixRepresentation][[First[index],Last[#1]]]*Inverse[newMatrixRepresentation][[First[#1],
+                      Last[index]]] - Inverse[newMatrixRepresentation][[First[index],Last[index]]]*
+                     Inverse[newMatrixRepresentation][[First[#1],Last[#1]]])*Conjugate[D[newScalarField, newCoordinates[[
+                      First[#1]]]]]*D[newScalarField, newCoordinates[[Last[#1]]]] & ) /@ Tuples[
+                  Range[Length[newMatrixRepresentation]], 2]] - Inverse[newMatrixRepresentation][[First[index],
+                Last[index]]]*mass*Conjugate[newScalarField]*newScalarField] & ) /@ 
+          Tuples[Range[Length[newMatrixRepresentation]], 2]]] /. (ToExpression[#1] -> #1 & ) /@ 
+        Select[coordinates, StringQ], index1, index2]] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && BooleanQ[index1] && BooleanQ[index2]
 StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
     matrixRepresentation_List, index1_, index2_]["MatrixRepresentation"] := 
   If[index1 === True && index2 === True, 
@@ -1084,6 +1608,20 @@ StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_
     Length[coordinates] == Length[metricMatrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
     Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
     BooleanQ[index1] && BooleanQ[index2]
+StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+    matrixRepresentation_List, index1_, index2_]["Trace"] := 
+  Total[(metricMatrixRepresentation[[First[#1],Last[#1]]]*matrixRepresentation[[First[#1],Last[#1]]] & ) /@ 
+     Tuples[Range[Length[metricMatrixRepresentation]], 2]] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[metricMatrixRepresentation]] == 2 && Length[coordinates] == Length[metricMatrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
+StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+    matrixRepresentation_List, index1_, index2_]["ReducedTrace"] := 
+  FullSimplify[Total[(metricMatrixRepresentation[[First[#1],Last[#1]]]*matrixRepresentation[[First[#1],Last[#1]]] & ) /@ 
+      Tuples[Range[Length[metricMatrixRepresentation]], 2]]] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[metricMatrixRepresentation]] == 2 && Length[coordinates] == Length[metricMatrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
 StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
     matrixRepresentation_List, index1_, index2_]["MetricTensor"] := 
   ResourceFunction["MetricTensor"][metricMatrixRepresentation, coordinates, metricIndex1, metricIndex2] /; 
@@ -1162,6 +1700,20 @@ StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_
     matrixRepresentation_List, index1_, index2_]["ReducedMomentum"] := 
   FullSimplify[((1/2)*(matrixRepresentation[[1,#1 + 1]] + matrixRepresentation[[#1 + 1,1]]) & ) /@ 
      Range[Length[matrixRepresentation] - 1]] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[metricMatrixRepresentation]] == 2 && Length[coordinates] == Length[metricMatrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
+StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+    matrixRepresentation_List, index1_, index2_]["SpacetimeMomentum"] := 
+  ((1/2)*(matrixRepresentation[[1,#1]] + matrixRepresentation[[#1,1]]) & ) /@ Range[Length[matrixRepresentation]] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[metricMatrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[metricMatrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2]
+StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+    matrixRepresentation_List, index1_, index2_]["ReducedSpacetimeMomentum"] := 
+  FullSimplify[((1/2)*(matrixRepresentation[[1,#1]] + matrixRepresentation[[#1,1]]) & ) /@ 
+     Range[Length[matrixRepresentation]]] /; SymbolName[metricTensor] === "MetricTensor" && 
     Length[Dimensions[metricMatrixRepresentation]] == 2 && Length[coordinates] == Length[metricMatrixRepresentation] && 
     BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[Dimensions[matrixRepresentation]] == 2 && 
     Length[coordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
@@ -1560,20 +2112,6 @@ StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_
     Length[coordinates] == Length[metricMatrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
     Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
     BooleanQ[index1] && BooleanQ[index2]
-StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
-    matrixRepresentation_List, index1_, index2_]["Trace"] := 
-  Total[(metricMatrixRepresentation[[First[#1],Last[#1]]]*matrixRepresentation[[First[#1],Last[#1]]] & ) /@ 
-     Tuples[Range[Length[metricMatrixRepresentation]], 2]] /; SymbolName[metricTensor] === "MetricTensor" && 
-    Length[Dimensions[metricMatrixRepresentation]] == 2 && Length[coordinates] == Length[metricMatrixRepresentation] && 
-    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[Dimensions[matrixRepresentation]] == 2 && 
-    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
-StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
-    matrixRepresentation_List, index1_, index2_]["ReducedTrace"] := 
-  FullSimplify[Total[(metricMatrixRepresentation[[First[#1],Last[#1]]]*matrixRepresentation[[First[#1],Last[#1]]] & ) /@ 
-      Tuples[Range[Length[metricMatrixRepresentation]], 2]]] /; SymbolName[metricTensor] === "MetricTensor" && 
-    Length[Dimensions[metricMatrixRepresentation]] == 2 && Length[coordinates] == Length[metricMatrixRepresentation] && 
-    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[Dimensions[matrixRepresentation]] == 2 && 
-    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
 StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
     matrixRepresentation_List, index1_, index2_]["Eigenvalues"] := Eigenvalues[matrixRepresentation] /; 
    SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[metricMatrixRepresentation]] == 2 && 
