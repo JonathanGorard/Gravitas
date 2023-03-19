@@ -1,5 +1,33 @@
 (* ::Package:: *)
 
+ADMDecomposition[] := {"Minkowski", "Schwarzschild", "Kerr", "ReissnerNordstrom", "KerrNewman", "BrillLindquist", "FLRW"}
+ADMDecomposition["Minkowski"] := ADMDecomposition[ResourceFunction["MetricTensor"][DiagonalMatrix[ConstantArray[1, 3]], 
+    (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[3], True, True], "\[FormalT]", 
+   "\[FormalAlpha]" @@ Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[3]], 
+   (Module[{index = #1}, Superscript["\[FormalBeta]", index] @@ Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ 
+         Range[3]]] & ) /@ Range[3]]
+ADMDecomposition["Minkowski", timeCoordinate_, coordinates_List] := 
+  ADMDecomposition[ResourceFunction["MetricTensor"][DiagonalMatrix[ConstantArray[1, 3]], coordinates, True, True], 
+    timeCoordinate, "\[FormalAlpha]" @@ Join[{timeCoordinate}, coordinates], 
+    (Superscript["\[FormalBeta]", #1] @@ Join[{timeCoordinate}, coordinates] & ) /@ Range[3]] /; Length[coordinates] == 3
+ADMDecomposition["Minkowski", timeCoordinate_, coordinates_List, lapseFunction_, shiftVector_List] := 
+  ADMDecomposition[ResourceFunction["MetricTensor"][DiagonalMatrix[ConstantArray[1, 3]], coordinates, True, True], 
+    timeCoordinate, lapseFunction, shiftVector] /; Length[coordinates] == 3 && Length[shiftVector] == 3
+ADMDecomposition[{"Minkowski", dimensionCount_Integer}] := 
+  ADMDecomposition[ResourceFunction["MetricTensor"][DiagonalMatrix[ConstantArray[1, dimensionCount - 1]], 
+    (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[dimensionCount - 1], True, True], "\[FormalT]", 
+   "\[FormalAlpha]" @@ Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[dimensionCount - 1]], 
+   (Module[{index = #1}, Superscript["\[Beta]", index] @@ Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ 
+         Range[dimensionCount - 1]]] & ) /@ Range[dimensionCount - 1]]
+ADMDecomposition[{"Minkowski", dimensionCount_Integer}, timeCoordinate_, coordinates_List] := 
+  ADMDecomposition[ResourceFunction["MetricTensor"][DiagonalMatrix[ConstantArray[1, dimensionCount - 1]], coordinates, 
+     True, True], timeCoordinate, "\[FormalAlpha]" @@ Join[{timeCoordinate}, coordinates], 
+    (Superscript["\[FormalBeta]", #1] @@ Join[{timeCoordinate}, coordinates] & ) /@ Range[dimensionCount - 1]] /; 
+   Length[coordinates] == dimensionCount - 1
+ADMDecomposition[{"Minkowski", dimensionCount_Integer}, timeCoordinate_, coordinates_List, lapseFunction_, 
+   shiftVector_List] := ADMDecomposition[ResourceFunction["MetricTensor"][
+     DiagonalMatrix[ConstantArray[1, dimensionCount - 1]], coordinates, True, True], timeCoordinate, lapseFunction, 
+    shiftVector] /; Length[coordinates] == dimensionCount - 1 && Length[shiftVector] == dimensionCount - 1
 ADMDecomposition["Schwarzschild"] := ADMDecomposition[ResourceFunction["MetricTensor"][
     DiagonalMatrix[{1/(1 - (2*"\[FormalCapitalM]")/"\[FormalR]"), "\[FormalR]"^2, "\[FormalR]"^2*Sin["\[FormalTheta]"]^2}], {"\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, True, True], "\[FormalT]", 
    "\[FormalAlpha]" @@ {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"}, (Superscript["\[FormalBeta]", #1] @@ {"\[FormalT]", "\[FormalR]", "\[FormalTheta]", "\[FormalPhi]"} & ) /@ Range[3]]
@@ -2728,10 +2756,11 @@ ADMDecomposition[(metricTensor_)[matrixRepresentation_List, coordinates_List, in
     Length[shiftVector] == Length[matrixRepresentation]
 ADMDecomposition[ADMDecomposition[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_], 
     timeCoordinate_, lapseFunction_, shiftVector_List], newTimeCoordinate_] := 
-  ADMDecomposition[ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, index1, index2], 
-    newTimeCoordinate, lapseFunction, shiftVector] /; SymbolName[metricTensor] === "MetricTensor" && 
-    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
-    BooleanQ[index1] && BooleanQ[index2] && Length[shiftVector] == Length[matrixRepresentation]
+  ADMDecomposition[ResourceFunction["MetricTensor"][matrixRepresentation /. timeCoordinate -> newTimeCoordinate, 
+     coordinates, index1, index2], newTimeCoordinate, lapseFunction, shiftVector] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2] && 
+    Length[shiftVector] == Length[matrixRepresentation]
 ADMDecomposition[ADMDecomposition[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_], 
     timeCoordinate_, lapseFunction_, shiftVector_List], newLapseFunction_, newShiftVector_List] := 
   ADMDecomposition[ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, index1, index2], timeCoordinate, 
@@ -2741,11 +2770,11 @@ ADMDecomposition[ADMDecomposition[(metricTensor_)[matrixRepresentation_List, coo
     Length[newShiftVector] == Length[matrixRepresentation]
 ADMDecomposition[ADMDecomposition[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_], 
     timeCoordinate_, lapseFunction_, shiftVector_List], newTimeCoordinate_, newLapseFunction_, newShiftVector_List] := 
-  ADMDecomposition[ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, index1, index2], 
-    newTimeCoordinate, newLapseFunction, newShiftVector] /; SymbolName[metricTensor] === "MetricTensor" && 
-    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
-    BooleanQ[index1] && BooleanQ[index2] && Length[shiftVector] == Length[matrixRepresentation] && 
-    Length[newShiftVector] == Length[matrixRepresentation]
+  ADMDecomposition[ResourceFunction["MetricTensor"][matrixRepresentation /. timeCoordinate -> newTimeCoordinate, 
+     coordinates, index1, index2], newTimeCoordinate, newLapseFunction, newShiftVector] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2] && 
+    Length[shiftVector] == Length[matrixRepresentation] && Length[newShiftVector] == Length[matrixRepresentation]
 ADMDecomposition[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_], timeCoordinate_, 
     lapseFunction_, shiftVector_List]["Properties"] := {"SpatialMetricTensor", "SpacetimeMetricTensor", "NormalVector", 
     "ReducedNormalVector", "SymbolicNormalVector", "TimeVector", "SymbolicTimeVector", "TimeCoordinate", 
