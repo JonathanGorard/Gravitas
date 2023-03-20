@@ -1572,6 +1572,30 @@ StressEnergyTensor[{"MassiveScalarField", mass_, scalarFunction_}, (metricTensor
         Select[coordinates, StringQ], index1, index2]] /; SymbolName[metricTensor] === "MetricTensor" && 
     Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
     BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && BooleanQ[index1] && BooleanQ[index2]
+StressEnergyTensor[matrixRepresentation_List] := 
+  StressEnergyTensor[ResourceFunction["MetricTensor"][DiagonalMatrix[
+      Join[{-1}, ConstantArray[1, Length[matrixRepresentation] - 1]]], 
+     Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[Length[matrixRepresentation] - 1]], True, True], 
+    matrixRepresentation, False, False] /; Length[Dimensions[matrixRepresentation]] == 2
+StressEnergyTensor[matrixRepresentation_List, (metricTensor_)[metricMatrixRepresentation_List, coordinates_List, 
+    metricIndex1_, metricIndex2_]] := StressEnergyTensor[ResourceFunction["MetricTensor"][metricMatrixRepresentation, 
+     coordinates, metricIndex1, metricIndex2], matrixRepresentation, False, False] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[metricMatrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[metricMatrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation]
+StressEnergyTensor[matrixRepresentation_List, index1_, index2_] := 
+  StressEnergyTensor[ResourceFunction["MetricTensor"][DiagonalMatrix[
+      Join[{-1}, ConstantArray[1, Length[matrixRepresentation] - 1]]], 
+     Join[{"\[FormalT]"}, (Superscript["\[FormalX]", ToString[#1]] & ) /@ Range[Length[matrixRepresentation] - 1]], True, True], 
+    matrixRepresentation, index1, index2] /; Length[Dimensions[matrixRepresentation]] == 2 && BooleanQ[index1] && 
+    BooleanQ[index2]
+StressEnergyTensor[matrixRepresentation_List, (metricTensor_)[metricMatrixRepresentation_List, coordinates_List, 
+    metricIndex1_, metricIndex2_], index1_, index2_] := 
+  StressEnergyTensor[ResourceFunction["MetricTensor"][metricMatrixRepresentation, coordinates, metricIndex1, 
+     metricIndex2], matrixRepresentation, index1, index2] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[metricMatrixRepresentation]] == 2 && Length[coordinates] == Length[metricMatrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation]
 StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
     matrixRepresentation_List, index1_, index2_]["MatrixRepresentation"] := 
   If[index1 === True && index2 === True, 
@@ -1678,40 +1702,40 @@ StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_
     Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
     BooleanQ[index1] && BooleanQ[index2]
 StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
-    matrixRepresentation_List, index1_, index2_]["Energy"] := First[First[matrixRepresentation]] /; 
+    matrixRepresentation_List, index1_, index2_]["EnergyDensity"] := First[First[matrixRepresentation]] /; 
    SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[metricMatrixRepresentation]] == 2 && 
     Length[coordinates] == Length[metricMatrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
     Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
     BooleanQ[index1] && BooleanQ[index2]
 StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
-    matrixRepresentation_List, index1_, index2_]["ReducedEnergy"] := FullSimplify[First[First[matrixRepresentation]]] /; 
-   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[metricMatrixRepresentation]] == 2 && 
-    Length[coordinates] == Length[metricMatrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
-    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
-    BooleanQ[index1] && BooleanQ[index2]
+    matrixRepresentation_List, index1_, index2_]["ReducedEnergyDensity"] := 
+  FullSimplify[First[First[matrixRepresentation]]] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[metricMatrixRepresentation]] == 2 && Length[coordinates] == Length[metricMatrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
 StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
-    matrixRepresentation_List, index1_, index2_]["Momentum"] := 
+    matrixRepresentation_List, index1_, index2_]["MomentumDensity"] := 
   ((1/2)*(matrixRepresentation[[1,#1 + 1]] + matrixRepresentation[[#1 + 1,1]]) & ) /@ 
     Range[Length[matrixRepresentation] - 1] /; SymbolName[metricTensor] === "MetricTensor" && 
     Length[Dimensions[metricMatrixRepresentation]] == 2 && Length[coordinates] == Length[metricMatrixRepresentation] && 
     BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[Dimensions[matrixRepresentation]] == 2 && 
     Length[coordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
 StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
-    matrixRepresentation_List, index1_, index2_]["ReducedMomentum"] := 
+    matrixRepresentation_List, index1_, index2_]["ReducedMomentumDensity"] := 
   FullSimplify[((1/2)*(matrixRepresentation[[1,#1 + 1]] + matrixRepresentation[[#1 + 1,1]]) & ) /@ 
      Range[Length[matrixRepresentation] - 1]] /; SymbolName[metricTensor] === "MetricTensor" && 
     Length[Dimensions[metricMatrixRepresentation]] == 2 && Length[coordinates] == Length[metricMatrixRepresentation] && 
     BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[Dimensions[matrixRepresentation]] == 2 && 
     Length[coordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
 StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
-    matrixRepresentation_List, index1_, index2_]["SpacetimeMomentum"] := 
+    matrixRepresentation_List, index1_, index2_]["SpacetimeMomentumDensity"] := 
   ((1/2)*(matrixRepresentation[[1,#1]] + matrixRepresentation[[#1,1]]) & ) /@ Range[Length[matrixRepresentation]] /; 
    SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[metricMatrixRepresentation]] == 2 && 
     Length[coordinates] == Length[metricMatrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
     Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
     BooleanQ[index1] && BooleanQ[index2]
 StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
-    matrixRepresentation_List, index1_, index2_]["ReducedSpacetimeMomentum"] := 
+    matrixRepresentation_List, index1_, index2_]["ReducedSpacetimeMomentumDensity"] := 
   FullSimplify[((1/2)*(matrixRepresentation[[1,#1]] + matrixRepresentation[[#1,1]]) & ) /@ 
      Range[Length[matrixRepresentation]]] /; SymbolName[metricTensor] === "MetricTensor" && 
     Length[Dimensions[metricMatrixRepresentation]] == 2 && Length[coordinates] == Length[metricMatrixRepresentation] && 
@@ -1762,7 +1786,7 @@ StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_
      Total[((1/(Length[matrixRepresentation] - 1))*matrixRepresentation[[#1 + 1,#1 + 1]] & ) /@ 
         Range[Length[matrixRepresentation] - 1]]*IdentityMatrix[Length[matrixRepresentation] - 1]] /; 
    SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[metricMatrixRepresentation]] == 2 && 
-    Length[coordinates] == Length[metricMatrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex1] && 
+    Length[coordinates] == Length[metricMatrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
     Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
     BooleanQ[index1] && BooleanQ[index2]
 StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
@@ -2088,6 +2112,42 @@ StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_
     Length[coordinates] == Length[metricMatrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
     Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
     BooleanQ[index1] && BooleanQ[index2]
+StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_, metricIndex1_, metricIndex2_], 
+    matrixRepresentation_List, index1_, index2_]["RiemannianConditions"] := 
+  Module[{eigenvalues, riemannianConditions}, eigenvalues = Eigenvalues[metricMatrixRepresentation]; 
+     riemannianConditions = FullSimplify[(#1 > 0 & ) /@ eigenvalues]; If[riemannianConditions === True, {}, 
+      If[riemannianConditions === False, Indeterminate, If[Length[Select[riemannianConditions, #1 === False & ]] > 0, 
+        Indeterminate, DeleteDuplicates[Select[riemannianConditions, #1 =!= True & ]]]]]] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[metricMatrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[metricMatrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2]
+StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+    matrixRepresentation_List, index1_, index2_]["PseudoRiemannianConditions"] := 
+  Module[{eigenvalues, pseudoRiemannianConditions}, eigenvalues = Eigenvalues[metricMatrixRepresentation]; 
+     pseudoRiemannianConditions = FullSimplify[(#1 != 0 & ) /@ eigenvalues]; If[pseudoRiemannianConditions === True, {}, 
+      If[pseudoRiemannianConditions === False, Indeterminate, 
+       If[Length[Select[pseudoRiemannianConditions, #1 === False & ]] > 0, Indeterminate, 
+        DeleteDuplicates[Reverse /@ Sort /@ Select[pseudoRiemannianConditions, #1 =!= True & ]]]]]] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[metricMatrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[metricMatrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2]
+StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+    matrixRepresentation_List, index1_, index2_]["LorentzianConditions"] := 
+  Module[{eigensystem, eigenvalues, eigenvectors, timeCoordinate, lorentzianConditions}, 
+    eigensystem = Eigensystem[metricMatrixRepresentation]; eigenvalues = First[eigensystem]; 
+     eigenvectors = Last[eigensystem]; 
+     If[Length[Position[eigenvectors, Join[{1}, ConstantArray[0, Length[coordinates] - 1]]]] > 0, 
+      timeCoordinate = First[First[Position[eigenvectors, Join[{1}, ConstantArray[0, Length[coordinates] - 1]]]]]; 
+       lorentzianConditions = FullSimplify[(If[#1 == timeCoordinate, eigenvalues[[#1]] < 0, eigenvalues[[#1]] > 0] & ) /@ 
+          Range[Length[eigenvalues]]]; If[lorentzianConditions === True, {}, If[lorentzianConditions === False, 
+         Indeterminate, If[Length[Select[lorentzianConditions, #1 === False & ]] > 0, Indeterminate, 
+          DeleteDuplicates[Select[lorentzianConditions, #1 =!= True & ]]]]], Indeterminate]] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[metricMatrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[metricMatrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2]
 StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
     matrixRepresentation_List, index1_, index2_]["StressEnergySingularities"] := 
   (Quiet[DeleteDuplicates[Catenate[
@@ -2100,6 +2160,19 @@ StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_
     Length[coordinates] == Length[metricMatrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
     Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
     BooleanQ[index1] && BooleanQ[index2]
+StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+    matrixRepresentation_List, index1_, index2_]["TraceSingularities"] := 
+  (Quiet[DeleteDuplicates[Catenate[
+       (If[Head[Solve[#1, coordinates /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]]] === Solve, {{#1}}, 
+          Solve[#1, coordinates /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]]] & ) /@ 
+        Flatten[{FunctionSingularities[FullSimplify[Total[(metricMatrixRepresentation[[First[#1],Last[#1]]]*
+                  matrixRepresentation[[First[#1],Last[#1]]] & ) /@ Tuples[Range[Length[metricMatrixRepresentation]], 
+                 2]]] /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ], 
+            coordinates /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]] /. Or -> List}]]]] /. 
+    (ToExpression[#1] -> #1 & ) /@ Select[coordinates, StringQ]) /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[metricMatrixRepresentation]] == 2 && Length[coordinates] == Length[metricMatrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
 StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
     matrixRepresentation_List, index1_, index2_]["Determinant"] := Det[matrixRepresentation] /; 
    SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[metricMatrixRepresentation]] == 2 && 
@@ -2294,6 +2367,16 @@ StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_
     BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[Dimensions[matrixRepresentation]] == 2 && 
     Length[coordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
 StressEnergyTensor[StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, 
+     metricIndex2_], matrixRepresentation_List, index1_, index2_], newCoordinates_List] := 
+  StressEnergyTensor[ResourceFunction["MetricTensor"][metricMatrixRepresentation /. 
+      Thread[coordinates -> newCoordinates], newCoordinates, metricIndex1, metricIndex2], 
+    matrixRepresentation /. Thread[coordinates -> newCoordinates], index1, index2] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[metricMatrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[metricMatrixRepresentation] && Length[newCoordinates] == 
+     Length[metricMatrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2]
+StressEnergyTensor[StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, 
      metricIndex2_], matrixRepresentation_List, index1_, index2_], newIndex1_, newIndex2_] := 
   StressEnergyTensor[ResourceFunction["MetricTensor"][metricMatrixRepresentation, coordinates, metricIndex1, 
      metricIndex2], matrixRepresentation, newIndex1, newIndex2] /; SymbolName[metricTensor] === "MetricTensor" && 
@@ -2301,6 +2384,34 @@ StressEnergyTensor[StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation
     BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[Dimensions[matrixRepresentation]] == 2 && 
     Length[coordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2] && BooleanQ[newIndex1] && 
     BooleanQ[newIndex2]
+StressEnergyTensor[StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, 
+     metricIndex2_], matrixRepresentation_List, index1_, index2_], newCoordinates_List, newIndex1_, newIndex2_] := 
+  StressEnergyTensor[ResourceFunction["MetricTensor"][metricMatrixRepresentation /. 
+      Thread[coordinates -> newCoordinates], newCoordinates, metricIndex1, metricIndex2], 
+    matrixRepresentation /. Thread[coordinates -> newCoordinates], newIndex1, newIndex2] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[metricMatrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[metricMatrixRepresentation] && Length[newCoordinates] == 
+     Length[metricMatrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2] && BooleanQ[newIndex1] && BooleanQ[newIndex2]
+StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+    matrixRepresentation_List, index1_, index2_]["Properties"] := 
+  {"MatrixRepresentation", "ReducedMatrixRepresentation", "Trace", "ReducedTrace", "MetricTensor", "Coordinates", 
+    "CoordinateOneForms", "Indices", "CovariantQ", "ContravariantQ", "MixedQ", "Symbol", "EnergyDensity", 
+    "ReducedEnergyDensity", "MomentumDensity", "ReducedMomentumDensity", "SpacetimeMomentumDensity", 
+    "ReducedSpacetimeMomentumDensity", "Pressure", "ReducedPressure", "StressTensor", "ReducedStressTensor", 
+    "ShearStressTensor", "ReducedShearStressTensor", "CovariantDerivatives", "ReducedCovariantDerivatives", 
+    "SymbolicCovariantDerivatives", "ContinuityEquations", "ReducedContinuityEquations", "SymbolicContinuityEquations", 
+    "Dimensions", "SymmetricQ", "DiagonalQ", "Signature", "RiemannianQ", "PseudoRiemannianQ", "LorentzianQ", 
+    "RiemannianConditions", "PseudoRiemannianConditions", "LorentzianConditions", "StressEnergySingularities", 
+    "TraceSingularities", "Determinant", "ReducedDeterminant", "Eigenvalues", "ReducedEigenvalues", "Eigenvectors", 
+    "ReducedEigenvectors", "CovariantStressEnergyTensor", "ContravariantStressEnergyTensor", "NullEnergyCondition", 
+    "ReducedNullEnergyCondition", "WeakEnergyCondition", "ReducedWeakEnergyCondition", "DominantEnergyCondition", 
+    "ReducedDominantEnergyCondition", "StrongEnergyCondition", "ReducedStrongEnergyCondition", "Properties"} /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[metricMatrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[metricMatrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2]
 StressEnergyTensor /: MakeBoxes[stressEnergyTensor:StressEnergyTensor[(metricTensor_)[metricMatrixRepresentation_List, 
        coordinates_List, metricIndex1_, metricIndex2_], matrixRepresentation_List, index1_, index2_], format_] := 
    Module[{matrixForm, type, symbol, dimensions, eigenvalues, positiveEigenvalues, negativeEigenvalues, signature, icon}, 
