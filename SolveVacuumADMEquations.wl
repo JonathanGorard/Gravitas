@@ -564,6 +564,186 @@ VacuumADMSolution[(admDecomposition_)[(metricTensor_)[matrixRepresentation_List,
     Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
     BooleanQ[index1] && BooleanQ[index2] && Length[shiftVector] == Length[matrixRepresentation]
 VacuumADMSolution[(admDecomposition_)[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_], 
+     timeCoordinate_, lapseFunction_, shiftVector_List], cosmologicalConstant_]["NormalVector"] := 
+  Module[{newMatrixRepresentation, newCoordinates, newTimeCoordinate, newLapseFunction, newShiftVector, shiftCovector, 
+     spacetimeMetricTensor}, newMatrixRepresentation = matrixRepresentation /. (#1 -> ToExpression[#1] & ) /@ 
+        Select[Join[coordinates, {timeCoordinate}], StringQ]; newCoordinates = 
+      coordinates /. (#1 -> ToExpression[#1] & ) /@ Select[Join[coordinates, {timeCoordinate}], StringQ]; 
+     newTimeCoordinate = timeCoordinate /. (#1 -> ToExpression[#1] & ) /@ Select[Join[coordinates, {timeCoordinate}], 
+         StringQ]; newLapseFunction = lapseFunction /. (#1 -> ToExpression[#1] & ) /@ 
+        Select[Join[coordinates, {timeCoordinate}], StringQ]; newShiftVector = 
+      shiftVector /. (#1 -> ToExpression[#1] & ) /@ Select[Join[coordinates, {timeCoordinate}], StringQ]; 
+     shiftCovector = Normal[SparseArray[
+        (Module[{index = #1}, index -> Total[(newMatrixRepresentation[[index,#1]]*newShiftVector[[#1]] & ) /@ 
+              Range[Length[newMatrixRepresentation]]]] & ) /@ Range[Length[newMatrixRepresentation]]]]; 
+     spacetimeMetricTensor = Normal[SparseArray[
+        Join[{{1, 1} -> Total[(newShiftVector[[#1]]*shiftCovector[[#1]] & ) /@ Range[Length[newMatrixRepresentation]]] - 
+            newLapseFunction^2}, (Module[{index = #1}, {1, index + 1} -> Total[(newMatrixRepresentation[[index,#1]]*
+                 newShiftVector[[#1]] & ) /@ Range[Length[newMatrixRepresentation]]]] & ) /@ 
+          Range[Length[newMatrixRepresentation]], (Module[{index = #1}, {index + 1, 1} -> 
+             Total[(newMatrixRepresentation[[#1,index]]*newShiftVector[[#1]] & ) /@ Range[
+                Length[newMatrixRepresentation]]]] & ) /@ Range[Length[newMatrixRepresentation]], 
+         ({First[#1] + 1, Last[#1] + 1} -> newMatrixRepresentation[[First[#1],Last[#1]]] & ) /@ 
+          Tuples[Range[Length[newMatrixRepresentation]], 2]]]]; 
+     Normal[SparseArray[(Module[{index = #1}, index -> -Total[(newLapseFunction*Inverse[spacetimeMetricTensor][[index,
+                  #1]]*D[newTimeCoordinate, Join[{newTimeCoordinate}, newCoordinates][[#1]]] & ) /@ Range[
+                Length[spacetimeMetricTensor]]]] & ) /@ Range[Length[spacetimeMetricTensor]]]] /. 
+      (ToExpression[#1] -> #1 & ) /@ Select[Join[coordinates, {timeCoordinate}], StringQ]] /; 
+   SymbolName[admDecomposition] === "ADMDecomposition" && SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2] && Length[shiftVector] == Length[matrixRepresentation]
+VacuumADMSolution[(admDecomposition_)[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_], 
+     timeCoordinate_, lapseFunction_, shiftVector_List], cosmologicalConstant_]["ReducedNormalVector"] := 
+  Module[{newMatrixRepresentation, newCoordinates, newTimeCoordinate, newLapseFunction, newShiftVector, shiftCovector, 
+     spacetimeMetricTensor}, newMatrixRepresentation = matrixRepresentation /. (#1 -> ToExpression[#1] & ) /@ 
+        Select[Join[coordinates, {timeCoordinate}], StringQ]; newCoordinates = 
+      coordinates /. (#1 -> ToExpression[#1] & ) /@ Select[Join[coordinates, {timeCoordinate}], StringQ]; 
+     newTimeCoordinate = timeCoordinate /. (#1 -> ToExpression[#1] & ) /@ Select[Join[coordinates, {timeCoordinate}], 
+         StringQ]; newLapseFunction = lapseFunction /. (#1 -> ToExpression[#1] & ) /@ 
+        Select[Join[coordinates, {timeCoordinate}], StringQ]; newShiftVector = 
+      shiftVector /. (#1 -> ToExpression[#1] & ) /@ Select[Join[coordinates, {timeCoordinate}], StringQ]; 
+     shiftCovector = Normal[SparseArray[
+        (Module[{index = #1}, index -> Total[(newMatrixRepresentation[[index,#1]]*newShiftVector[[#1]] & ) /@ 
+              Range[Length[newMatrixRepresentation]]]] & ) /@ Range[Length[newMatrixRepresentation]]]]; 
+     spacetimeMetricTensor = Normal[SparseArray[
+        Join[{{1, 1} -> Total[(newShiftVector[[#1]]*shiftCovector[[#1]] & ) /@ Range[Length[newMatrixRepresentation]]] - 
+            newLapseFunction^2}, (Module[{index = #1}, {1, index + 1} -> Total[(newMatrixRepresentation[[index,#1]]*
+                 newShiftVector[[#1]] & ) /@ Range[Length[newMatrixRepresentation]]]] & ) /@ 
+          Range[Length[newMatrixRepresentation]], (Module[{index = #1}, {index + 1, 1} -> 
+             Total[(newMatrixRepresentation[[#1,index]]*newShiftVector[[#1]] & ) /@ Range[
+                Length[newMatrixRepresentation]]]] & ) /@ Range[Length[newMatrixRepresentation]], 
+         ({First[#1] + 1, Last[#1] + 1} -> newMatrixRepresentation[[First[#1],Last[#1]]] & ) /@ 
+          Tuples[Range[Length[newMatrixRepresentation]], 2]]]]; 
+     FullSimplify[
+      Normal[SparseArray[(Module[{index = #1}, index -> -Total[(newLapseFunction*Inverse[spacetimeMetricTensor][[index,
+                   #1]]*D[newTimeCoordinate, Join[{newTimeCoordinate}, newCoordinates][[#1]]] & ) /@ 
+                Range[Length[spacetimeMetricTensor]]]] & ) /@ Range[Length[spacetimeMetricTensor]]]] /. 
+       (ToExpression[#1] -> #1 & ) /@ Select[Join[coordinates, {timeCoordinate}], StringQ]]] /; 
+   SymbolName[admDecomposition] === "ADMDecomposition" && SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2] && Length[shiftVector] == Length[matrixRepresentation]
+VacuumADMSolution[(admDecomposition_)[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_], 
+     timeCoordinate_, lapseFunction_, shiftVector_List], cosmologicalConstant_]["SymbolicNormalVector"] := 
+  Module[{newMatrixRepresentation, newCoordinates, newTimeCoordinate, newLapseFunction, newShiftVector, shiftCovector, 
+     spacetimeMetricTensor}, newMatrixRepresentation = matrixRepresentation /. (#1 -> ToExpression[#1] & ) /@ 
+        Select[Join[coordinates, {timeCoordinate}], StringQ]; newCoordinates = 
+      coordinates /. (#1 -> ToExpression[#1] & ) /@ Select[Join[coordinates, {timeCoordinate}], StringQ]; 
+     newTimeCoordinate = timeCoordinate /. (#1 -> ToExpression[#1] & ) /@ Select[Join[coordinates, {timeCoordinate}], 
+         StringQ]; newLapseFunction = lapseFunction /. (#1 -> ToExpression[#1] & ) /@ 
+        Select[Join[coordinates, {timeCoordinate}], StringQ]; newShiftVector = 
+      shiftVector /. (#1 -> ToExpression[#1] & ) /@ Select[Join[coordinates, {timeCoordinate}], StringQ]; 
+     shiftCovector = Normal[SparseArray[
+        (Module[{index = #1}, index -> Total[(newMatrixRepresentation[[index,#1]]*newShiftVector[[#1]] & ) /@ 
+              Range[Length[newMatrixRepresentation]]]] & ) /@ Range[Length[newMatrixRepresentation]]]]; 
+     spacetimeMetricTensor = Normal[SparseArray[
+        Join[{{1, 1} -> Total[(newShiftVector[[#1]]*shiftCovector[[#1]] & ) /@ Range[Length[newMatrixRepresentation]]] - 
+            newLapseFunction^2}, (Module[{index = #1}, {1, index + 1} -> Total[(newMatrixRepresentation[[index,#1]]*
+                 newShiftVector[[#1]] & ) /@ Range[Length[newMatrixRepresentation]]]] & ) /@ 
+          Range[Length[newMatrixRepresentation]], (Module[{index = #1}, {index + 1, 1} -> 
+             Total[(newMatrixRepresentation[[#1,index]]*newShiftVector[[#1]] & ) /@ Range[
+                Length[newMatrixRepresentation]]]] & ) /@ Range[Length[newMatrixRepresentation]], 
+         ({First[#1] + 1, Last[#1] + 1} -> newMatrixRepresentation[[First[#1],Last[#1]]] & ) /@ 
+          Tuples[Range[Length[newMatrixRepresentation]], 2]]]]; 
+     Normal[SparseArray[(Module[{index = #1}, index -> -Total[(newLapseFunction*Inverse[spacetimeMetricTensor][[index,
+                  #1]]*Inactive[D][newTimeCoordinate, Join[{newTimeCoordinate}, newCoordinates][[#1]]] & ) /@ Range[
+                Length[spacetimeMetricTensor]]]] & ) /@ Range[Length[spacetimeMetricTensor]]]] /. 
+      (ToExpression[#1] -> #1 & ) /@ Select[Join[coordinates, {timeCoordinate}], StringQ]] /; 
+   SymbolName[admDecomposition] === "ADMDecomposition" && SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2] && Length[shiftVector] == Length[matrixRepresentation]
+VacuumADMSolution[(admDecomposition_)[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_], 
+     timeCoordinate_, lapseFunction_, shiftVector_List], cosmologicalConstant_]["TimeVector"] := 
+  Module[{newMatrixRepresentation, newCoordinates, newTimeCoordinate, newLapseFunction, newShiftVector, shiftCovector, 
+     spacetimeMetricTensor, normalVector}, newMatrixRepresentation = matrixRepresentation /. 
+       (#1 -> ToExpression[#1] & ) /@ Select[Join[coordinates, {timeCoordinate}], StringQ]; 
+     newCoordinates = coordinates /. (#1 -> ToExpression[#1] & ) /@ Select[Join[coordinates, {timeCoordinate}], StringQ]; 
+     newTimeCoordinate = timeCoordinate /. (#1 -> ToExpression[#1] & ) /@ Select[Join[coordinates, {timeCoordinate}], 
+         StringQ]; newLapseFunction = lapseFunction /. (#1 -> ToExpression[#1] & ) /@ 
+        Select[Join[coordinates, {timeCoordinate}], StringQ]; newShiftVector = 
+      shiftVector /. (#1 -> ToExpression[#1] & ) /@ Select[Join[coordinates, {timeCoordinate}], StringQ]; 
+     shiftCovector = Normal[SparseArray[
+        (Module[{index = #1}, index -> Total[(newMatrixRepresentation[[index,#1]]*newShiftVector[[#1]] & ) /@ 
+              Range[Length[newMatrixRepresentation]]]] & ) /@ Range[Length[newMatrixRepresentation]]]]; 
+     spacetimeMetricTensor = Normal[SparseArray[
+        Join[{{1, 1} -> Total[(newShiftVector[[#1]]*shiftCovector[[#1]] & ) /@ Range[Length[newMatrixRepresentation]]] - 
+            newLapseFunction^2}, (Module[{index = #1}, {1, index + 1} -> Total[(newMatrixRepresentation[[index,#1]]*
+                 newShiftVector[[#1]] & ) /@ Range[Length[newMatrixRepresentation]]]] & ) /@ 
+          Range[Length[newMatrixRepresentation]], (Module[{index = #1}, {index + 1, 1} -> 
+             Total[(newMatrixRepresentation[[#1,index]]*newShiftVector[[#1]] & ) /@ Range[
+                Length[newMatrixRepresentation]]]] & ) /@ Range[Length[newMatrixRepresentation]], 
+         ({First[#1] + 1, Last[#1] + 1} -> newMatrixRepresentation[[First[#1],Last[#1]]] & ) /@ 
+          Tuples[Range[Length[newMatrixRepresentation]], 2]]]]; 
+     normalVector = Normal[SparseArray[
+        (Module[{index = #1}, index -> -Total[(newLapseFunction*Inverse[spacetimeMetricTensor][[index,#1]]*
+                 D[newTimeCoordinate, Join[{newTimeCoordinate}, newCoordinates][[#1]]] & ) /@ Range[
+                Length[spacetimeMetricTensor]]]] & ) /@ Range[Length[spacetimeMetricTensor]]]]; 
+     Normal[SparseArray[(Module[{index = #1}, index -> newLapseFunction*normalVector[[index]] + 
+             Join[{0}, newShiftVector][[index]]] & ) /@ Range[Length[spacetimeMetricTensor]]]] /. 
+      (ToExpression[#1] -> #1 & ) /@ Select[Join[coordinates, {timeCoordinate}], StringQ]] /; 
+   SymbolName[admDecomposition] === "ADMDecomposition" && SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2] && Length[shiftVector] == Length[matrixRepresentation]
+VacuumADMSolution[(admDecomposition_)[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_], 
+     timeCoordinate_, lapseFunction_, shiftVector_List], cosmologicalConstant_]["SymbolicTimeVector"] := 
+  Module[{newMatrixRepresentation, newCoordinates, newTimeCoordinate, newLapseFunction, newShiftVector, shiftCovector, 
+     spacetimeMetricTensor, normalVector}, newMatrixRepresentation = matrixRepresentation /. 
+       (#1 -> ToExpression[#1] & ) /@ Select[Join[coordinates, {timeCoordinate}], StringQ]; 
+     newCoordinates = coordinates /. (#1 -> ToExpression[#1] & ) /@ Select[Join[coordinates, {timeCoordinate}], StringQ]; 
+     newTimeCoordinate = timeCoordinate /. (#1 -> ToExpression[#1] & ) /@ Select[Join[coordinates, {timeCoordinate}], 
+         StringQ]; newLapseFunction = lapseFunction /. (#1 -> ToExpression[#1] & ) /@ 
+        Select[Join[coordinates, {timeCoordinate}], StringQ]; newShiftVector = 
+      shiftVector /. (#1 -> ToExpression[#1] & ) /@ Select[Join[coordinates, {timeCoordinate}], StringQ]; 
+     shiftCovector = Normal[SparseArray[
+        (Module[{index = #1}, index -> Total[(newMatrixRepresentation[[index,#1]]*newShiftVector[[#1]] & ) /@ 
+              Range[Length[newMatrixRepresentation]]]] & ) /@ Range[Length[newMatrixRepresentation]]]]; 
+     spacetimeMetricTensor = Normal[SparseArray[
+        Join[{{1, 1} -> Total[(newShiftVector[[#1]]*shiftCovector[[#1]] & ) /@ Range[Length[newMatrixRepresentation]]] - 
+            newLapseFunction^2}, (Module[{index = #1}, {1, index + 1} -> Total[(newMatrixRepresentation[[index,#1]]*
+                 newShiftVector[[#1]] & ) /@ Range[Length[newMatrixRepresentation]]]] & ) /@ 
+          Range[Length[newMatrixRepresentation]], (Module[{index = #1}, {index + 1, 1} -> 
+             Total[(newMatrixRepresentation[[#1,index]]*newShiftVector[[#1]] & ) /@ Range[
+                Length[newMatrixRepresentation]]]] & ) /@ Range[Length[newMatrixRepresentation]], 
+         ({First[#1] + 1, Last[#1] + 1} -> newMatrixRepresentation[[First[#1],Last[#1]]] & ) /@ 
+          Tuples[Range[Length[newMatrixRepresentation]], 2]]]]; 
+     normalVector = Normal[SparseArray[
+        (Module[{index = #1}, index -> -Total[(newLapseFunction*Inverse[spacetimeMetricTensor][[index,#1]]*
+                 Inactive[D][newTimeCoordinate, Join[{newTimeCoordinate}, newCoordinates][[#1]]] & ) /@ Range[
+                Length[spacetimeMetricTensor]]]] & ) /@ Range[Length[spacetimeMetricTensor]]]]; 
+     Normal[SparseArray[(Module[{index = #1}, index -> newLapseFunction*normalVector[[index]] + 
+             Join[{0}, newShiftVector][[index]]] & ) /@ Range[Length[spacetimeMetricTensor]]]] /. 
+      (ToExpression[#1] -> #1 & ) /@ Select[Join[coordinates, {timeCoordinate}], StringQ]] /; 
+   SymbolName[admDecomposition] === "ADMDecomposition" && SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2] && Length[shiftVector] == Length[matrixRepresentation]
+VacuumADMSolution[(admDecomposition_)[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_], 
+     timeCoordinate_, lapseFunction_, shiftVector_List], cosmologicalConstant_]["TimeCoordinate"] := 
+  timeCoordinate /; SymbolName[admDecomposition] === "ADMDecomposition" && SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2] && Length[shiftVector] == Length[matrixRepresentation]
+VacuumADMSolution[(admDecomposition_)[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_], 
+     timeCoordinate_, lapseFunction_, shiftVector_List], cosmologicalConstant_]["SpatialCoordinates"] := 
+  coordinates /; SymbolName[admDecomposition] === "ADMDecomposition" && SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2] && Length[shiftVector] == Length[matrixRepresentation]
+VacuumADMSolution[(admDecomposition_)[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_], 
+     timeCoordinate_, lapseFunction_, shiftVector_List], cosmologicalConstant_]["CoordinateOneForms"] := 
+  (If[Head[#1] === Subscript, Subscript[StringJoin["\[FormalD]", ToString[First[#1]]], ToString[Last[#1]]], 
+      If[Head[#1] === Superscript, Superscript[StringJoin["\[FormalD]", ToString[First[#1]]], ToString[Last[#1]]], 
+       StringJoin["\[FormalD]", ToString[#1]]]] & ) /@ Join[{timeCoordinate}, coordinates] /; 
+   SymbolName[admDecomposition] === "ADMDecomposition" && SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2] && Length[shiftVector] == Length[matrixRepresentation]
+VacuumADMSolution[(admDecomposition_)[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_], 
+     timeCoordinate_, lapseFunction_, shiftVector_List], cosmologicalConstant_]["LapseFunction"] := 
+  lapseFunction /; SymbolName[admDecomposition] === "ADMDecomposition" && SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2] && Length[shiftVector] == Length[matrixRepresentation]
+VacuumADMSolution[(admDecomposition_)[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_], 
+     timeCoordinate_, lapseFunction_, shiftVector_List], cosmologicalConstant_]["ShiftVector"] := 
+  shiftVector /; SymbolName[admDecomposition] === "ADMDecomposition" && SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2] && Length[shiftVector] == Length[matrixRepresentation]
+VacuumADMSolution[(admDecomposition_)[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_], 
      timeCoordinate_, lapseFunction_, shiftVector_List], cosmologicalConstant_]["HamiltonianConstraintSatisfiedQ"] := 
   Module[{newMatrixRepresentation, newCoordinates, newTimeCoordinate, newLapseFunction, newShiftVector, shiftCovector, 
      spatialChristoffelSymbols, extrinsicCurvatureTensor, mixedExtrinsicCurvatureTensor, extrinsicCurvatureTrace, 
@@ -1428,6 +1608,182 @@ VacuumADMSolution[(admDecomposition_)[(metricTensor_)[matrixRepresentation_List,
                 extrinsicCurvatureTrace, newCoordinates[[index]]] - newLapseFunction*mixedSpacetimeEinsteinTensor[[
                  index + 1,1]]] & ) /@ Range[Length[newMatrixRepresentation]]]] /. (ToExpression[#1] -> #1 & ) /@ 
          Select[Join[coordinates, {timeCoordinate}], StringQ]) == ConstantArray[0, Length[matrixRepresentation]]]] /; 
+   SymbolName[admDecomposition] === "ADMDecomposition" && SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2] && Length[shiftVector] == Length[matrixRepresentation]
+VacuumADMSolution[(admDecomposition_)[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_], 
+     timeCoordinate_, lapseFunction_, shiftVector_List], cosmologicalConstant_]["CosmologicalConstant"] := 
+  cosmologicalConstant /; SymbolName[admDecomposition] === "ADMDecomposition" && 
+    SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2] && 
+    Length[shiftVector] == Length[matrixRepresentation]
+VacuumADMSolution[(admDecomposition_)[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_], 
+     timeCoordinate_, lapseFunction_, shiftVector_List], cosmologicalConstant_]["Dimensions"] := 
+  Length[matrixRepresentation] + 1 /; SymbolName[admDecomposition] === "ADMDecomposition" && 
+    SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2] && 
+    Length[shiftVector] == Length[matrixRepresentation]
+VacuumADMSolution[(admDecomposition_)[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_], 
+     timeCoordinate_, lapseFunction_, shiftVector_List], cosmologicalConstant_]["Signature"] := 
+  Module[{shiftCovector, spacetimeMetricTensor, eigenvalues, positiveEigenvalues, negativeEigenvalues}, 
+    shiftCovector = Normal[SparseArray[(Module[{index = #1}, index -> Total[(matrixRepresentation[[index,#1]]*
+                shiftVector[[#1]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ 
+         Range[Length[matrixRepresentation]]]]; spacetimeMetricTensor = 
+      Normal[SparseArray[Join[{{1, 1} -> Total[(shiftVector[[#1]]*shiftCovector[[#1]] & ) /@ 
+              Range[Length[matrixRepresentation]]] - lapseFunction^2}, 
+         (Module[{index = #1}, {1, index + 1} -> Total[(matrixRepresentation[[index,#1]]*shiftVector[[#1]] & ) /@ Range[
+                Length[matrixRepresentation]]]] & ) /@ Range[Length[matrixRepresentation]], 
+         (Module[{index = #1}, {index + 1, 1} -> Total[(matrixRepresentation[[#1,index]]*shiftVector[[#1]] & ) /@ Range[
+                Length[matrixRepresentation]]]] & ) /@ Range[Length[matrixRepresentation]], 
+         ({First[#1] + 1, Last[#1] + 1} -> matrixRepresentation[[First[#1],Last[#1]]] & ) /@ 
+          Tuples[Range[Length[matrixRepresentation]], 2]]]]; eigenvalues = Eigenvalues[spacetimeMetricTensor]; 
+     positiveEigenvalues = Select[eigenvalues, #1 > 0 & ]; negativeEigenvalues = Select[eigenvalues, #1 < 0 & ]; 
+     If[Length[positiveEigenvalues] + Length[negativeEigenvalues] == Length[spacetimeMetricTensor], 
+      Join[ConstantArray[-1, Length[negativeEigenvalues]], ConstantArray[1, Length[positiveEigenvalues]]], 
+      Indeterminate]] /; SymbolName[admDecomposition] === "ADMDecomposition" && 
+    SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2] && 
+    Length[shiftVector] == Length[matrixRepresentation]
+VacuumADMSolution[(admDecomposition_)[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_], 
+     timeCoordinate_, lapseFunction_, shiftVector_List], cosmologicalConstant_]["RiemannianQ"] := 
+  Module[{shiftCovector, spacetimeMetricTensor, eigenvalues, positiveEigenvalues, negativeEigenvalues}, 
+    shiftCovector = Normal[SparseArray[(Module[{index = #1}, index -> Total[(matrixRepresentation[[index,#1]]*
+                shiftVector[[#1]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ 
+         Range[Length[matrixRepresentation]]]]; spacetimeMetricTensor = 
+      Normal[SparseArray[Join[{{1, 1} -> Total[(shiftVector[[#1]]*shiftCovector[[#1]] & ) /@ 
+              Range[Length[matrixRepresentation]]] - lapseFunction^2}, 
+         (Module[{index = #1}, {1, index + 1} -> Total[(matrixRepresentation[[index,#1]]*shiftVector[[#1]] & ) /@ Range[
+                Length[matrixRepresentation]]]] & ) /@ Range[Length[matrixRepresentation]], 
+         (Module[{index = #1}, {index + 1, 1} -> Total[(matrixRepresentation[[#1,index]]*shiftVector[[#1]] & ) /@ Range[
+                Length[matrixRepresentation]]]] & ) /@ Range[Length[matrixRepresentation]], 
+         ({First[#1] + 1, Last[#1] + 1} -> matrixRepresentation[[First[#1],Last[#1]]] & ) /@ 
+          Tuples[Range[Length[matrixRepresentation]], 2]]]]; eigenvalues = Eigenvalues[spacetimeMetricTensor]; 
+     positiveEigenvalues = Select[eigenvalues, #1 > 0 & ]; negativeEigenvalues = Select[eigenvalues, #1 < 0 & ]; 
+     If[Length[positiveEigenvalues] + Length[negativeEigenvalues] == Length[spacetimeMetricTensor], 
+      If[Length[positiveEigenvalues] == Length[spacetimeMetricTensor] || Length[negativeEigenvalues] == 
+         Length[spacetimeMetricTensor], True, False], Indeterminate]] /; 
+   SymbolName[admDecomposition] === "ADMDecomposition" && SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2] && Length[shiftVector] == Length[matrixRepresentation]
+VacuumADMSolution[(admDecomposition_)[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_], 
+     timeCoordinate_, lapseFunction_, shiftVector_List], cosmologicalConstant_]["PseudoRiemannianQ"] := 
+  Module[{shiftCovector, spacetimeMetricTensor, eigenvalues, positiveEigenvalues, negativeEigenvalues}, 
+    shiftCovector = Normal[SparseArray[(Module[{index = #1}, index -> Total[(matrixRepresentation[[index,#1]]*
+                shiftVector[[#1]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ 
+         Range[Length[matrixRepresentation]]]]; spacetimeMetricTensor = 
+      Normal[SparseArray[Join[{{1, 1} -> Total[(shiftVector[[#1]]*shiftCovector[[#1]] & ) /@ 
+              Range[Length[matrixRepresentation]]] - lapseFunction^2}, 
+         (Module[{index = #1}, {1, index + 1} -> Total[(matrixRepresentation[[index,#1]]*shiftVector[[#1]] & ) /@ Range[
+                Length[matrixRepresentation]]]] & ) /@ Range[Length[matrixRepresentation]], 
+         (Module[{index = #1}, {index + 1, 1} -> Total[(matrixRepresentation[[#1,index]]*shiftVector[[#1]] & ) /@ Range[
+                Length[matrixRepresentation]]]] & ) /@ Range[Length[matrixRepresentation]], 
+         ({First[#1] + 1, Last[#1] + 1} -> matrixRepresentation[[First[#1],Last[#1]]] & ) /@ 
+          Tuples[Range[Length[matrixRepresentation]], 2]]]]; eigenvalues = Eigenvalues[spacetimeMetricTensor]; 
+     positiveEigenvalues = Select[eigenvalues, #1 > 0 & ]; negativeEigenvalues = Select[eigenvalues, #1 < 0 & ]; 
+     If[Length[positiveEigenvalues] + Length[negativeEigenvalues] == Length[spacetimeMetricTensor], 
+      If[Length[positiveEigenvalues] == Length[spacetimeMetricTensor] || Length[negativeEigenvalues] == 
+         Length[spacetimeMetricTensor], False, True], Indeterminate]] /; 
+   SymbolName[admDecomposition] === "ADMDecomposition" && SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2] && Length[shiftVector] == Length[matrixRepresentation]
+VacuumADMSolution[(admDecomposition_)[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_], 
+     timeCoordinate_, lapseFunction_, shiftVector_List], cosmologicalConstant_]["LorentzianQ"] := 
+  Module[{shiftCovector, spacetimeMetricTensor, eigenvalues, positiveEigenvalues, negativeEigenvalues}, 
+    shiftCovector = Normal[SparseArray[(Module[{index = #1}, index -> Total[(matrixRepresentation[[index,#1]]*
+                shiftVector[[#1]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ 
+         Range[Length[matrixRepresentation]]]]; spacetimeMetricTensor = 
+      Normal[SparseArray[Join[{{1, 1} -> Total[(shiftVector[[#1]]*shiftCovector[[#1]] & ) /@ 
+              Range[Length[matrixRepresentation]]] - lapseFunction^2}, 
+         (Module[{index = #1}, {1, index + 1} -> Total[(matrixRepresentation[[index,#1]]*shiftVector[[#1]] & ) /@ Range[
+                Length[matrixRepresentation]]]] & ) /@ Range[Length[matrixRepresentation]], 
+         (Module[{index = #1}, {index + 1, 1} -> Total[(matrixRepresentation[[#1,index]]*shiftVector[[#1]] & ) /@ Range[
+                Length[matrixRepresentation]]]] & ) /@ Range[Length[matrixRepresentation]], 
+         ({First[#1] + 1, Last[#1] + 1} -> matrixRepresentation[[First[#1],Last[#1]]] & ) /@ 
+          Tuples[Range[Length[matrixRepresentation]], 2]]]]; eigenvalues = Eigenvalues[spacetimeMetricTensor]; 
+     positiveEigenvalues = Select[eigenvalues, #1 > 0 & ]; negativeEigenvalues = Select[eigenvalues, #1 < 0 & ]; 
+     If[Length[positiveEigenvalues] + Length[negativeEigenvalues] == Length[spacetimeMetricTensor], 
+      If[Length[positiveEigenvalues] == 1 || Length[negativeEigenvalues] == 1, True, False], Indeterminate]] /; 
+   SymbolName[admDecomposition] === "ADMDecomposition" && SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2] && Length[shiftVector] == Length[matrixRepresentation]
+VacuumADMSolution[(admDecomposition_)[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_], 
+     timeCoordinate_, lapseFunction_, shiftVector_List], cosmologicalConstant_]["RiemannianConditions"] := 
+  Module[{shiftCovector, spacetimeMetricTensor, eigenvalues, riemannianConditions}, 
+    shiftCovector = Normal[SparseArray[(Module[{index = #1}, index -> Total[(matrixRepresentation[[index,#1]]*
+                shiftVector[[#1]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ 
+         Range[Length[matrixRepresentation]]]]; spacetimeMetricTensor = 
+      Normal[SparseArray[Join[{{1, 1} -> Total[(shiftVector[[#1]]*shiftCovector[[#1]] & ) /@ 
+              Range[Length[matrixRepresentation]]] - lapseFunction^2}, 
+         (Module[{index = #1}, {1, index + 1} -> Total[(matrixRepresentation[[index,#1]]*shiftVector[[#1]] & ) /@ Range[
+                Length[matrixRepresentation]]]] & ) /@ Range[Length[matrixRepresentation]], 
+         (Module[{index = #1}, {index + 1, 1} -> Total[(matrixRepresentation[[#1,index]]*shiftVector[[#1]] & ) /@ Range[
+                Length[matrixRepresentation]]]] & ) /@ Range[Length[matrixRepresentation]], 
+         ({First[#1] + 1, Last[#1] + 1} -> matrixRepresentation[[First[#1],Last[#1]]] & ) /@ 
+          Tuples[Range[Length[matrixRepresentation]], 2]]]]; eigenvalues = Eigenvalues[spacetimeMetricTensor]; 
+     riemannianConditions = FullSimplify[(#1 > 0 & ) /@ eigenvalues]; If[riemannianConditions === True, {}, 
+      If[riemannianConditions === False, Indeterminate, If[Length[Select[riemannianConditions, #1 === False & ]] > 0, 
+        Indeterminate, DeleteDuplicates[Select[riemannianConditions, #1 =!= True & ]]]]]] /; 
+   SymbolName[admDecomposition] === "ADMDecomposition" && SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2] && Length[shiftVector] == Length[matrixRepresentation]
+VacuumADMSolution[(admDecomposition_)[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_], 
+     timeCoordinate_, lapseFunction_, shiftVector_List], cosmologicalConstant_]["PseudoRiemannianConditions"] := 
+  Module[{shiftCovector, spacetimeMetricTensor, eigenvalues, pseudoRiemannianConditions}, 
+    shiftCovector = Normal[SparseArray[(Module[{index = #1}, index -> Total[(matrixRepresentation[[index,#1]]*
+                shiftVector[[#1]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ 
+         Range[Length[matrixRepresentation]]]]; spacetimeMetricTensor = 
+      Normal[SparseArray[Join[{{1, 1} -> Total[(shiftVector[[#1]]*shiftCovector[[#1]] & ) /@ 
+              Range[Length[matrixRepresentation]]] - lapseFunction^2}, 
+         (Module[{index = #1}, {1, index + 1} -> Total[(matrixRepresentation[[index,#1]]*shiftVector[[#1]] & ) /@ Range[
+                Length[matrixRepresentation]]]] & ) /@ Range[Length[matrixRepresentation]], 
+         (Module[{index = #1}, {index + 1, 1} -> Total[(matrixRepresentation[[#1,index]]*shiftVector[[#1]] & ) /@ Range[
+                Length[matrixRepresentation]]]] & ) /@ Range[Length[matrixRepresentation]], 
+         ({First[#1] + 1, Last[#1] + 1} -> matrixRepresentation[[First[#1],Last[#1]]] & ) /@ 
+          Tuples[Range[Length[matrixRepresentation]], 2]]]]; eigenvalues = Eigenvalues[spacetimeMetricTensor]; 
+     pseudoRiemannianConditions = FullSimplify[(#1 != 0 & ) /@ eigenvalues]; If[pseudoRiemannianConditions === True, {}, 
+      If[pseudoRiemannianConditions === False, Indeterminate, 
+       If[Length[Select[pseudoRiemannianConditions, #1 === False & ]] > 0, Indeterminate, 
+        DeleteDuplicates[Reverse /@ Sort /@ Select[pseudoRiemannianConditions, #1 =!= True & ]]]]]] /; 
+   SymbolName[admDecomposition] === "ADMDecomposition" && SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2] && Length[shiftVector] == Length[matrixRepresentation]
+VacuumADMSolution[(admDecomposition_)[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_], 
+     timeCoordinate_, lapseFunction_, shiftVector_List], cosmologicalConstant_]["LorentzianConditions"] := 
+  Module[{shiftCovector, spacetimeMetricTensor, eigensystem, eigenvalues, eigenvectors, newTimeCoordinate, 
+     lorentzianConditions}, 
+    shiftCovector = Normal[SparseArray[(Module[{index = #1}, index -> Total[(matrixRepresentation[[index,#1]]*
+                shiftVector[[#1]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ 
+         Range[Length[matrixRepresentation]]]]; spacetimeMetricTensor = 
+      Normal[SparseArray[Join[{{1, 1} -> Total[(shiftVector[[#1]]*shiftCovector[[#1]] & ) /@ 
+              Range[Length[matrixRepresentation]]] - lapseFunction^2}, 
+         (Module[{index = #1}, {1, index + 1} -> Total[(matrixRepresentation[[index,#1]]*shiftVector[[#1]] & ) /@ Range[
+                Length[matrixRepresentation]]]] & ) /@ Range[Length[matrixRepresentation]], 
+         (Module[{index = #1}, {index + 1, 1} -> Total[(matrixRepresentation[[#1,index]]*shiftVector[[#1]] & ) /@ Range[
+                Length[matrixRepresentation]]]] & ) /@ Range[Length[matrixRepresentation]], 
+         ({First[#1] + 1, Last[#1] + 1} -> matrixRepresentation[[First[#1],Last[#1]]] & ) /@ 
+          Tuples[Range[Length[matrixRepresentation]], 2]]]]; eigensystem = Eigensystem[spacetimeMetricTensor]; 
+     eigenvalues = First[eigensystem]; eigenvectors = Last[eigensystem]; 
+     If[Length[Position[eigenvectors, Join[{1}, ConstantArray[0, Length[spacetimeMetricTensor] - 1]]]] > 0, 
+      newTimeCoordinate = First[First[Position[eigenvectors, Join[{1}, ConstantArray[0, Length[spacetimeMetricTensor] - 
+              1]]]]]; lorentzianConditions = FullSimplify[(If[#1 == newTimeCoordinate, eigenvalues[[#1]] < 0, 
+            eigenvalues[[#1]] > 0] & ) /@ Range[Length[eigenvalues]]]; If[lorentzianConditions === True, {}, 
+        If[lorentzianConditions === False, Indeterminate, If[Length[Select[lorentzianConditions, #1 === False & ]] > 0, 
+          Indeterminate, DeleteDuplicates[Select[lorentzianConditions, #1 =!= True & ]]]]], Indeterminate]] /; 
+   SymbolName[admDecomposition] === "ADMDecomposition" && SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[index1] && BooleanQ[index2] && Length[shiftVector] == Length[matrixRepresentation]
+VacuumADMSolution[(admDecomposition_)[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_], 
+     timeCoordinate_, lapseFunction_, shiftVector_List], cosmologicalConstant_]["Properties"] := 
+  {"SolutionQ", "ExactSolutionQ", "FieldEquations", "EvolutionEquations", "ReducedEvolutionEquations", 
+    "SymbolicEvolutionEquations", "ADMDecomposition", "SpatialMetricTensor", "SpacetimeMetricTensor", "NormalVector", 
+    "ReducedNormalVector", "SymbolicNormalVector", "TimeVector", "SymbolicTimeVector", "TimeCoordinate", 
+    "SpatialCoordinates", "CoordinateOneForms", "LapseFunction", "ShiftVector", "HamiltonianConstraintSatisfiedQ", 
+    "HamiltonianConstraint", "ReducedHamiltonianConstraint", "SymbolicHamiltonianConstraint", 
+    "HamiltonianConstraintEquation", "ReducedHamiltonianConstraintEquation", "SymbolicHamiltonianConstraintEquation", 
+    "MomentumConstraintsSatisfiedQ", "MomentumConstraints", "ReducedMomentumConstraints", "SymbolicMomentumConstraints", 
+    "MomentumConstraintEquations", "ReducedMomentumConstraintEquations", "SymbolicMomentumConstraintEquations", 
+    "CosmologicalConstant", "Dimensions", "Signature", "RiemannianQ", "PseudoRiemannianQ", "LorentzianQ", 
+    "RiemannianConditions", "PseudoRiemannianConditions", "LorentzianConditions", "Properties"} /; 
    SymbolName[admDecomposition] === "ADMDecomposition" && SymbolName[metricTensor] === "MetricTensor" && 
     Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
     BooleanQ[index1] && BooleanQ[index2] && Length[shiftVector] == Length[matrixRepresentation]
