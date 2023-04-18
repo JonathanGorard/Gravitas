@@ -1,9 +1,22 @@
 (* ::Package:: *)
 
 RiemannTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_]] := 
-  RiemannTensor[MetricTensor[matrixRepresentation, coordinates, index1, index2], False, True, True, True] /; 
-   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+  RiemannTensor[ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, index1, index2], False, True, True, 
+    True] /; SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
     Length[coordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
+RiemannTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, index1_, index2_], newCoordinates_List] := 
+  RiemannTensor[ResourceFunction["MetricTensor"][matrixRepresentation /. Thread[coordinates -> newCoordinates], 
+     newCoordinates, index1, index2], False, True, True, True] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    Length[newCoordinates] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
+RiemannTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+   newCoordinates_List, index1_, index2_, index3_, index4_] := 
+  RiemannTensor[ResourceFunction["MetricTensor"][matrixRepresentation /. Thread[coordinates -> newCoordinates], 
+     newCoordinates, metricIndex1, metricIndex2], index1, index2, index3, index4] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && Length[newCoordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && BooleanQ[index1] && BooleanQ[index2] && BooleanQ[index3] && 
+    BooleanQ[index4]
 RiemannTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], index1_, 
     index2_, index3_, index4_]["TensorRepresentation"] := 
   Module[{newMatrixRepresentation, newCoordinates, christoffelSymbols, riemannTensor}, 
@@ -587,10 +600,11 @@ RiemannTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metri
     Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
     BooleanQ[index1] && BooleanQ[index2] && BooleanQ[index3] && BooleanQ[index4]
 RiemannTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], index1_, 
-    index2_, index3_, index4_]["MetricTensor"] := MetricTensor[matrixRepresentation, coordinates, metricIndex1, 
-    metricIndex2] /; SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
-    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
-    BooleanQ[index1] && BooleanQ[index2] && BooleanQ[index3] && BooleanQ[index4]
+    index2_, index3_, index4_]["MetricTensor"] := ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, 
+    metricIndex1, metricIndex2] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && BooleanQ[index1] && BooleanQ[index2] && BooleanQ[index3] && 
+    BooleanQ[index4]
 RiemannTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], index1_, 
     index2_, index3_, index4_]["Coordinates"] := coordinates /; SymbolName[metricTensor] === "MetricTensor" && 
     Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
@@ -1372,8 +1386,237 @@ RiemannTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metri
                                   matrixRepresentation]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 2]]]], 
                       Subsuperscript["\[FormalCapitalR]", "\[FormalSigma]\[FormalMu]\[FormalLambda]", "\[FormalLambda]"] -> FullSimplify[Normal[SparseArray[(Module[{index = #1}, 
                              index -> Total[(newRiemannTensor[[#1,First[index],Last[index],#1]] & ) /@ Range[Length[
-                                  matrixRepresentation]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 
-                            2]]]]]]]]]]]]]]]]]]]]] /; SymbolName[metricTensor] === "MetricTensor" && 
+                                  matrixRepresentation]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 2]]]]], 
+                    Indeterminate]]]]]]]]]]]]]]]] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && BooleanQ[index1] && BooleanQ[index2] && BooleanQ[index3] && 
+    BooleanQ[index4]
+RiemannTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], index1_, 
+    index2_, index3_, index4_]["SymbolicIndexContractions"] := 
+  Module[{newMatrixRepresentation, newCoordinates, christoffelSymbols, riemannTensor, newRiemannTensor}, 
+    newMatrixRepresentation = matrixRepresentation /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newCoordinates = coordinates /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     christoffelSymbols = Normal[SparseArray[
+        (Module[{index = #1}, index -> Total[((1/2)*Inverse[newMatrixRepresentation][[index[[1]],#1]]*
+                (Inactive[D][newMatrixRepresentation[[#1,index[[3]]]], newCoordinates[[index[[2]]]]] + 
+                 Inactive[D][newMatrixRepresentation[[index[[2]],#1]], newCoordinates[[index[[3]]]]] - 
+                 Inactive[D][newMatrixRepresentation[[index[[2]],index[[3]]]], newCoordinates[[#1]]]) & ) /@ 
+              Range[Length[newMatrixRepresentation]]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 3]]]; 
+     riemannTensor = Normal[SparseArray[(Module[{index = #1}, index -> Inactive[D][christoffelSymbols[[index[[1]],
+                index[[2]],index[[4]]]], newCoordinates[[index[[3]]]]] - Inactive[D][christoffelSymbols[[index[[1]],
+                index[[2]],index[[3]]]], newCoordinates[[index[[4]]]]] + Total[(christoffelSymbols[[index[[1]],#1,
+                   index[[3]]]]*christoffelSymbols[[#1,index[[2]],index[[4]]]] & ) /@ 
+                Range[Length[newMatrixRepresentation]]] - Total[(christoffelSymbols[[index[[1]],#1,index[[4]]]]*
+                  christoffelSymbols[[#1,index[[2]],index[[3]]]] & ) /@ Range[Length[newMatrixRepresentation]]]] & ) /@ 
+          Tuples[Range[Length[newMatrixRepresentation]], 4]]] /. (ToExpression[#1] -> #1 & ) /@ 
+        Select[coordinates, StringQ]; If[(index1 == True && index2 === True && index3 === True && index4 === True) || 
+       (index1 === False && index2 === False && index3 === False && index4 === False), Association[], 
+      If[index1 === True && index2 === False && index3 === False && index4 === False, 
+       newRiemannTensor = Normal[SparseArray[(Module[{index = #1}, index -> Total[(matrixRepresentation[[index[[1]],
+                    #1[[1]]]]*Inverse[matrixRepresentation][[index[[2]],#1[[2]]]]*Inverse[matrixRepresentation][[#1[[3]],
+                    index[[3]]]]*Inverse[matrixRepresentation][[#1[[4]],index[[4]]]]*riemannTensor[[#1[[1]],#1[[2]],
+                    #1[[3]],#1[[4]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 4]]] & ) /@ 
+            Tuples[Range[Length[matrixRepresentation]], 4]]]; Association[Subsuperscript["\[FormalCapitalR]", "\[FormalLambda]", "\[FormalLambda]\[FormalMu]\[FormalNu]"] -> 
+          Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[#1,#1,First[index],
+                    Last[index]]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ 
+             Tuples[Range[Length[matrixRepresentation]], 2]]], Subsuperscript["\[FormalCapitalR]", "\[FormalLambda]", "\[FormalSigma]\[FormalLambda]\[FormalNu]"] -> 
+          Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[#1,First[index],#1,
+                    Last[index]]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ 
+             Tuples[Range[Length[matrixRepresentation]], 2]]], Subsuperscript["\[FormalCapitalR]", "\[FormalLambda]", "\[FormalSigma]\[FormalMu]\[FormalLambda]"] -> 
+          Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[#1,First[index],Last[index],
+                    #1]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 
+              2]]]], If[index1 === False && index2 === True && index3 === False && index4 === False, 
+        newRiemannTensor = Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inverse[matrixRepresentation][[
+                     #1[[1]],index[[3]]]]*Inverse[matrixRepresentation][[#1[[2]],index[[4]]]]*riemannTensor[[index[[1]],
+                     index[[2]],#1[[1]],#1[[2]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 2]]] & ) /@ 
+             Tuples[Range[Length[matrixRepresentation]], 4]]]; Association[Subsuperscript["\[FormalCapitalR]", "\[FormalLambda]", "\[FormalLambda]\[FormalMu]\[FormalNu]"] -> 
+           Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[#1,#1,First[index],
+                     Last[index]]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[Range[
+                Length[matrixRepresentation]], 2]]], Subsuperscript["\[FormalCapitalR]", "\[FormalLambda]", "\[FormalRho]\[FormalLambda]\[FormalNu]"] -> 
+           Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[First[index],#1,#1,
+                     Last[index]]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[Range[
+                Length[matrixRepresentation]], 2]]], Subsuperscript["\[FormalCapitalR]", "\[FormalLambda]", "\[FormalRho]\[FormalMu]\[FormalLambda]"] -> 
+           Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[First[index],#1,Last[index],
+                     #1]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 
+               2]]]], If[index1 === False && index2 === False && index3 === True && index4 === False, 
+         newRiemannTensor = Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inverse[matrixRepresentation][[
+                      index[[2]],#1[[1]]]]*Inverse[matrixRepresentation][[#1[[2]],index[[4]]]]*riemannTensor[[index[[1]],
+                      #1[[1]],index[[3]],#1[[2]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 2]]] & ) /@ 
+              Tuples[Range[Length[matrixRepresentation]], 4]]]; Association[Subsuperscript["\[FormalCapitalR]", "\[FormalLambda]", "\[FormalLambda]\[FormalSigma]\[FormalNu]"] -> 
+            Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[#1,First[index],#1,
+                      Last[index]]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[
+                Range[Length[matrixRepresentation]], 2]]], Subsuperscript["\[FormalCapitalR]", "\[FormalLambda]", "\[FormalRho]\[FormalLambda]\[FormalNu]"] -> 
+            Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[First[index],#1,#1,
+                      Last[index]]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[
+                Range[Length[matrixRepresentation]], 2]]], Subsuperscript["\[FormalCapitalR]", "\[FormalLambda]", "\[FormalRho]\[Sigma]\[FormalLambda]"] -> 
+            Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[First[index],Last[index],#1,
+                      #1]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[
+                Range[Length[matrixRepresentation]], 2]]]], If[index1 === False && index2 === False && 
+           index3 === False && index4 === True, newRiemannTensor = Normal[SparseArray[(Module[{index = #1}, 
+                 index -> Total[(Inverse[matrixRepresentation][[index[[2]],#1[[1]]]]*Inverse[matrixRepresentation][[
+                       #1[[2]],index[[3]]]]*riemannTensor[[index[[1]],#1[[1]],#1[[2]],index[[4]]]] & ) /@ 
+                    Tuples[Range[Length[matrixRepresentation]], 2]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 
+                4]]]; Association[Subsuperscript["\[FormalCapitalR]", "\[FormalLambda]", "\[FormalLambda]\[FormalSigma]\[FormalMu]"] -> 
+             Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[#1,First[index],Last[index],
+                       #1]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[Range[Length[
+                   matrixRepresentation]], 2]]], Subsuperscript["\[FormalCapitalR]", "\[FormalLambda]", "\[FormalRho]\[FormalLambda]\[FormalMu]"] -> 
+             Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[First[index],#1,Last[index],
+                       #1]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[Range[Length[
+                   matrixRepresentation]], 2]]], Subsuperscript["\[FormalCapitalR]", "\[FormalLambda]", "\[FormalRho]\[FormalSigma]\[FormalLambda]"] -> 
+             Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[First[index],Last[index],#1,
+                       #1]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[Range[Length[
+                   matrixRepresentation]], 2]]]], If[index1 === True && index2 === True && index3 === False && 
+            index4 === False, newRiemannTensor = Normal[SparseArray[(Module[{index = #1}, index -> 
+                   Total[(matrixRepresentation[[index[[1]],#1[[1]]]]*Inverse[matrixRepresentation][[#1[[2]],index[[2]]]]*
+                       Inverse[matrixRepresentation][[#1[[3]],index[[4]]]]*riemannTensor[[#1[[1]],index[[2]],#1[[2]],
+                        #1[[3]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 3]]] & ) /@ 
+                Tuples[Range[Length[matrixRepresentation]], 4]]]; Association[Subsuperscript["\[FormalCapitalR]", "\[FormalLambda]\[FormalSigma]", 
+               "\[FormalLambda]\[FormalNu]"] -> Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[#1,First[index],#1,
+                        Last[index]]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[
+                  Range[Length[matrixRepresentation]], 2]]], Subsuperscript["\[FormalCapitalR]", "\[FormalLambda]\[FormalSigma]", "\[FormalMu]\[FormalLambda]"] -> 
+              Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[#1,First[index],Last[index],
+                        #1]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[Range[Length[
+                    matrixRepresentation]], 2]]], Subsuperscript["\[FormalCapitalR]", "\[FormalRho]\[FormalLambda]", "\[FormalLambda]\[FormalNu]"] -> Normal[SparseArray[
+                (Module[{index = #1}, index -> Total[(newRiemannTensor[[First[index],#1,#1,Last[index]]] & ) /@ 
+                      Range[Length[matrixRepresentation]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 2]]], 
+             Subsuperscript["\[FormalCapitalR]", "\[FormalRho]\[FormalLambda]", "\[FormalMu]\[FormalLambda]"] -> Normal[SparseArray[(Module[{index = #1}, index -> 
+                    Total[(newRiemannTensor[[First[index],#1,Last[index],#1]] & ) /@ Range[Length[
+                        matrixRepresentation]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 2]]]], 
+           If[index1 === True && index2 === False && index3 === True && index4 === False, 
+            newRiemannTensor = Normal[SparseArray[(Module[{index = #1}, index -> Total[(matrixRepresentation[[index[[1]],
+                         #1[[1]]]]*Inverse[matrixRepresentation][[index[[2]],#1[[2]]]]*matrixRepresentation[[#1[[3]],
+                         index[[4]]]]*riemannTensor[[#1[[1]],#1[[2]],index[[3]],#1[[3]]]] & ) /@ Tuples[
+                       Range[Length[matrixRepresentation]], 3]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 4]]]; 
+             Association[Subsuperscript["\[FormalCapitalR]", "\[FormalLambda]\[FormalMu]", "\[FormalLambda]\[FormalNu]"] -> Normal[SparseArray[
+                 (Module[{index = #1}, index -> Total[(newRiemannTensor[[#1,#1,First[index],Last[index]]] & ) /@ 
+                       Range[Length[matrixRepresentation]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 2]]], 
+              Subsuperscript["\[FormalCapitalR]", "\[FormalLambda]\[FormalMu]", "\[FormalSigma]\[FormalLambda]"] -> Normal[SparseArray[(Module[{index = #1}, index -> 
+                     Total[(newRiemannTensor[[#1,First[index],Last[index],#1]] & ) /@ Range[Length[
+                         matrixRepresentation]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 2]]], 
+              Subsuperscript["\[FormalCapitalR]", "\[FormalRho]\[FormalLambda]", "\[FormalLambda]\[FormalNu]"] -> Normal[SparseArray[(Module[{index = #1}, index -> 
+                     Total[(newRiemannTensor[[First[index],#1,#1,Last[index]]] & ) /@ Range[Length[
+                         matrixRepresentation]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 2]]], 
+              Subsuperscript["\[FormalCapitalR]", "\[FormalRho]\[FormalLambda]", "\[FormalSigma]\[FormalLambda]"] -> Normal[SparseArray[(Module[{index = #1}, index -> 
+                     Total[(newRiemannTensor[[First[index],Last[index],#1,#1]] & ) /@ Range[Length[
+                         matrixRepresentation]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 2]]]], 
+            If[index1 === True && index2 === False && index3 === False && index4 === True, 
+             newRiemannTensor = Normal[SparseArray[(Module[{index = #1}, index -> Total[(matrixRepresentation[[index[[1]],
+                          #1[[1]]]]*Inverse[matrixRepresentation][[index[[2]],#1[[2]]]]*Inverse[matrixRepresentation][[
+                          #1[[3]],index[[3]]]]*riemannTensor[[#1[[1]],#1[[2]],#1[[3]],index[[4]]]] & ) /@ 
+                       Tuples[Range[Length[matrixRepresentation]], 3]]] & ) /@ Tuples[Range[Length[
+                     matrixRepresentation]], 4]]]; Association[Subsuperscript["\[FormalCapitalR]", "\[FormalLambda]\[FormalNu]", "\[FormalLambda]\[FormalMu]"] -> 
+                Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[#1,#1,First[index],
+                          Last[index]]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[
+                    Range[Length[matrixRepresentation]], 2]]], Subsuperscript["\[FormalCapitalR]", "\[FormalLambda]\[FormalNu]", "\[FormalSigma]\[FormalLambda]"] -> 
+                Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[#1,First[index],#1,
+                          Last[index]]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[
+                    Range[Length[matrixRepresentation]], 2]]], Subsuperscript["\[FormalCapitalR]", "\[FormalRho]\[FormalLambda]", "\[FormalLambda]\[FormalMu]"] -> 
+                Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[First[index],#1,Last[index],
+                          #1]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[Range[Length[
+                      matrixRepresentation]], 2]]], Subsuperscript["\[FormalCapitalR]", "\[FormalRho]\[FormalLambda]", "\[Sigma]\[FormalLambda]"] -> 
+                Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[First[index],Last[index],#1,
+                          #1]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[Range[Length[
+                      matrixRepresentation]], 2]]]], If[index1 === False && index2 === True && index3 === True && 
+               index4 === False, newRiemannTensor = Normal[SparseArray[(Module[{index = #1}, index -> 
+                      Total[(Inverse[matrixRepresentation][[#1,index[[4]]]]*riemannTensor[[index[[1]],index[[2]],
+                           index[[3]],#1]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[
+                    Range[Length[matrixRepresentation]], 4]]]; Association[Subsuperscript["\[FormalCapitalR]", "\[FormalLambda]\[FormalMu]", "\[FormalLambda]\[FormalNu]"] -> 
+                 Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[#1,#1,First[index],
+                           Last[index]]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[
+                     Range[Length[matrixRepresentation]], 2]]], Subsuperscript["\[FormalCapitalR]", "\[FormalLambda]\[FormalMu]", "\[FormalRho]\[FormalLambda]"] -> 
+                 Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[First[index],#1,Last[index],
+                           #1]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[Range[Length[
+                       matrixRepresentation]], 2]]], Subsuperscript["\[FormalCapitalR]", "\[FormalSigma]\[FormalLambda]", "\[FormalLambda]\[FormalNu]"] -> 
+                 Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[#1,First[index],#1,
+                           Last[index]]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[
+                     Range[Length[matrixRepresentation]], 2]]], Subsuperscript["\[FormalCapitalR]", "\[FormalSigma]\[FormalLambda]", "\[FormalRho]\[FormalLambda]"] -> 
+                 Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[First[index],Last[index],#1,
+                           #1]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[Range[Length[
+                       matrixRepresentation]], 2]]]], If[index1 === False && index2 === True && index3 === False && 
+                index4 === True, newRiemannTensor = Normal[SparseArray[(Module[{index = #1}, index -> 
+                       Total[(Inverse[matrixRepresentation][[#1,index[[3]]]]*riemannTensor[[index[[1]],index[[2]],#1,
+                            index[[4]]]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[
+                     Range[Length[matrixRepresentation]], 4]]]; Association[Subsuperscript["\[FormalCapitalR]", "\[FormalLambda]\[FormalNu]", "\[FormalLambda]\[FormalMu]"] -> 
+                  Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[#1,#1,First[index],
+                            Last[index]]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[
+                      Range[Length[matrixRepresentation]], 2]]], Subsuperscript["\[FormalCapitalR]", "\[FormalLambda]\[FormalNu]", "\[FormalRho]\[FormalLambda]"] -> 
+                  Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[First[index],#1,#1,
+                            Last[index]]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[
+                      Range[Length[matrixRepresentation]], 2]]], Subsuperscript["\[FormalCapitalR]", "\[FormalSigma]\[FormalLambda]", "\[FormalLambda]\[FormalMu]"] -> 
+                  Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[#1,First[index],Last[index],
+                            #1]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[Range[Length[
+                        matrixRepresentation]], 2]]], Subsuperscript["\[FormalCapitalR]", "\[FormalSigma]\[FormalLambda]", "\[FormalRho]\[FormalLambda]"] -> 
+                  Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[First[index],Last[index],#1,
+                            #1]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[Range[Length[
+                        matrixRepresentation]], 2]]]], If[index1 === False && index2 === False && index3 === True && 
+                 index4 === True, newRiemannTensor = Normal[SparseArray[(Module[{index = #1}, index -> Total[
+                         (Inverse[matrixRepresentation][[index[[2]],#1]]*riemannTensor[[index[[1]],#1,index[[3]],
+                             index[[4]]]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[
+                      Range[Length[matrixRepresentation]], 4]]]; Association[Subsuperscript["\[FormalCapitalR]", "\[FormalLambda]\[FormalNu]", "\[FormalLambda]\[FormalSigma]"] -> 
+                   Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[#1,First[index],#1,
+                             Last[index]]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[
+                       Range[Length[matrixRepresentation]], 2]]], Subsuperscript["\[FormalCapitalR]", "\[FormalLambda]\[FormalNu]", "\[FormalRho]\[FormalLambda]"] -> 
+                   Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[First[index],#1,#1,
+                             Last[index]]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[
+                       Range[Length[matrixRepresentation]], 2]]], Subsuperscript["\[FormalCapitalR]", "\[FormalMu]\[FormalLambda]", "\[FormalLambda]\[FormalSigma]"] -> 
+                   Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[#1,First[index],Last[index],
+                             #1]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[Range[Length[
+                         matrixRepresentation]], 2]]], Subsuperscript["\[FormalCapitalR]", "\[FormalMu]\[FormalLambda]", "\[FormalRho]\[FormalLambda]"] -> 
+                   Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[First[index],#1,Last[index],
+                             #1]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[Range[Length[
+                         matrixRepresentation]], 2]]]], If[index1 === True && index2 === True && index3 === True && 
+                  index4 === False, newRiemannTensor = Normal[SparseArray[(Module[{index = #1}, index -> 
+                         Total[(matrixRepresentation[[index[[1]],#1[[1]]]]*Inverse[matrixRepresentation][[#1[[2]],
+                              index[[4]]]]*riemannTensor[[#1[[1]],index[[2]],index[[3]],#1[[2]]]] & ) /@ Tuples[
+                            Range[Length[matrixRepresentation]], 2]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 
+                       4]]]; Association[Subsuperscript["\[FormalCapitalR]", "\[FormalLambda]\[FormalSigma]\[FormalMu]", "\[FormalLambda]"] -> Normal[SparseArray[
+                      (Module[{index = #1}, index -> Total[(newRiemannTensor[[#1,First[index],Last[index],#1]] & ) /@ 
+                            Range[Length[matrixRepresentation]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 
+                        2]]], Subsuperscript["\[FormalCapitalR]", "\[FormalRho]\[FormalLambda]\[FormalMu]", "\[FormalLambda]"] -> Normal[SparseArray[(Module[{index = #1}, 
+                         index -> Total[(newRiemannTensor[[First[index],#1,Last[index],#1]] & ) /@ Range[Length[
+                              matrixRepresentation]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 2]]], 
+                   Subsuperscript["\[FormalCapitalR]", "\[FormalRho]\[FormalSigma]\[FormalLambda]", "\[FormalLambda]"] -> Normal[SparseArray[(Module[{index = #1}, index -> 
+                          Total[(newRiemannTensor[[First[index],Last[index],#1,#1]] & ) /@ Range[Length[
+                              matrixRepresentation]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 2]]]], 
+                 If[index1 === True && index2 === True && index3 === False && index4 === True, newRiemannTensor = 
+                    Normal[SparseArray[(Module[{index = #1}, index -> Total[(matrixRepresentation[[index[[1]],#1[[1]]]]*
+                              Inverse[matrixRepresentation][[#1[[2]],index[[3]]]]*riemannTensor[[#1[[1]],index[[2]],
+                               #1[[2]],index[[4]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 2]]] & ) /@ 
+                       Tuples[Range[Length[matrixRepresentation]], 4]]]; Association[Subsuperscript["\[FormalCapitalR]", "\[FormalLambda]\[FormalSigma]\[FormalNu]", 
+                      "\[FormalLambda]"] -> Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[#1,
+                               First[index],#1,Last[index]]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ 
+                        Tuples[Range[Length[matrixRepresentation]], 2]]], Subsuperscript["\[FormalCapitalR]", "\[FormalRho]\[FormalLambda]\[FormalNu]", "\[FormalLambda]"] -> 
+                     Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[First[index],#1,#1,
+                               Last[index]]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[Range[
+                          Length[matrixRepresentation]], 2]]], Subsuperscript["\[FormalCapitalR]", "\[FormalRho]\[FormalSigma]\[FormalLambda]", "\[FormalLambda]"] -> 
+                     Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[First[index],Last[index],
+                               #1,#1]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[Range[Length[
+                           matrixRepresentation]], 2]]]], If[index1 === True && index2 === False && index3 === True && 
+                    index4 === True, newRiemannTensor = Normal[SparseArray[(Module[{index = #1}, index -> Total[
+                            (matrixRepresentation[[index[[1]],#1[[1]]]]*Inverse[matrixRepresentation][[index[[2]],
+                                #1[[2]]]]*riemannTensor[[#1[[1]],#1[[2]],index[[3]],index[[4]]]] & ) /@ Tuples[
+                              Range[Length[matrixRepresentation]], 2]]] & ) /@ Tuples[Range[Length[
+                           matrixRepresentation]], 4]]]; Association[Subsuperscript["\[FormalCapitalR]", "\[FormalLambda]\[FormalMu]\[FormalNu]", "\[FormalLambda]"] -> 
+                      Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[#1,#1,First[index],
+                                Last[index]]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[Range[
+                           Length[matrixRepresentation]], 2]]], Subsuperscript["\[FormalCapitalR]", "\[FormalRho]\[FormalLambda]\[FormalNu]", "\[FormalLambda]"] -> 
+                      Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[First[index],#1,#1,
+                                Last[index]]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[Range[
+                           Length[matrixRepresentation]], 2]]], Subsuperscript["\[FormalCapitalR]", "\[FormalRho]\[FormalMu]\[FormalLambda]", "\[FormalLambda]"] -> 
+                      Normal[SparseArray[(Module[{index = #1}, index -> Total[(newRiemannTensor[[First[index],#1,
+                                Last[index],#1]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ Tuples[
+                          Range[Length[matrixRepresentation]], 2]]]], If[index1 === False && index2 === True && 
+                     index3 === True && index4 === True, newRiemannTensor = riemannTensor; Association[
+                      Subsuperscript["\[FormalCapitalR]", "\[FormalLambda]\[FormalMu]\[FormalNu]", "\[FormalLambda]"] -> Normal[SparseArray[(Module[{index = #1}, index -> 
+                             Total[(newRiemannTensor[[#1,#1,First[index],Last[index]]] & ) /@ Range[Length[
+                                 matrixRepresentation]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 2]]], 
+                      Subsuperscript["\[FormalCapitalR]", "\[FormalSigma]\[FormalLambda]\[FormalNu]", "\[FormalLambda]"] -> Normal[SparseArray[(Module[{index = #1}, index -> 
+                             Total[(newRiemannTensor[[#1,First[index],#1,Last[index]]] & ) /@ Range[Length[
+                                 matrixRepresentation]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 2]]], 
+                      Subsuperscript["\[FormalCapitalR]", "\[FormalSigma]\[FormalMu]\[FormalLambda]", "\[FormalLambda]"] -> Normal[SparseArray[(Module[{index = #1}, index -> 
+                             Total[(newRiemannTensor[[#1,First[index],Last[index],#1]] & ) /@ Range[Length[
+                                 matrixRepresentation]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 2]]]], 
+                    Indeterminate]]]]]]]]]]]]]]]] /; SymbolName[metricTensor] === "MetricTensor" && 
     Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
     BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && BooleanQ[index1] && BooleanQ[index2] && BooleanQ[index3] && 
     BooleanQ[index4]
@@ -2048,6 +2291,341 @@ RiemannTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metri
     Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
     BooleanQ[index1] && BooleanQ[index2] && BooleanQ[index3] && BooleanQ[index4]
 RiemannTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], index1_, 
+    index2_, index3_, index4_]["SymbolicCovariantDerivatives"] := 
+  Module[{newMatrixRepresentation, newCoordinates, christoffelSymbols, riemannTensor, newRiemannTensor}, 
+    newMatrixRepresentation = matrixRepresentation /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newCoordinates = coordinates /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     christoffelSymbols = Normal[SparseArray[
+        (Module[{index = #1}, index -> Total[((1/2)*Inverse[newMatrixRepresentation][[index[[1]],#1]]*
+                (Inactive[D][newMatrixRepresentation[[#1,index[[3]]]], newCoordinates[[index[[2]]]]] + 
+                 Inactive[D][newMatrixRepresentation[[index[[2]],#1]], newCoordinates[[index[[3]]]]] - 
+                 Inactive[D][newMatrixRepresentation[[index[[2]],index[[3]]]], newCoordinates[[#1]]]) & ) /@ 
+              Range[Length[newMatrixRepresentation]]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 3]]]; 
+     riemannTensor = Normal[SparseArray[(Module[{index = #1}, index -> Inactive[D][christoffelSymbols[[index[[1]],index[[
+                2]],index[[4]]]], newCoordinates[[index[[3]]]]] - Inactive[D][christoffelSymbols[[index[[1]],index[[
+                2]],index[[3]]]], newCoordinates[[index[[4]]]]] + Total[(christoffelSymbols[[index[[1]],#1,index[[3]]]]*
+                 christoffelSymbols[[#1,index[[2]],index[[4]]]] & ) /@ Range[Length[newMatrixRepresentation]]] - 
+             Total[(christoffelSymbols[[index[[1]],#1,index[[4]]]]*christoffelSymbols[[#1,index[[2]],index[[3]]]] & ) /@ 
+               Range[Length[newMatrixRepresentation]]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 4]]]; 
+     If[index1 === True && index2 === True && index3 === True && index4 === True, 
+      newRiemannTensor = Normal[SparseArray[(Module[{index = #1}, index -> Total[(newMatrixRepresentation[[index[[1]],
+                   #1]]*riemannTensor[[#1,index[[2]],index[[3]],index[[4]]]] & ) /@ Range[Length[
+                  newMatrixRepresentation]]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 4]]]; 
+       Association[(Module[{index = #1}, StringJoin[ToString[Subscript["\[Del]", ToString[newCoordinates[[index[[1]]]], 
+                 StandardForm]], StandardForm], ToString[Subscript["\[FormalCapitalR]", StringJoin[ToString[newCoordinates[[
+                   index[[2]]]], StandardForm], ToString[newCoordinates[[index[[3]]]], StandardForm], 
+                 ToString[newCoordinates[[index[[4]]]], StandardForm], ToString[newCoordinates[[index[[5]]]], 
+                  StandardForm]]], StandardForm]] -> Inactive[D][riemannTensor[[index[[2]],index[[3]],index[[4]],
+                index[[5]]]], newCoordinates[[index[[1]]]]] - Total[(christoffelSymbols[[#1,index[[1]],index[[2]]]]*
+                  newRiemannTensor[[#1,index[[3]],index[[4]],index[[5]]]] & ) /@ Range[Length[
+                  newMatrixRepresentation]]] - Total[(christoffelSymbols[[#1,index[[1]],index[[3]]]]*newRiemannTensor[[
+                   index[[2]],#1,index[[4]],index[[5]]]] & ) /@ Range[Length[newMatrixRepresentation]]] - 
+              Total[(christoffelSymbols[[#1,index[[1]],index[[4]]]]*newRiemannTensor[[index[[2]],index[[3]],#1,
+                   index[[5]]]] & ) /@ Range[Length[newMatrixRepresentation]]] - 
+              Total[(christoffelSymbols[[#1,index[[1]],index[[5]]]]*newRiemannTensor[[index[[2]],index[[3]],index[[4]],
+                   #1]] & ) /@ Range[Length[newMatrixRepresentation]]]] & ) /@ 
+          Tuples[Range[Length[newMatrixRepresentation]], 5] /. (ToExpression[#1] -> #1 & ) /@ 
+          Select[coordinates, StringQ]], If[index1 === False && index2 === False && index3 === False && index4 === False, 
+       newRiemannTensor = Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inverse[newMatrixRepresentation][[
+                    index[[2]],#1[[1]]]]*Inverse[newMatrixRepresentation][[#1[[2]],index[[3]]]]*
+                   Inverse[newMatrixRepresentation][[#1[[3]],index[[4]]]]*riemannTensor[[index[[1]],#1[[1]],#1[[2]],
+                    #1[[3]]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 3]]] & ) /@ 
+            Tuples[Range[Length[newMatrixRepresentation]], 4]]]; 
+        Association[(Module[{index = #1}, StringJoin[ToString[Subscript["\[Del]", ToString[newCoordinates[[index[[1]]]], 
+                  StandardForm]], StandardForm], ToString[Superscript["\[FormalCapitalR]", StringJoin[ToString[newCoordinates[[
+                    index[[2]]]], StandardForm], ToString[newCoordinates[[index[[3]]]], StandardForm], 
+                  ToString[newCoordinates[[index[[4]]]], StandardForm], ToString[newCoordinates[[index[[5]]]], 
+                   StandardForm]]], StandardForm]] -> Inactive[D][newRiemannTensor[[index[[2]],index[[3]],index[[4]],
+                 index[[5]]]], newCoordinates[[index[[1]]]]] + Total[(christoffelSymbols[[index[[2]],index[[1]],#1]]*
+                   newRiemannTensor[[#1,index[[3]],index[[4]],index[[5]]]] & ) /@ Range[Length[
+                   newMatrixRepresentation]]] + Total[(christoffelSymbols[[index[[3]],index[[1]],#1]]*newRiemannTensor[[
+                    index[[2]],#1,index[[4]],index[[5]]]] & ) /@ Range[Length[newMatrixRepresentation]]] + Total[
+                (christoffelSymbols[[index[[4]],index[[1]],#1]]*newRiemannTensor[[index[[2]],index[[3]],#1,
+                    index[[5]]]] & ) /@ Range[Length[newMatrixRepresentation]]] + Total[
+                (christoffelSymbols[[index[[5]],index[[1]],#1]]*newRiemannTensor[[index[[2]],index[[3]],index[[4]],
+                    #1]] & ) /@ Range[Length[newMatrixRepresentation]]]] & ) /@ 
+           Tuples[Range[Length[newMatrixRepresentation]], 5] /. (ToExpression[#1] -> #1 & ) /@ 
+           Select[coordinates, StringQ]], If[index1 === True && index2 === False && index3 === False && index4 === False, 
+        newRiemannTensor = Normal[SparseArray[(Module[{index = #1}, index -> Total[(newMatrixRepresentation[[index[[1]],
+                     #1[[1]]]]*Inverse[newMatrixRepresentation][[index[[2]],#1[[2]]]]*Inverse[newMatrixRepresentation][[
+                     #1[[3]],index[[3]]]]*Inverse[newMatrixRepresentation][[#1[[4]],index[[4]]]]*riemannTensor[[#1[[1]],
+                     #1[[2]],#1[[3]],#1[[4]]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 4]]] & ) /@ 
+             Tuples[Range[Length[newMatrixRepresentation]], 4]]]; Association[
+          (Module[{index = #1}, StringJoin[ToString[Subscript["\[Del]", ToString[newCoordinates[[index[[1]]]], 
+                   StandardForm]], StandardForm], ToString[Subsuperscript["\[FormalCapitalR]", ToString[newCoordinates[[index[[2]]]], 
+                   StandardForm], StringJoin[ToString[newCoordinates[[index[[3]]]], StandardForm], ToString[
+                    newCoordinates[[index[[4]]]], StandardForm], ToString[newCoordinates[[index[[5]]]], StandardForm]]], 
+                 StandardForm]] -> Inactive[D][newRiemannTensor[[index[[2]],index[[3]],index[[4]],index[[5]]]], 
+                 newCoordinates[[index[[1]]]]] + Total[(christoffelSymbols[[index[[3]],index[[1]],#1]]*newRiemannTensor[[
+                     index[[2]],#1,index[[4]],index[[5]]]] & ) /@ Range[Length[newMatrixRepresentation]]] + 
+                Total[(christoffelSymbols[[index[[4]],index[[1]],#1]]*newRiemannTensor[[index[[2]],index[[3]],#1,
+                     index[[5]]]] & ) /@ Range[Length[newMatrixRepresentation]]] + Total[
+                 (christoffelSymbols[[index[[5]],index[[1]],#1]]*newRiemannTensor[[index[[2]],index[[3]],index[[4]],
+                     #1]] & ) /@ Range[Length[newMatrixRepresentation]]] - Total[(christoffelSymbols[[#1,index[[1]],
+                     index[[2]]]]*newRiemannTensor[[#1,index[[3]],index[[4]],index[[5]]]] & ) /@ 
+                  Range[Length[newMatrixRepresentation]]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 5] /. 
+           (ToExpression[#1] -> #1 & ) /@ Select[coordinates, StringQ]], 
+        If[index1 === False && index2 === True && index3 === False && index4 === False, 
+         newRiemannTensor = Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inverse[newMatrixRepresentation][[
+                      #1[[1]],index[[3]]]]*Inverse[newMatrixRepresentation][[#1[[2]],index[[4]]]]*riemannTensor[[
+                      index[[1]],index[[2]],#1[[1]],#1[[2]]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 
+                    2]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 4]]]; 
+          Association[(Module[{index = #1}, StringJoin[ToString[Subscript["\[Del]", ToString[newCoordinates[[index[[1]]]], 
+                    StandardForm]], StandardForm], ToString[Subsuperscript["\[FormalCapitalR]", ToString[newCoordinates[[index[[3]]]], 
+                    StandardForm], StringJoin[ToString[newCoordinates[[index[[2]]]], StandardForm], ToString[
+                     newCoordinates[[index[[4]]]], StandardForm], ToString[newCoordinates[[index[[5]]]], StandardForm]]], 
+                  StandardForm]] -> Inactive[D][newRiemannTensor[[index[[2]],index[[3]],index[[4]],index[[5]]]], 
+                  newCoordinates[[index[[1]]]]] + Total[(christoffelSymbols[[index[[2]],index[[1]],#1]]*newRiemannTensor[[
+                      #1,index[[3]],index[[4]],index[[5]]]] & ) /@ Range[Length[newMatrixRepresentation]]] + 
+                 Total[(christoffelSymbols[[index[[4]],index[[1]],#1]]*newRiemannTensor[[index[[2]],index[[3]],#1,
+                      index[[5]]]] & ) /@ Range[Length[newMatrixRepresentation]]] + Total[
+                  (christoffelSymbols[[index[[5]],index[[1]],#1]]*newRiemannTensor[[index[[2]],index[[3]],index[[4]],
+                      #1]] & ) /@ Range[Length[newMatrixRepresentation]]] - Total[(christoffelSymbols[[#1,index[[1]],
+                      index[[3]]]]*newRiemannTensor[[index[[2]],#1,index[[4]],index[[5]]]] & ) /@ 
+                   Range[Length[newMatrixRepresentation]]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 5] /. 
+            (ToExpression[#1] -> #1 & ) /@ Select[coordinates, StringQ]], If[index1 === False && index2 === False && 
+           index3 === True && index4 === False, newRiemannTensor = Normal[SparseArray[(Module[{index = #1}, 
+                 index -> Total[(Inverse[newMatrixRepresentation][[index[[2]],#1[[1]]]]*Inverse[newMatrixRepresentation][[
+                       #1[[2]],index[[4]]]]*riemannTensor[[index[[1]],#1[[1]],index[[3]],#1[[2]]]] & ) /@ 
+                    Tuples[Range[Length[newMatrixRepresentation]], 2]]] & ) /@ Tuples[
+                Range[Length[newMatrixRepresentation]], 4]]]; Association[
+            (Module[{index = #1}, StringJoin[ToString[Subscript["\[Del]", ToString[newCoordinates[[index[[1]]]], 
+                     StandardForm]], StandardForm], ToString[Subsuperscript["\[FormalCapitalR]", ToString[newCoordinates[[index[[4]]]], 
+                     StandardForm], StringJoin[ToString[newCoordinates[[index[[2]]]], StandardForm], ToString[
+                      newCoordinates[[index[[3]]]], StandardForm], ToString[newCoordinates[[index[[5]]]], 
+                      StandardForm]]], StandardForm]] -> Inactive[D][newRiemannTensor[[index[[2]],index[[3]],index[[4]],
+                    index[[5]]]], newCoordinates[[index[[1]]]]] + Total[(christoffelSymbols[[index[[2]],index[[1]],#1]]*
+                      newRiemannTensor[[#1,index[[3]],index[[4]],index[[5]]]] & ) /@ Range[Length[
+                      newMatrixRepresentation]]] + Total[(christoffelSymbols[[index[[3]],index[[1]],#1]]*
+                      newRiemannTensor[[index[[2]],#1,index[[4]],index[[5]]]] & ) /@ Range[Length[
+                      newMatrixRepresentation]]] + Total[(christoffelSymbols[[index[[5]],index[[1]],#1]]*
+                      newRiemannTensor[[index[[2]],index[[3]],index[[4]],#1]] & ) /@ Range[Length[
+                      newMatrixRepresentation]]] - Total[(christoffelSymbols[[#1,index[[1]],index[[4]]]]*
+                      newRiemannTensor[[index[[2]],index[[3]],#1,index[[5]]]] & ) /@ Range[Length[
+                      newMatrixRepresentation]]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 5] /. 
+             (ToExpression[#1] -> #1 & ) /@ Select[coordinates, StringQ]], If[index1 === False && index2 === False && 
+            index3 === False && index4 === True, newRiemannTensor = Normal[SparseArray[(Module[{index = #1}, 
+                  index -> Total[(Inverse[newMatrixRepresentation][[index[[2]],#1[[1]]]]*Inverse[
+                         newMatrixRepresentation][[#1[[2]],index[[3]]]]*riemannTensor[[index[[1]],#1[[1]],#1[[2]],
+                        index[[4]]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 2]]] & ) /@ 
+                Tuples[Range[Length[newMatrixRepresentation]], 4]]]; Association[
+             (Module[{index = #1}, StringJoin[ToString[Subscript["\[Del]", ToString[newCoordinates[[index[[1]]]], 
+                      StandardForm]], StandardForm], ToString[Subsuperscript["\[FormalCapitalR]", ToString[newCoordinates[[
+                       index[[5]]]], StandardForm], StringJoin[ToString[newCoordinates[[index[[2]]]], StandardForm], 
+                      ToString[newCoordinates[[index[[3]]]], StandardForm], ToString[newCoordinates[[index[[4]]]], 
+                       StandardForm]]], StandardForm]] -> Inactive[D][newRiemannTensor[[index[[2]],index[[3]],index[[4]],
+                     index[[5]]]], newCoordinates[[index[[1]]]]] + Total[(christoffelSymbols[[index[[2]],index[[1]],#1]]*
+                       newRiemannTensor[[#1,index[[3]],index[[4]],index[[5]]]] & ) /@ Range[Length[
+                       newMatrixRepresentation]]] + Total[(christoffelSymbols[[index[[3]],index[[1]],#1]]*
+                       newRiemannTensor[[index[[2]],#1,index[[4]],index[[5]]]] & ) /@ Range[Length[
+                       newMatrixRepresentation]]] + Total[(christoffelSymbols[[index[[4]],index[[1]],#1]]*
+                       newRiemannTensor[[index[[2]],index[[3]],#1,index[[5]]]] & ) /@ Range[Length[
+                       newMatrixRepresentation]]] - Total[(christoffelSymbols[[#1,index[[1]],index[[5]]]]*
+                       newRiemannTensor[[index[[2]],index[[3]],index[[4]],#1]] & ) /@ Range[Length[
+                       newMatrixRepresentation]]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 5] /. 
+              (ToExpression[#1] -> #1 & ) /@ Select[coordinates, StringQ]], If[index1 === True && index2 === True && 
+             index3 === False && index4 === False, newRiemannTensor = Normal[SparseArray[
+                (Module[{index = #1}, index -> Total[(newMatrixRepresentation[[index[[1]],#1[[1]]]]*
+                        Inverse[newMatrixRepresentation][[#1[[2]],index[[3]]]]*Inverse[newMatrixRepresentation][[#1[[3]],
+                         index[[4]]]]*riemannTensor[[#1[[1]],index[[2]],#1[[2]],#1[[3]]]] & ) /@ Tuples[
+                       Range[Length[newMatrixRepresentation]], 3]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 
+                  4]]]; Association[(Module[{index = #1}, StringJoin[ToString[Subscript["\[Del]", ToString[newCoordinates[[
+                        index[[1]]]], StandardForm]], StandardForm], ToString[Subsuperscript["\[FormalCapitalR]", StringJoin[
+                       ToString[newCoordinates[[index[[2]]]], StandardForm], ToString[newCoordinates[[index[[3]]]], 
+                        StandardForm]], StringJoin[ToString[newCoordinates[[index[[4]]]], StandardForm], ToString[
+                        newCoordinates[[index[[5]]]], StandardForm]]], StandardForm]] -> Inactive[D][newRiemannTensor[[
+                      index[[2]],index[[3]],index[[4]],index[[5]]]], newCoordinates[[index[[1]]]]] + 
+                    Total[(christoffelSymbols[[index[[4]],index[[1]],#1]]*newRiemannTensor[[index[[2]],index[[3]],#1,
+                         index[[5]]]] & ) /@ Range[Length[newMatrixRepresentation]]] + Total[
+                     (christoffelSymbols[[index[[5]],index[[1]],#1]]*newRiemannTensor[[index[[2]],index[[3]],index[[4]],
+                         #1]] & ) /@ Range[Length[newMatrixRepresentation]]] - Total[(christoffelSymbols[[#1,index[[1]],
+                         index[[2]]]]*newRiemannTensor[[#1,index[[3]],index[[4]],index[[5]]]] & ) /@ 
+                      Range[Length[newMatrixRepresentation]]] - Total[(christoffelSymbols[[#1,index[[1]],index[[3]]]]*
+                        newRiemannTensor[[index[[2]],#1,index[[4]],index[[5]]]] & ) /@ Range[Length[
+                        newMatrixRepresentation]]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 5] /. 
+               (ToExpression[#1] -> #1 & ) /@ Select[coordinates, StringQ]], If[index1 === True && index2 === False && 
+              index3 === True && index4 === False, newRiemannTensor = Normal[SparseArray[
+                 (Module[{index = #1}, index -> Total[(newMatrixRepresentation[[index[[1]],#1[[1]]]]*
+                         Inverse[newMatrixRepresentation][[index[[2]],#1[[2]]]]*Inverse[newMatrixRepresentation][[#1[[3]],
+                          index[[4]]]]*riemannTensor[[#1[[1]],#1[[2]],index[[3]],#1[[3]]]] & ) /@ Tuples[
+                        Range[Length[newMatrixRepresentation]], 3]]] & ) /@ Tuples[Range[Length[
+                     newMatrixRepresentation]], 4]]]; Association[(Module[{index = #1}, StringJoin[ToString[
+                      Subscript["\[Del]", ToString[newCoordinates[[index[[1]]]], StandardForm]], StandardForm], 
+                     ToString[Subsuperscript["\[FormalCapitalR]", StringJoin[ToString[newCoordinates[[index[[2]]]], StandardForm], 
+                        ToString[newCoordinates[[index[[4]]]], StandardForm]], StringJoin[ToString[newCoordinates[[
+                          index[[3]]]], StandardForm], ToString[newCoordinates[[index[[5]]]], StandardForm]]], 
+                      StandardForm]] -> Inactive[D][newRiemannTensor[[index[[2]],index[[3]],index[[4]],index[[5]]]], 
+                      newCoordinates[[index[[1]]]]] + Total[(christoffelSymbols[[index[[3]],index[[1]],#1]]*
+                         newRiemannTensor[[index[[2]],#1,index[[4]],index[[5]]]] & ) /@ Range[Length[
+                         newMatrixRepresentation]]] + Total[(christoffelSymbols[[index[[5]],index[[1]],#1]]*
+                         newRiemannTensor[[index[[2]],index[[3]],index[[4]],#1]] & ) /@ Range[Length[
+                         newMatrixRepresentation]]] - Total[(christoffelSymbols[[#1,index[[1]],index[[2]]]]*
+                         newRiemannTensor[[#1,index[[3]],index[[4]],index[[5]]]] & ) /@ Range[Length[
+                         newMatrixRepresentation]]] - Total[(christoffelSymbols[[#1,index[[1]],index[[4]]]]*
+                         newRiemannTensor[[index[[2]],index[[3]],#1,index[[5]]]] & ) /@ Range[Length[
+                         newMatrixRepresentation]]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 5] /. 
+                (ToExpression[#1] -> #1 & ) /@ Select[coordinates, StringQ]], If[index1 === True && index2 === False && 
+               index3 === False && index4 === True, newRiemannTensor = Normal[SparseArray[(Module[{index = #1}, 
+                     index -> Total[(newMatrixRepresentation[[index[[1]],#1[[1]]]]*Inverse[newMatrixRepresentation][[
+                           index[[2]],#1[[2]]]]*Inverse[newMatrixRepresentation][[#1[[3]],index[[3]]]]*riemannTensor[[
+                           #1[[1]],#1[[2]],#1[[3]],index[[4]]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 
+                         3]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 4]]]; Association[
+                (Module[{index = #1}, StringJoin[ToString[Subscript["\[Del]", ToString[newCoordinates[[index[[1]]]], 
+                         StandardForm]], StandardForm], ToString[Subsuperscript["\[FormalCapitalR]", StringJoin[ToString[
+                          newCoordinates[[index[[2]]]], StandardForm], ToString[newCoordinates[[index[[5]]]], 
+                          StandardForm]], StringJoin[ToString[newCoordinates[[index[[3]]]], StandardForm], ToString[
+                          newCoordinates[[index[[4]]]], StandardForm]]], StandardForm]] -> Inactive[D][newRiemannTensor[[
+                        index[[2]],index[[3]],index[[4]],index[[5]]]], newCoordinates[[index[[1]]]]] + 
+                      Total[(christoffelSymbols[[index[[3]],index[[1]],#1]]*newRiemannTensor[[index[[2]],#1,index[[4]],
+                           index[[5]]]] & ) /@ Range[Length[newMatrixRepresentation]]] + Total[
+                       (christoffelSymbols[[index[[4]],index[[1]],#1]]*newRiemannTensor[[index[[2]],index[[3]],#1,
+                           index[[5]]]] & ) /@ Range[Length[newMatrixRepresentation]]] - Total[
+                       (christoffelSymbols[[#1,index[[1]],index[[2]]]]*newRiemannTensor[[#1,index[[3]],index[[4]],
+                           index[[5]]]] & ) /@ Range[Length[newMatrixRepresentation]]] - Total[
+                       (christoffelSymbols[[#1,index[[1]],index[[5]]]]*newRiemannTensor[[index[[2]],index[[3]],index[[4]],
+                           #1]] & ) /@ Range[Length[newMatrixRepresentation]]]] & ) /@ Tuples[
+                   Range[Length[newMatrixRepresentation]], 5] /. (ToExpression[#1] -> #1 & ) /@ Select[coordinates, 
+                   StringQ]], If[index1 === False && index2 === True && index3 === True && index4 === False, 
+               newRiemannTensor = Normal[SparseArray[(Module[{index = #1}, index -> Total[
+                        (Inverse[newMatrixRepresentation][[#1,index[[4]]]]*riemannTensor[[index[[1]],index[[2]],
+                            index[[3]],#1]] & ) /@ Range[Length[newMatrixRepresentation]]]] & ) /@ 
+                    Tuples[Range[Length[newMatrixRepresentation]], 4]]]; Association[
+                 (Module[{index = #1}, StringJoin[ToString[Subscript["\[Del]", ToString[newCoordinates[[index[[1]]]], 
+                          StandardForm]], StandardForm], ToString[Subsuperscript["\[FormalCapitalR]", StringJoin[ToString[
+                           newCoordinates[[index[[3]]]], StandardForm], ToString[newCoordinates[[index[[4]]]], 
+                           StandardForm]], StringJoin[ToString[newCoordinates[[index[[2]]]], StandardForm], ToString[
+                           newCoordinates[[index[[5]]]], StandardForm]]], StandardForm]] -> Inactive[D][newRiemannTensor[[
+                         index[[2]],index[[3]],index[[4]],index[[5]]]], newCoordinates[[index[[1]]]]] + 
+                       Total[(christoffelSymbols[[index[[2]],index[[1]],#1]]*newRiemannTensor[[#1,index[[3]],index[[4]],
+                            index[[5]]]] & ) /@ Range[Length[newMatrixRepresentation]]] + Total[
+                        (christoffelSymbols[[index[[5]],index[[1]],#1]]*newRiemannTensor[[index[[2]],index[[3]],
+                            index[[4]],#1]] & ) /@ Range[Length[newMatrixRepresentation]]] - Total[
+                        (christoffelSymbols[[#1,index[[1]],index[[3]]]]*newRiemannTensor[[index[[2]],#1,index[[4]],
+                            index[[5]]]] & ) /@ Range[Length[newMatrixRepresentation]]] - Total[
+                        (christoffelSymbols[[#1,index[[1]],index[[4]]]]*newRiemannTensor[[index[[2]],index[[3]],#1,
+                            index[[5]]]] & ) /@ Range[Length[newMatrixRepresentation]]]] & ) /@ Tuples[
+                    Range[Length[newMatrixRepresentation]], 5] /. (ToExpression[#1] -> #1 & ) /@ Select[coordinates, 
+                    StringQ]], If[index1 === False && index2 === True && index3 === False && index4 === True, 
+                newRiemannTensor = Normal[SparseArray[(Module[{index = #1}, index -> Total[
+                         (Inverse[newMatrixRepresentation][[#1,index[[3]]]]*riemannTensor[[index[[1]],index[[2]],#1,
+                             index[[4]]]] & ) /@ Range[Length[newMatrixRepresentation]]]] & ) /@ Tuples[
+                      Range[Length[newMatrixRepresentation]], 4]]]; Association[(Module[{index = #1}, 
+                      StringJoin[ToString[Subscript["\[Del]", ToString[newCoordinates[[index[[1]]]], StandardForm]], 
+                         StandardForm], ToString[Subsuperscript["\[FormalCapitalR]", StringJoin[ToString[newCoordinates[[index[[3]]]], 
+                            StandardForm], ToString[newCoordinates[[index[[5]]]], StandardForm]], StringJoin[ToString[
+                            newCoordinates[[index[[2]]]], StandardForm], ToString[newCoordinates[[index[[4]]]], 
+                            StandardForm]]], StandardForm]] -> Inactive[D][newRiemannTensor[[index[[2]],index[[3]],
+                          index[[4]],index[[5]]]], newCoordinates[[index[[1]]]]] + Total[(christoffelSymbols[[index[[2]],
+                             index[[1]],#1]]*newRiemannTensor[[#1,index[[3]],index[[4]],index[[5]]]] & ) /@ 
+                          Range[Length[newMatrixRepresentation]]] + Total[(christoffelSymbols[[index[[4]],index[[1]],#1]]*
+                            newRiemannTensor[[index[[2]],index[[3]],#1,index[[5]]]] & ) /@ Range[Length[
+                            newMatrixRepresentation]]] - Total[(christoffelSymbols[[#1,index[[1]],index[[3]]]]*
+                            newRiemannTensor[[index[[2]],#1,index[[4]],index[[5]]]] & ) /@ Range[Length[
+                            newMatrixRepresentation]]] - Total[(christoffelSymbols[[#1,index[[1]],index[[5]]]]*
+                            newRiemannTensor[[index[[2]],index[[3]],index[[4]],#1]] & ) /@ Range[Length[
+                            newMatrixRepresentation]]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 5] /. 
+                   (ToExpression[#1] -> #1 & ) /@ Select[coordinates, StringQ]], If[index1 === False && 
+                  index2 === False && index3 === True && index4 === True, newRiemannTensor = Normal[SparseArray[
+                     (Module[{index = #1}, index -> Total[(Inverse[newMatrixRepresentation][[index[[2]],#1]]*
+                             riemannTensor[[index[[1]],#1,index[[3]],index[[4]]]] & ) /@ Range[Length[
+                             newMatrixRepresentation]]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 4]]]; 
+                  Association[(Module[{index = #1}, StringJoin[ToString[Subscript["\[Del]", ToString[newCoordinates[[
+                             index[[1]]]], StandardForm]], StandardForm], ToString[Subsuperscript["\[FormalCapitalR]", StringJoin[
+                            ToString[newCoordinates[[index[[4]]]], StandardForm], ToString[newCoordinates[[index[[5]]]], 
+                             StandardForm]], StringJoin[ToString[newCoordinates[[index[[2]]]], StandardForm], 
+                            ToString[newCoordinates[[index[[3]]]], StandardForm]]], StandardForm]] -> 
+                        Inactive[D][newRiemannTensor[[index[[2]],index[[3]],index[[4]],index[[5]]]], newCoordinates[[
+                           index[[1]]]]] + Total[(christoffelSymbols[[index[[2]],index[[1]],#1]]*newRiemannTensor[[#1,
+                              index[[3]],index[[4]],index[[5]]]] & ) /@ Range[Length[newMatrixRepresentation]]] + 
+                         Total[(christoffelSymbols[[index[[3]],index[[1]],#1]]*newRiemannTensor[[index[[2]],#1,index[[4]],
+                              index[[5]]]] & ) /@ Range[Length[newMatrixRepresentation]]] - Total[
+                          (christoffelSymbols[[#1,index[[1]],index[[4]]]]*newRiemannTensor[[index[[2]],index[[3]],#1,
+                              index[[5]]]] & ) /@ Range[Length[newMatrixRepresentation]]] - Total[
+                          (christoffelSymbols[[#1,index[[1]],index[[5]]]]*newRiemannTensor[[index[[2]],index[[3]],
+                              index[[4]],#1]] & ) /@ Range[Length[newMatrixRepresentation]]]] & ) /@ 
+                     Tuples[Range[Length[newMatrixRepresentation]], 5] /. (ToExpression[#1] -> #1 & ) /@ 
+                     Select[coordinates, StringQ]], If[index1 === True && index2 === True && index3 === True && 
+                   index4 === False, newRiemannTensor = Normal[SparseArray[(Module[{index = #1}, index -> 
+                          Total[(newMatrixRepresentation[[index[[1]],#1[[1]]]]*Inverse[newMatrixRepresentation][[#1[[2]],
+                               index[[4]]]]*riemannTensor[[#1[[1]],index[[2]],index[[3]],#1[[2]]]] & ) /@ Tuples[
+                             Range[Length[newMatrixRepresentation]], 2]]] & ) /@ Tuples[Range[Length[
+                          newMatrixRepresentation]], 4]]]; Association[(Module[{index = #1}, StringJoin[ToString[
+                           Subscript["\[Del]", ToString[newCoordinates[[index[[1]]]], StandardForm]], StandardForm], 
+                          ToString[Subsuperscript["\[FormalCapitalR]", StringJoin[ToString[newCoordinates[[index[[2]]]], StandardForm], 
+                             ToString[newCoordinates[[index[[3]]]], StandardForm], ToString[newCoordinates[[index[[4]]]], 
+                              StandardForm]], ToString[newCoordinates[[index[[5]]]], StandardForm]], StandardForm]] -> 
+                         Inactive[D][newRiemannTensor[[index[[2]],index[[3]],index[[4]],index[[5]]]], newCoordinates[[
+                            index[[1]]]]] + Total[(christoffelSymbols[[index[[5]],index[[1]],#1]]*newRiemannTensor[[
+                               index[[2]],index[[3]],index[[4]],#1]] & ) /@ Range[Length[newMatrixRepresentation]]] - 
+                          Total[(christoffelSymbols[[#1,index[[1]],index[[2]]]]*newRiemannTensor[[#1,index[[3]],
+                               index[[4]],index[[5]]]] & ) /@ Range[Length[newMatrixRepresentation]]] - Total[
+                           (christoffelSymbols[[#1,index[[1]],index[[3]]]]*newRiemannTensor[[index[[2]],#1,index[[4]],
+                               index[[5]]]] & ) /@ Range[Length[newMatrixRepresentation]]] - Total[
+                           (christoffelSymbols[[#1,index[[1]],index[[4]]]]*newRiemannTensor[[index[[2]],index[[3]],#1,
+                               index[[5]]]] & ) /@ Range[Length[newMatrixRepresentation]]]] & ) /@ Tuples[
+                       Range[Length[newMatrixRepresentation]], 5] /. (ToExpression[#1] -> #1 & ) /@ Select[coordinates, 
+                       StringQ]], If[index1 === True && index2 === True && index3 === False && index4 === True, 
+                   newRiemannTensor = Normal[SparseArray[(Module[{index = #1}, index -> Total[(newMatrixRepresentation[[
+                                index[[1]],#1[[1]]]]*Inverse[newMatrixRepresentation][[#1[[2]],index[[3]]]]*
+                               riemannTensor[[#1[[1]],index[[2]],#1[[2]],index[[4]]]] & ) /@ Tuples[Range[Length[
+                                newMatrixRepresentation]], 2]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 
+                         4]]]; Association[(Module[{index = #1}, StringJoin[ToString[Subscript["\[Del]", ToString[
+                              newCoordinates[[index[[1]]]], StandardForm]], StandardForm], ToString[Subsuperscript["\[FormalCapitalR]", 
+                             StringJoin[ToString[newCoordinates[[index[[2]]]], StandardForm], ToString[newCoordinates[[
+                                index[[3]]]], StandardForm], ToString[newCoordinates[[index[[5]]]], StandardForm]], 
+                             ToString[newCoordinates[[index[[4]]]], StandardForm]], StandardForm]] -> Inactive[D][
+                            newRiemannTensor[[index[[2]],index[[3]],index[[4]],index[[5]]]], newCoordinates[[index[[
+                              1]]]]] + Total[(christoffelSymbols[[index[[4]],index[[1]],#1]]*newRiemannTensor[[index[[2]],
+                                index[[3]],#1,index[[5]]]] & ) /@ Range[Length[newMatrixRepresentation]]] - 
+                           Total[(christoffelSymbols[[#1,index[[1]],index[[2]]]]*newRiemannTensor[[#1,index[[3]],
+                                index[[4]],index[[5]]]] & ) /@ Range[Length[newMatrixRepresentation]]] - Total[
+                            (christoffelSymbols[[#1,index[[1]],index[[3]]]]*newRiemannTensor[[index[[2]],#1,index[[4]],
+                                index[[5]]]] & ) /@ Range[Length[newMatrixRepresentation]]] - Total[
+                            (christoffelSymbols[[#1,index[[1]],index[[5]]]]*newRiemannTensor[[index[[2]],index[[3]],
+                                index[[4]],#1]] & ) /@ Range[Length[newMatrixRepresentation]]]] & ) /@ Tuples[
+                        Range[Length[newMatrixRepresentation]], 5] /. (ToExpression[#1] -> #1 & ) /@ Select[coordinates, 
+                        StringQ]], If[index1 === True && index2 === False && index3 === True && index4 === True, 
+                    newRiemannTensor = Normal[SparseArray[(Module[{index = #1}, index -> Total[(newMatrixRepresentation[[
+                                 index[[1]],#1[[1]]]]*Inverse[newMatrixRepresentation][[index[[2]],#1[[2]]]]*
+                                riemannTensor[[#1[[1]],#1[[2]],index[[3]],index[[4]]]] & ) /@ Tuples[Range[Length[
+                                 newMatrixRepresentation]], 2]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 
+                          4]]]; Association[(Module[{index = #1}, StringJoin[ToString[Subscript["\[Del]", ToString[
+                               newCoordinates[[index[[1]]]], StandardForm]], StandardForm], ToString[Subsuperscript[
+                              "\[FormalCapitalR]", StringJoin[ToString[newCoordinates[[index[[2]]]], StandardForm], ToString[
+                                newCoordinates[[index[[4]]]], StandardForm], ToString[newCoordinates[[index[[5]]]], 
+                                StandardForm]], ToString[newCoordinates[[index[[3]]]], StandardForm]], StandardForm]] -> 
+                           Inactive[D][newRiemannTensor[[index[[2]],index[[3]],index[[4]],index[[5]]]], newCoordinates[[
+                              index[[1]]]]] + Total[(christoffelSymbols[[index[[3]],index[[1]],#1]]*newRiemannTensor[[
+                                 index[[2]],#1,index[[4]],index[[5]]]] & ) /@ Range[Length[newMatrixRepresentation]]] - 
+                            Total[(christoffelSymbols[[#1,index[[1]],index[[2]]]]*newRiemannTensor[[#1,index[[3]],
+                                 index[[4]],index[[5]]]] & ) /@ Range[Length[newMatrixRepresentation]]] - Total[
+                             (christoffelSymbols[[#1,index[[1]],index[[4]]]]*newRiemannTensor[[index[[2]],index[[3]],#1,
+                                 index[[5]]]] & ) /@ Range[Length[newMatrixRepresentation]]] - Total[
+                             (christoffelSymbols[[#1,index[[1]],index[[5]]]]*newRiemannTensor[[index[[2]],index[[3]],
+                                 index[[4]],#1]] & ) /@ Range[Length[newMatrixRepresentation]]]] & ) /@ Tuples[
+                         Range[Length[newMatrixRepresentation]], 5] /. (ToExpression[#1] -> #1 & ) /@ Select[coordinates, 
+                         StringQ]], If[index1 === False && index2 === True && index3 === True && index4 === True, 
+                     newRiemannTensor = riemannTensor; Association[(Module[{index = #1}, StringJoin[ToString[Subscript[
+                               "\[Del]", ToString[newCoordinates[[index[[1]]]], StandardForm]], StandardForm], ToString[
+                              Subsuperscript["\[FormalCapitalR]", StringJoin[ToString[newCoordinates[[index[[3]]]], StandardForm], 
+                                ToString[newCoordinates[[index[[4]]]], StandardForm], ToString[newCoordinates[[index[[
+                                   5]]]], StandardForm]], ToString[newCoordinates[[index[[2]]]], StandardForm]], 
+                              StandardForm]] -> Inactive[D][newRiemannTensor[[index[[2]],index[[3]],index[[4]],
+                               index[[5]]]], newCoordinates[[index[[1]]]]] + Total[(christoffelSymbols[[index[[2]],
+                                  index[[1]],#1]]*newRiemannTensor[[#1,index[[3]],index[[4]],index[[5]]]] & ) /@ 
+                               Range[Length[newMatrixRepresentation]]] - Total[(christoffelSymbols[[#1,index[[1]],
+                                  index[[3]]]]*newRiemannTensor[[index[[2]],#1,index[[4]],index[[5]]]] & ) /@ 
+                               Range[Length[newMatrixRepresentation]]] - Total[(christoffelSymbols[[#1,index[[1]],
+                                  index[[4]]]]*newRiemannTensor[[index[[2]],index[[3]],#1,index[[5]]]] & ) /@ 
+                               Range[Length[newMatrixRepresentation]]] - Total[(christoffelSymbols[[#1,index[[1]],
+                                  index[[5]]]]*newRiemannTensor[[index[[2]],index[[3]],index[[4]],#1]] & ) /@ 
+                               Range[Length[newMatrixRepresentation]]]] & ) /@ Tuples[Range[Length[
+                            newMatrixRepresentation]], 5] /. (ToExpression[#1] -> #1 & ) /@ Select[coordinates, 
+                          StringQ]]]]]]]]]]]]]]]]]]] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && BooleanQ[index1] && BooleanQ[index2] && BooleanQ[index3] && 
+    BooleanQ[index4]
+RiemannTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], index1_, 
     index2_, index3_, index4_]["BianchiIdentities"] := 
   Module[{newMatrixRepresentation, newCoordinates, christoffelSymbols, riemannTensor, covariantRiemannTensor}, 
     newMatrixRepresentation = matrixRepresentation /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
@@ -2197,6 +2775,38 @@ RiemannTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metri
     Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
     BooleanQ[index1] && BooleanQ[index2] && BooleanQ[index3] && BooleanQ[index4]
 RiemannTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], index1_, 
+    index2_, index3_, index4_]["RiemannianConditions"] := 
+  Module[{eigenvalues, riemannianConditions}, eigenvalues = Eigenvalues[matrixRepresentation]; 
+     riemannianConditions = FullSimplify[(#1 > 0 & ) /@ eigenvalues]; If[riemannianConditions === True, {}, 
+      If[riemannianConditions === False, Indeterminate, If[Length[Select[riemannianConditions, #1 === False & ]] > 0, 
+        Indeterminate, DeleteDuplicates[Select[riemannianConditions, #1 =!= True & ]]]]]] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    BooleanQ[index1] && BooleanQ[index2] && BooleanQ[index3] && BooleanQ[index4]
+RiemannTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], index1_, 
+    index2_, index3_, index4_]["PseudoRiemannianConditions"] := 
+  Module[{eigenvalues, pseudoRiemannianConditions}, eigenvalues = Eigenvalues[matrixRepresentation]; 
+     pseudoRiemannianConditions = FullSimplify[(#1 != 0 & ) /@ eigenvalues]; If[pseudoRiemannianConditions === True, {}, 
+      If[pseudoRiemannianConditions === False, Indeterminate, 
+       If[Length[Select[pseudoRiemannianConditions, #1 === False & ]] > 0, Indeterminate, 
+        DeleteDuplicates[Reverse /@ Sort /@ Select[pseudoRiemannianConditions, #1 =!= True & ]]]]]] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    BooleanQ[index1] && BooleanQ[index2] && BooleanQ[index3] && BooleanQ[index4]
+RiemannTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], index1_, 
+    index2_, index3_, index4_]["LorentzianConditions"] := 
+  Module[{eigensystem, eigenvalues, eigenvectors, timeCoordinate, lorentzianConditions}, 
+    eigensystem = Eigensystem[matrixRepresentation]; eigenvalues = First[eigensystem]; eigenvectors = Last[eigensystem]; 
+     If[Length[Position[eigenvectors, Join[{1}, ConstantArray[0, Length[coordinates] - 1]]]] > 0, 
+      timeCoordinate = First[First[Position[eigenvectors, Join[{1}, ConstantArray[0, Length[coordinates] - 1]]]]]; 
+       lorentzianConditions = FullSimplify[(If[#1 == timeCoordinate, eigenvalues[[#1]] < 0, eigenvalues[[#1]] > 0] & ) /@ 
+          Range[Length[eigenvalues]]]; If[lorentzianConditions === True, {}, If[lorentzianConditions === False, 
+         Indeterminate, If[Length[Select[lorentzianConditions, #1 === False & ]] > 0, Indeterminate, 
+          DeleteDuplicates[Select[lorentzianConditions, #1 =!= True & ]]]]], Indeterminate]] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    BooleanQ[index1] && BooleanQ[index2] && BooleanQ[index3] && BooleanQ[index4]
+RiemannTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], index1_, 
     index2_, index3_, index4_]["CurvatureSingularities"] := 
   Module[{newMatrixRepresentation, newCoordinates, christoffelSymbols, riemannTensor}, 
     newMatrixRepresentation = matrixRepresentation /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
@@ -2336,14 +2946,53 @@ RiemannTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metri
     BooleanQ[index1] && BooleanQ[index2] && BooleanQ[index3] && BooleanQ[index4]
 RiemannTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], index1_, 
     index2_, index3_, index4_]["CovariantRiemannTensor"] := 
-  RiemannTensor[MetricTensor[matrixRepresentation, coordinates, metricIndex1, metricIndex2], True, True, True, True] /; 
-   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+  RiemannTensor[ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, metricIndex1, metricIndex2], True, 
+    True, True, True] /; SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
     Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
     BooleanQ[index1] && BooleanQ[index2] && BooleanQ[index3] && BooleanQ[index4]
 RiemannTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], index1_, 
     index2_, index3_, index4_]["ContravariantRiemannTensor"] := 
-  RiemannTensor[MetricTensor[matrixRepresentation, coordinates, metricIndex1, metricIndex2], False, False, False, 
-    False] /; SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+  RiemannTensor[ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, metricIndex1, metricIndex2], False, 
+    False, False, False] /; SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 
+     2 && Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    BooleanQ[index1] && BooleanQ[index2] && BooleanQ[index3] && BooleanQ[index4]
+RiemannTensor[RiemannTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+    index1_, index2_, index3_, index4_], newCoordinates_List] := 
+  RiemannTensor[ResourceFunction["MetricTensor"][matrixRepresentation /. Thread[coordinates -> newCoordinates], 
+     newCoordinates, metricIndex1, metricIndex2], index1, index2, index3, index4] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && Length[newCoordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && BooleanQ[index1] && BooleanQ[index2] && BooleanQ[index3] && 
+    BooleanQ[index4]
+RiemannTensor[RiemannTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+    index1_, index2_, index3_, index4_], newIndex1_, newIndex2_, newIndex3_, newIndex4_] := 
+  RiemannTensor[ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, metricIndex1, metricIndex2], 
+    newIndex1, newIndex2, newIndex3, newIndex4] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && BooleanQ[index1] && BooleanQ[index2] && BooleanQ[index3] && 
+    BooleanQ[index4] && BooleanQ[newIndex1] && BooleanQ[newIndex2] && BooleanQ[newIndex3] && BooleanQ[newIndex4]
+RiemannTensor[RiemannTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+    index1_, index2_, index3_, index4_], newCoordinates_List, newIndex1_, newIndex2_, newIndex3_, newIndex4_] := 
+  RiemannTensor[ResourceFunction["MetricTensor"][matrixRepresentation /. Thread[coordinates -> newCoordinates], 
+     newCoordinates, metricIndex1, metricIndex2], newIndex1, newIndex2, newIndex3, newIndex4] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && Length[newCoordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && BooleanQ[index1] && BooleanQ[index2] && BooleanQ[index3] && 
+    BooleanQ[index4] && BooleanQ[newIndex1] && BooleanQ[newIndex2] && BooleanQ[newIndex3] && BooleanQ[newIndex4]
+RiemannTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], index1_, 
+    index2_, index3_, index4_]["Properties"] := {"TensorRepresentation", "ReducedTensorRepresentation", 
+    "SymbolicTensorRepresentation", "KretschmannScalar", "ReducedKretschmannScalar", "SymbolicKretschmannScalar", 
+    "ChernPontryaginScalar", "ReducedChernPontryaginScalar", "SymbolicChernPontryaginScalar", "EulerScalar", 
+    "ReducedEulerScalar", "SymbolicEulerScalar", "MetricTensor", "Coordinates", "CoordinateOneForms", "Indices", 
+    "CovariantQ", "ContravariantQ", "MixedQ", "Symbol", "RiemannFlatQ", "VanishingKretschmannScalarQ", 
+    "VanishingChernPontryaginScalarQ", "VanishingEulerScalarQ", "RiemannFlatConditions", 
+    "VanishingKretschmannScalarCondition", "VanishingChernPontryaginScalarCondition", "VanishingEulerScalarCondition", 
+    "IndexContractions", "ReducedIndexContractions", "SymbolicIndexContractions", "CovariantDerivatives", 
+    "ReducedCovariantDerivatives", "SymbolicCovariantDerivatives", "BianchiIdentities", "SymbolicBianchiIdentities", 
+    "Dimensions", "Signature", "RiemannianQ", "PseudoRiemannianQ", "LorentzianQ", "RiemannianConditions", 
+    "PseudoRiemannianConditions", "LorentzianConditions", "CurvatureSingularities", "KretschmannSingularities", 
+    "ChernPontryaginSingularities", "EulerSingularities", "CovariantRiemannTensor", "ContravariantRiemannTensor", 
+    "Properties"} /; SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
     Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
     BooleanQ[index1] && BooleanQ[index2] && BooleanQ[index3] && BooleanQ[index4]
 RiemannTensor /: MakeBoxes[riemannTensor:RiemannTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, 
@@ -2472,3 +3121,98 @@ RiemannTensor /: MakeBoxes[riemannTensor:RiemannTensor[(metricTensor_)[matrixRep
     SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
      Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
      BooleanQ[index1] && BooleanQ[index2] && BooleanQ[index3] && BooleanQ[index4]
+RiemannTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], index1_, 
+    index2_, index3_, index4_][depth_Integer, layer_Integer, row_Integer, column_Integer] := 
+  Module[{newMatrixRepresentation, newCoordinates, christoffelSymbols, riemannTensor}, 
+    newMatrixRepresentation = matrixRepresentation /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newCoordinates = coordinates /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     christoffelSymbols = Normal[SparseArray[
+        (Module[{index = #1}, index -> Total[((1/2)*Inverse[newMatrixRepresentation][[index[[1]],#1]]*
+                (D[newMatrixRepresentation[[#1,index[[3]]]], newCoordinates[[index[[2]]]]] + D[newMatrixRepresentation[[
+                   index[[2]],#1]], newCoordinates[[index[[3]]]]] - D[newMatrixRepresentation[[index[[2]],index[[3]]]], 
+                  newCoordinates[[#1]]]) & ) /@ Range[Length[newMatrixRepresentation]]]] & ) /@ 
+         Tuples[Range[Length[newMatrixRepresentation]], 3]]]; 
+     riemannTensor = Normal[SparseArray[(Module[{index = #1}, index -> D[christoffelSymbols[[index[[1]],index[[2]],
+                index[[4]]]], newCoordinates[[index[[3]]]]] - D[christoffelSymbols[[index[[1]],index[[2]],index[[3]]]], 
+               newCoordinates[[index[[4]]]]] + Total[(christoffelSymbols[[index[[1]],#1,index[[3]]]]*christoffelSymbols[[
+                   #1,index[[2]],index[[4]]]] & ) /@ Range[Length[newMatrixRepresentation]]] - 
+              Total[(christoffelSymbols[[index[[1]],#1,index[[4]]]]*christoffelSymbols[[#1,index[[2]],index[[3]]]] & ) /@ 
+                Range[Length[newMatrixRepresentation]]]] & ) /@ Tuples[Range[Length[newMatrixRepresentation]], 4]]] /. 
+       (ToExpression[#1] -> #1 & ) /@ Select[coordinates, StringQ]; 
+     If[index1 === True && index2 === True && index3 === True && index4 === True, 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[(matrixRepresentation[[index[[1]],#1]]*riemannTensor[[#1,
+                  index[[2]],index[[3]],index[[4]]]] & ) /@ Range[Length[matrixRepresentation]]]] & ) /@ 
+          Tuples[Range[Length[matrixRepresentation]], 4]]][[depth,layer,row,column]], 
+      If[index1 === False && index2 === False && index3 === False && index4 === False, 
+       Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inverse[matrixRepresentation][[index[[2]],#1[[1]]]]*
+                  Inverse[matrixRepresentation][[#1[[2]],index[[3]]]]*Inverse[matrixRepresentation][[#1[[3]],index[[4]]]]*
+                  riemannTensor[[index[[1]],#1[[1]],#1[[2]],#1[[3]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 
+                 3]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 4]]][[depth,layer,row,column]], 
+       If[index1 === True && index2 === False && index3 === False && index4 === False, 
+        Normal[SparseArray[(Module[{index = #1}, index -> Total[(matrixRepresentation[[index[[1]],#1[[1]]]]*
+                   Inverse[matrixRepresentation][[index[[2]],#1[[2]]]]*Inverse[matrixRepresentation][[#1[[3]],
+                    index[[3]]]]*Inverse[matrixRepresentation][[#1[[4]],index[[4]]]]*riemannTensor[[#1[[1]],#1[[2]],
+                    #1[[3]],#1[[4]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 4]]] & ) /@ 
+            Tuples[Range[Length[matrixRepresentation]], 4]]][[depth,layer,row,column]], 
+        If[index1 === False && index2 === True && index3 === False && index4 === False, 
+         Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inverse[matrixRepresentation][[#1[[1]],index[[3]]]]*
+                    Inverse[matrixRepresentation][[#1[[2]],index[[4]]]]*riemannTensor[[index[[1]],index[[2]],#1[[1]],
+                     #1[[2]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 2]]] & ) /@ 
+             Tuples[Range[Length[matrixRepresentation]], 4]]][[depth,layer,row,column]], 
+         If[index1 === False && index2 === False && index3 === True && index4 === False, 
+          Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inverse[matrixRepresentation][[index[[2]],#1[[1]]]]*
+                     Inverse[matrixRepresentation][[#1[[2]],index[[4]]]]*riemannTensor[[index[[1]],#1[[1]],index[[3]],
+                      #1[[2]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 2]]] & ) /@ 
+              Tuples[Range[Length[matrixRepresentation]], 4]]][[depth,layer,row,column]], 
+          If[index1 === False && index2 === False && index3 === False && index4 === True, 
+           Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inverse[matrixRepresentation][[index[[2]],#1[[1]]]]*
+                      Inverse[matrixRepresentation][[#1[[2]],index[[3]]]]*riemannTensor[[index[[1]],#1[[1]],#1[[2]],
+                       index[[4]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 2]]] & ) /@ Tuples[
+                Range[Length[matrixRepresentation]], 4]]][[depth,layer,row,column]], 
+           If[index1 === True && index2 === True && index3 === False && index4 === False, 
+            Normal[SparseArray[(Module[{index = #1}, index -> Total[(matrixRepresentation[[index[[1]],#1[[1]]]]*
+                       Inverse[matrixRepresentation][[#1[[2]],index[[3]]]]*Inverse[matrixRepresentation][[#1[[3]],
+                        index[[4]]]]*riemannTensor[[#1[[1]],index[[2]],#1[[2]],#1[[3]]]] & ) /@ Tuples[
+                      Range[Length[matrixRepresentation]], 3]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 4]]][[
+             depth,layer,row,column]], If[index1 === True && index2 === False && index3 === True && index4 === False, 
+             Normal[SparseArray[(Module[{index = #1}, index -> Total[(matrixRepresentation[[index[[1]],#1[[1]]]]*
+                        Inverse[matrixRepresentation][[index[[2]],#1[[2]]]]*Inverse[matrixRepresentation][[#1[[3]],
+                         index[[4]]]]*riemannTensor[[#1[[1]],#1[[2]],index[[3]],#1[[3]]]] & ) /@ Tuples[
+                       Range[Length[matrixRepresentation]], 3]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 4]]][[
+              depth,layer,row,column]], If[index1 === True && index2 === False && index3 === False && index4 === True, 
+              Normal[SparseArray[(Module[{index = #1}, index -> Total[(matrixRepresentation[[index[[1]],#1[[1]]]]*
+                         Inverse[matrixRepresentation][[index[[2]],#1[[2]]]]*Inverse[matrixRepresentation][[#1[[3]],
+                          index[[3]]]]*riemannTensor[[#1[[1]],#1[[2]],#1[[3]],index[[4]]]] & ) /@ Tuples[
+                        Range[Length[matrixRepresentation]], 3]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 
+                   4]]][[depth,layer,row,column]], If[index1 === False && index2 === True && index3 === True && 
+                index4 === False, Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inverse[matrixRepresentation][[
+                           #1,index[[4]]]]*riemannTensor[[index[[1]],index[[2]],index[[3]],#1]] & ) /@ Range[
+                         Length[matrixRepresentation]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 4]]][[depth,
+                layer,row,column]], If[index1 === False && index2 === True && index3 === False && index4 === True, 
+                Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inverse[matrixRepresentation][[#1,index[[3]]]]*
+                           riemannTensor[[index[[1]],index[[2]],#1,index[[4]]]] & ) /@ Range[Length[
+                           matrixRepresentation]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 4]]][[depth,layer,
+                 row,column]], If[index1 === False && index2 === False && index3 === True && index4 === True, 
+                 Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inverse[matrixRepresentation][[index[[2]],#1]]*
+                            riemannTensor[[index[[1]],#1,index[[3]],index[[4]]]] & ) /@ Range[Length[
+                            matrixRepresentation]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 4]]][[depth,layer,
+                  row,column]], If[index1 === True && index2 === True && index3 === True && index4 === False, 
+                  Normal[SparseArray[(Module[{index = #1}, index -> Total[(matrixRepresentation[[index[[1]],#1[[1]]]]*
+                             Inverse[matrixRepresentation][[#1[[2]],index[[4]]]]*riemannTensor[[#1[[1]],index[[2]],
+                              index[[3]],#1[[2]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 2]]] & ) /@ 
+                      Tuples[Range[Length[matrixRepresentation]], 4]]][[depth,layer,row,column]], 
+                  If[index1 === True && index2 === True && index3 === False && index4 === True, 
+                   Normal[SparseArray[(Module[{index = #1}, index -> Total[(matrixRepresentation[[index[[1]],#1[[1]]]]*
+                              Inverse[matrixRepresentation][[#1[[2]],index[[3]]]]*riemannTensor[[#1[[1]],index[[2]],
+                               #1[[2]],index[[4]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 2]]] & ) /@ 
+                       Tuples[Range[Length[matrixRepresentation]], 4]]][[depth,layer,row,column]], 
+                   If[index1 === True && index2 === False && index3 === True && index4 === True, 
+                    Normal[SparseArray[(Module[{index = #1}, index -> Total[(matrixRepresentation[[index[[1]],#1[[1]]]]*
+                               Inverse[matrixRepresentation][[index[[2]],#1[[2]]]]*riemannTensor[[#1[[1]],#1[[2]],
+                                index[[3]],index[[4]]]] & ) /@ Tuples[Range[Length[matrixRepresentation]], 2]]] & ) /@ 
+                        Tuples[Range[Length[matrixRepresentation]], 4]]][[depth,layer,row,column]], 
+                    If[index1 === False && index2 === True && index3 === True && index4 === True, riemannTensor[[depth,
+                      layer,row,column]], Indeterminate]]]]]]]]]]]]]]]]] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    BooleanQ[index1] && BooleanQ[index2] && BooleanQ[index3] && BooleanQ[index4]
