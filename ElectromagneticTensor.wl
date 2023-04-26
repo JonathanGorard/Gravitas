@@ -43,8 +43,8 @@ ElectromagneticTensor[(metricTensor_)[matrixRepresentation_List, coordinates_Lis
       Normal[SparseArray[(Module[{index = #1}, index -> Total[(newMatrixRepresentation[[index,#1]]*
                 newElectromagneticPotential[[#1]] & ) /@ Range[Length[newElectromagneticPotential]]]] & ) /@ 
          Range[Length[newElectromagneticPotential]]]]; electromagneticTensor = 
-      Normal[SparseArray[(#1 -> D[covariantElectromagneticPotential[[First[#1]]], newCoordinates[[Last[#1]]]] - 
-             D[covariantElectromagneticPotential[[Last[#1]]], newCoordinates[[First[#1]]]] & ) /@ 
+      Normal[SparseArray[(#1 -> D[covariantElectromagneticPotential[[Last[#1]]], newCoordinates[[First[#1]]]] - 
+             D[covariantElectromagneticPotential[[First[#1]]], newCoordinates[[Last[#1]]]] & ) /@ 
           Tuples[Range[Length[newElectromagneticPotential]], 2]]] /. (ToExpression[#1] -> #1 & ) /@ 
         Select[coordinates, StringQ]; If[index1 === True && index2 === True, electromagneticTensor, 
       If[index1 === False && index2 === False, 
@@ -72,8 +72,8 @@ ElectromagneticTensor[(metricTensor_)[matrixRepresentation_List, coordinates_Lis
       Normal[SparseArray[(Module[{index = #1}, index -> Total[(newMatrixRepresentation[[index,#1]]*
                 newElectromagneticPotential[[#1]] & ) /@ Range[Length[newElectromagneticPotential]]]] & ) /@ 
          Range[Length[newElectromagneticPotential]]]]; electromagneticTensor = 
-      Normal[SparseArray[(#1 -> D[covariantElectromagneticPotential[[First[#1]]], newCoordinates[[Last[#1]]]] - 
-             D[covariantElectromagneticPotential[[Last[#1]]], newCoordinates[[First[#1]]]] & ) /@ 
+      Normal[SparseArray[(#1 -> D[covariantElectromagneticPotential[[Last[#1]]], newCoordinates[[First[#1]]]] - 
+             D[covariantElectromagneticPotential[[First[#1]]], newCoordinates[[Last[#1]]]] & ) /@ 
           Tuples[Range[Length[newElectromagneticPotential]], 2]]] /. (ToExpression[#1] -> #1 & ) /@ 
         Select[coordinates, StringQ]; If[index1 === True && index2 === True, FullSimplify[electromagneticTensor], 
       If[index1 === False && index2 === False, FullSimplify[
@@ -90,7 +90,7 @@ ElectromagneticTensor[(metricTensor_)[matrixRepresentation_List, coordinates_Lis
              Tuples[Range[Length[electromagneticPotential]], 2]]]], Indeterminate]]]]] /; 
    SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
     Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
-    Length[electromagneticPotential] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2]
+    Length[electromagneticPotential] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
 ElectromagneticTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
     electromagneticPotential_List, vacuumPermeability_, index1_, index2_]["SymbolicMatrixRepresentation"] := 
   Module[{newMatrixRepresentation, newElectromagneticPotential, newCoordinates, covariantElectromagneticPotential, 
@@ -102,8 +102,8 @@ ElectromagneticTensor[(metricTensor_)[matrixRepresentation_List, coordinates_Lis
       Normal[SparseArray[(Module[{index = #1}, index -> Total[(newMatrixRepresentation[[index,#1]]*
                 newElectromagneticPotential[[#1]] & ) /@ Range[Length[newElectromagneticPotential]]]] & ) /@ 
          Range[Length[newElectromagneticPotential]]]]; electromagneticTensor = 
-      Normal[SparseArray[(#1 -> Inactive[D][covariantElectromagneticPotential[[First[#1]]], newCoordinates[[Last[#1]]]] - 
-             Inactive[D][covariantElectromagneticPotential[[Last[#1]]], newCoordinates[[First[#1]]]] & ) /@ 
+      Normal[SparseArray[(#1 -> Inactive[D][covariantElectromagneticPotential[[Last[#1]]], newCoordinates[[First[#1]]]] - 
+             Inactive[D][covariantElectromagneticPotential[[First[#1]]], newCoordinates[[Last[#1]]]] & ) /@ 
           Tuples[Range[Length[newElectromagneticPotential]], 2]]] /. (ToExpression[#1] -> #1 & ) /@ 
         Select[coordinates, StringQ]; If[index1 === True && index2 === True, electromagneticTensor, 
       If[index1 === False && index2 === False, 
@@ -121,6 +121,56 @@ ElectromagneticTensor[(metricTensor_)[matrixRepresentation_List, coordinates_Lis
     Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
     Length[electromagneticPotential] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
 ElectromagneticTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+    electromagneticPotential_List, vacuumPermeability_, index1_, index2_]["MetricTensor"] := 
+  ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, metricIndex1, metricIndex2] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    Length[electromagneticPotential] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
+ElectromagneticTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+    electromagneticPotential_List, vacuumPermeability_, index1_, index2_]["Coordinates"] := 
+  coordinates /; SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    Length[electromagneticPotential] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
+ElectromagneticTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+    electromagneticPotential_List, vacuumPermeability_, index1_, index2_]["CoordinateOneForms"] := 
+  (If[Head[#1] === Subscript, Subscript[StringJoin["\[FormalD]", ToString[First[#1]]], ToString[Last[#1]]], 
+      If[Head[#1] === Superscript, Superscript[StringJoin["\[FormalD]", ToString[First[#1]]], ToString[Last[#1]]], 
+       StringJoin["\[FormalD]", ToString[#1]]]] & ) /@ coordinates /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[electromagneticPotential] == 
+     Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
+ElectromagneticTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+    electromagneticPotential_List, vacuumPermeability_, index1_, index2_]["Indices"] := 
+  {index1, index2} /; SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    Length[electromagneticPotential] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
+ElectromagneticTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+    electromagneticPotential_List, vacuumPermeability_, index1_, index2_]["CovariantQ"] := 
+  If[index1 === True && index2 === True, True, False] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[electromagneticPotential] == 
+     Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
+ElectromagneticTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+    electromagneticPotential_List, vacuumPermeability_, index1_, index2_]["ContravariantQ"] := 
+  If[index1 === False && index2 === False, True, False] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[electromagneticPotential] == 
+     Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
+ElectromagneticTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+    electromagneticPotential_List, vacuumPermeability_, index1_, index2_]["MixedQ"] := 
+  If[(index1 === True && index2 === False) || (index1 === False && index2 === True), True, False] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    Length[electromagneticPotential] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
+ElectromagneticTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+    electromagneticPotential_List, vacuumPermeability_, index1_, index2_]["Symbol"] := 
+  If[index1 === True && index2 === True, Subscript["\[FormalCapitalF]", "\[FormalMu]\[FormalNu]"], If[index1 === False && index2 === False, 
+     Superscript["\[FormalCapitalF]", "\[FormalMu]\[FormalNu]"], If[index1 === True && index2 === False, Subsuperscript["\[FormalCapitalF]", "\[FormalMu]", "\[FormalNu]"], 
+      If[index1 === False && index2 === True, Subsuperscript["\[FormalCapitalF]", "\[FormalNu]", "\[FormalMu]"], Indeterminate]]]] /; 
+   SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[matrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[matrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    Length[electromagneticPotential] == Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
+ElectromagneticTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
     electromagneticPotential_List, vacuumPermeability_, index1_, index2_]["ElectricField"] := 
   Module[{newMatrixRepresentation, newElectromagneticPotential, newCoordinates, covariantElectromagneticPotential, 
      electromagneticTensor, covariantElectricField}, 
@@ -131,8 +181,52 @@ ElectromagneticTensor[(metricTensor_)[matrixRepresentation_List, coordinates_Lis
       Normal[SparseArray[(Module[{index = #1}, index -> Total[(newMatrixRepresentation[[index,#1]]*
                 newElectromagneticPotential[[#1]] & ) /@ Range[Length[newElectromagneticPotential]]]] & ) /@ 
          Range[Length[newElectromagneticPotential]]]]; electromagneticTensor = 
-      Normal[SparseArray[(#1 -> D[covariantElectromagneticPotential[[First[#1]]], newCoordinates[[Last[#1]]]] - 
-             D[covariantElectromagneticPotential[[Last[#1]]], newCoordinates[[First[#1]]]] & ) /@ 
+      Normal[SparseArray[(#1 -> D[covariantElectromagneticPotential[[Last[#1]]], newCoordinates[[First[#1]]]] - 
+             D[covariantElectromagneticPotential[[First[#1]]], newCoordinates[[Last[#1]]]] & ) /@ 
+          Tuples[Range[Length[newElectromagneticPotential]], 2]]] /. (ToExpression[#1] -> #1 & ) /@ 
+        Select[coordinates, StringQ]; covariantElectricField = 
+      Normal[SparseArray[(#1 -> electromagneticTensor[[1,#1 + 1]] & ) /@ Range[Length[electromagneticPotential] - 1]]]; 
+     Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inverse[matrixRepresentation][[index + 1,#1 + 1]]*
+               covariantElectricField[[#1]] & ) /@ Range[Length[electromagneticPotential] - 1]]] & ) /@ 
+        Range[Length[electromagneticPotential] - 1]]]] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[electromagneticPotential] == 
+     Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
+ElectromagneticTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+    electromagneticPotential_List, vacuumPermeability_, index1_, index2_]["ReducedElectricField"] := 
+  Module[{newMatrixRepresentation, newElectromagneticPotential, newCoordinates, covariantElectromagneticPotential, 
+     electromagneticTensor, covariantElectricField}, 
+    newMatrixRepresentation = matrixRepresentation /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newElectromagneticPotential = electromagneticPotential /. (#1 -> ToExpression[#1] & ) /@ 
+        Select[coordinates, StringQ]; newCoordinates = coordinates /. (#1 -> ToExpression[#1] & ) /@ 
+        Select[coordinates, StringQ]; covariantElectromagneticPotential = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[(newMatrixRepresentation[[index,#1]]*
+                newElectromagneticPotential[[#1]] & ) /@ Range[Length[newElectromagneticPotential]]]] & ) /@ 
+         Range[Length[newElectromagneticPotential]]]]; electromagneticTensor = 
+      Normal[SparseArray[(#1 -> D[covariantElectromagneticPotential[[Last[#1]]], newCoordinates[[First[#1]]]] - 
+             D[covariantElectromagneticPotential[[First[#1]]], newCoordinates[[Last[#1]]]] & ) /@ 
+          Tuples[Range[Length[newElectromagneticPotential]], 2]]] /. (ToExpression[#1] -> #1 & ) /@ 
+        Select[coordinates, StringQ]; covariantElectricField = 
+      Normal[SparseArray[(#1 -> electromagneticTensor[[1,#1 + 1]] & ) /@ Range[Length[electromagneticPotential] - 1]]]; 
+     FullSimplify[Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inverse[matrixRepresentation][[index + 1,
+                 #1 + 1]]*covariantElectricField[[#1]] & ) /@ Range[Length[electromagneticPotential] - 1]]] & ) /@ 
+         Range[Length[electromagneticPotential] - 1]]]]] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[electromagneticPotential] == 
+     Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
+ElectromagneticTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+    electromagneticPotential_List, vacuumPermeability_, index1_, index2_]["SymbolicElectricField"] := 
+  Module[{newMatrixRepresentation, newElectromagneticPotential, newCoordinates, covariantElectromagneticPotential, 
+     electromagneticTensor, covariantElectricField}, 
+    newMatrixRepresentation = matrixRepresentation /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newElectromagneticPotential = electromagneticPotential /. (#1 -> ToExpression[#1] & ) /@ 
+        Select[coordinates, StringQ]; newCoordinates = coordinates /. (#1 -> ToExpression[#1] & ) /@ 
+        Select[coordinates, StringQ]; covariantElectromagneticPotential = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[(newMatrixRepresentation[[index,#1]]*
+                newElectromagneticPotential[[#1]] & ) /@ Range[Length[newElectromagneticPotential]]]] & ) /@ 
+         Range[Length[newElectromagneticPotential]]]]; electromagneticTensor = 
+      Normal[SparseArray[(#1 -> Inactive[D][covariantElectromagneticPotential[[Last[#1]]], newCoordinates[[First[#1]]]] - 
+             Inactive[D][covariantElectromagneticPotential[[First[#1]]], newCoordinates[[Last[#1]]]] & ) /@ 
           Tuples[Range[Length[newElectromagneticPotential]], 2]]] /. (ToExpression[#1] -> #1 & ) /@ 
         Select[coordinates, StringQ]; covariantElectricField = 
       Normal[SparseArray[(#1 -> electromagneticTensor[[1,#1 + 1]] & ) /@ Range[Length[electromagneticPotential] - 1]]]; 
@@ -153,8 +247,64 @@ ElectromagneticTensor[(metricTensor_)[matrixRepresentation_List, coordinates_Lis
       Normal[SparseArray[(Module[{index = #1}, index -> Total[(newMatrixRepresentation[[index,#1]]*
                 newElectromagneticPotential[[#1]] & ) /@ Range[Length[newElectromagneticPotential]]]] & ) /@ 
          Range[Length[newElectromagneticPotential]]]]; electromagneticTensor = 
-      Normal[SparseArray[(#1 -> D[covariantElectromagneticPotential[[First[#1]]], newCoordinates[[Last[#1]]]] - 
-             D[covariantElectromagneticPotential[[Last[#1]]], newCoordinates[[First[#1]]]] & ) /@ 
+      Normal[SparseArray[(#1 -> D[covariantElectromagneticPotential[[Last[#1]]], newCoordinates[[First[#1]]]] - 
+             D[covariantElectromagneticPotential[[First[#1]]], newCoordinates[[Last[#1]]]] & ) /@ 
+          Tuples[Range[Length[newElectromagneticPotential]], 2]]] /. (ToExpression[#1] -> #1 & ) /@ 
+        Select[coordinates, StringQ]; contravariantElectromagneticTensor = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inverse[matrixRepresentation][[First[index],First[#1]]]*
+                Inverse[matrixRepresentation][[Last[#1],Last[index]]]*electromagneticTensor[[First[#1],Last[#1]]] & ) /@ 
+              Tuples[Range[Length[electromagneticPotential]], 2]]] & ) /@ Tuples[Range[Length[electromagneticPotential]], 
+          2]]]; leviCivitaTensor = Normal[LeviCivitaTensor[3]]; covariantMagneticField = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[((-(1/2))*(leviCivitaTensor[[index,First[#1],Last[#1]]]*
+                 contravariantElectromagneticTensor[[First[#1] + 1,Last[#1] + 1]]) & ) /@ Tuples[Range[
+                Length[electromagneticPotential] - 1], 2]]] & ) /@ Range[Length[electromagneticPotential] - 1]]]; 
+     Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inverse[matrixRepresentation][[index + 1,#1 + 1]]*
+               covariantMagneticField[[#1]] & ) /@ Range[Length[electromagneticPotential] - 1]]] & ) /@ 
+        Range[Length[electromagneticPotential] - 1]]]] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[electromagneticPotential] == 
+     Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
+ElectromagneticTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+    electromagneticPotential_List, vacuumPermeability_, index1_, index2_]["ReducedMagneticField"] := 
+  Module[{newMatrixRepresentation, newElectromagneticPotential, newCoordinates, covariantElectromagneticPotential, 
+     electromagneticTensor, contravariantElectromagneticTensor, leviCivitaTensor, covariantMagneticField}, 
+    newMatrixRepresentation = matrixRepresentation /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newElectromagneticPotential = electromagneticPotential /. (#1 -> ToExpression[#1] & ) /@ 
+        Select[coordinates, StringQ]; newCoordinates = coordinates /. (#1 -> ToExpression[#1] & ) /@ 
+        Select[coordinates, StringQ]; covariantElectromagneticPotential = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[(newMatrixRepresentation[[index,#1]]*
+                newElectromagneticPotential[[#1]] & ) /@ Range[Length[newElectromagneticPotential]]]] & ) /@ 
+         Range[Length[newElectromagneticPotential]]]]; electromagneticTensor = 
+      Normal[SparseArray[(#1 -> D[covariantElectromagneticPotential[[Last[#1]]], newCoordinates[[First[#1]]]] - 
+             D[covariantElectromagneticPotential[[First[#1]]], newCoordinates[[Last[#1]]]] & ) /@ 
+          Tuples[Range[Length[newElectromagneticPotential]], 2]]] /. (ToExpression[#1] -> #1 & ) /@ 
+        Select[coordinates, StringQ]; contravariantElectromagneticTensor = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inverse[matrixRepresentation][[First[index],First[#1]]]*
+                Inverse[matrixRepresentation][[Last[#1],Last[index]]]*electromagneticTensor[[First[#1],Last[#1]]] & ) /@ 
+              Tuples[Range[Length[electromagneticPotential]], 2]]] & ) /@ Tuples[Range[Length[electromagneticPotential]], 
+          2]]]; leviCivitaTensor = Normal[LeviCivitaTensor[3]]; covariantMagneticField = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[((-(1/2))*(leviCivitaTensor[[index,First[#1],Last[#1]]]*
+                 contravariantElectromagneticTensor[[First[#1] + 1,Last[#1] + 1]]) & ) /@ Tuples[Range[
+                Length[electromagneticPotential] - 1], 2]]] & ) /@ Range[Length[electromagneticPotential] - 1]]]; 
+     FullSimplify[Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inverse[matrixRepresentation][[index + 1,
+                 #1 + 1]]*covariantMagneticField[[#1]] & ) /@ Range[Length[electromagneticPotential] - 1]]] & ) /@ 
+         Range[Length[electromagneticPotential] - 1]]]]] /; SymbolName[metricTensor] === "MetricTensor" && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && Length[electromagneticPotential] == 
+     Length[matrixRepresentation] && BooleanQ[index1] && BooleanQ[index2]
+ElectromagneticTensor[(metricTensor_)[matrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
+    electromagneticPotential_List, vacuumPermeability_, index1_, index2_]["SymbolicMagneticField"] := 
+  Module[{newMatrixRepresentation, newElectromagneticPotential, newCoordinates, covariantElectromagneticPotential, 
+     electromagneticTensor, contravariantElectromagneticTensor, leviCivitaTensor, covariantMagneticField}, 
+    newMatrixRepresentation = matrixRepresentation /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newElectromagneticPotential = electromagneticPotential /. (#1 -> ToExpression[#1] & ) /@ 
+        Select[coordinates, StringQ]; newCoordinates = coordinates /. (#1 -> ToExpression[#1] & ) /@ 
+        Select[coordinates, StringQ]; covariantElectromagneticPotential = 
+      Normal[SparseArray[(Module[{index = #1}, index -> Total[(newMatrixRepresentation[[index,#1]]*
+                newElectromagneticPotential[[#1]] & ) /@ Range[Length[newElectromagneticPotential]]]] & ) /@ 
+         Range[Length[newElectromagneticPotential]]]]; electromagneticTensor = 
+      Normal[SparseArray[(#1 -> Inactive[D][covariantElectromagneticPotential[[Last[#1]]], newCoordinates[[First[#1]]]] - 
+             Inactive[D][covariantElectromagneticPotential[[First[#1]]], newCoordinates[[Last[#1]]]] & ) /@ 
           Tuples[Range[Length[newElectromagneticPotential]], 2]]] /. (ToExpression[#1] -> #1 & ) /@ 
         Select[coordinates, StringQ]; contravariantElectromagneticTensor = 
       Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inverse[matrixRepresentation][[First[index],First[#1]]]*
@@ -181,8 +331,8 @@ ElectromagneticTensor[(metricTensor_)[matrixRepresentation_List, coordinates_Lis
       Normal[SparseArray[(Module[{index = #1}, index -> Total[(newMatrixRepresentation[[index,#1]]*
                 newElectromagneticPotential[[#1]] & ) /@ Range[Length[newElectromagneticPotential]]]] & ) /@ 
          Range[Length[newElectromagneticPotential]]]]; electromagneticTensor = 
-      Normal[SparseArray[(#1 -> D[covariantElectromagneticPotential[[First[#1]]], newCoordinates[[Last[#1]]]] - 
-            D[covariantElectromagneticPotential[[Last[#1]]], newCoordinates[[First[#1]]]] & ) /@ 
+      Normal[SparseArray[(#1 -> D[covariantElectromagneticPotential[[Last[#1]]], newCoordinates[[First[#1]]]] - 
+            D[covariantElectromagneticPotential[[First[#1]]], newCoordinates[[Last[#1]]]] & ) /@ 
          Tuples[Range[Length[newElectromagneticPotential]], 2]]]; electromagneticDisplacementTensor = 
       (Sqrt[-Det[newMatrixRepresentation]]/vacuumPermeability)*
        Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inverse[newMatrixRepresentation][[First[index],
@@ -205,8 +355,8 @@ ElectromagneticTensor[(metricTensor_)[matrixRepresentation_List, coordinates_Lis
       Normal[SparseArray[(Module[{index = #1}, index -> Total[(newMatrixRepresentation[[index,#1]]*
                 newElectromagneticPotential[[#1]] & ) /@ Range[Length[newElectromagneticPotential]]]] & ) /@ 
          Range[Length[newElectromagneticPotential]]]]; electromagneticTensor = 
-      Normal[SparseArray[(#1 -> D[covariantElectromagneticPotential[[First[#1]]], newCoordinates[[Last[#1]]]] - 
-            D[covariantElectromagneticPotential[[Last[#1]]], newCoordinates[[First[#1]]]] & ) /@ 
+      Normal[SparseArray[(#1 -> D[covariantElectromagneticPotential[[Last[#1]]], newCoordinates[[First[#1]]]] - 
+            D[covariantElectromagneticPotential[[First[#1]]], newCoordinates[[Last[#1]]]] & ) /@ 
          Tuples[Range[Length[newElectromagneticPotential]], 2]]]; electromagneticDisplacementTensor = 
       (Sqrt[-Det[newMatrixRepresentation]]/vacuumPermeability)*
        Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inverse[newMatrixRepresentation][[First[index],
@@ -231,8 +381,8 @@ ElectromagneticTensor[(metricTensor_)[matrixRepresentation_List, coordinates_Lis
       Normal[SparseArray[(Module[{index = #1}, index -> Total[(newMatrixRepresentation[[index,#1]]*
                 newElectromagneticPotential[[#1]] & ) /@ Range[Length[newElectromagneticPotential]]]] & ) /@ 
          Range[Length[newElectromagneticPotential]]]]; electromagneticTensor = 
-      Normal[SparseArray[(#1 -> D[covariantElectromagneticPotential[[First[#1]]], newCoordinates[[Last[#1]]]] - 
-            D[covariantElectromagneticPotential[[Last[#1]]], newCoordinates[[First[#1]]]] & ) /@ 
+      Normal[SparseArray[(#1 -> D[covariantElectromagneticPotential[[Last[#1]]], newCoordinates[[First[#1]]]] - 
+            D[covariantElectromagneticPotential[[First[#1]]], newCoordinates[[Last[#1]]]] & ) /@ 
          Tuples[Range[Length[newElectromagneticPotential]], 2]]]; electromagneticDisplacementTensor = 
       (Sqrt[-Det[newMatrixRepresentation]]/vacuumPermeability)*
        Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inverse[newMatrixRepresentation][[First[index],
@@ -256,8 +406,8 @@ ElectromagneticTensor[(metricTensor_)[matrixRepresentation_List, coordinates_Lis
       Normal[SparseArray[(Module[{index = #1}, index -> Total[(newMatrixRepresentation[[index,#1]]*
                 newElectromagneticPotential[[#1]] & ) /@ Range[Length[newElectromagneticPotential]]]] & ) /@ 
          Range[Length[newElectromagneticPotential]]]]; electromagneticTensor = 
-      Normal[SparseArray[(#1 -> D[covariantElectromagneticPotential[[First[#1]]], newCoordinates[[Last[#1]]]] - 
-             D[covariantElectromagneticPotential[[Last[#1]]], newCoordinates[[First[#1]]]] & ) /@ 
+      Normal[SparseArray[(#1 -> D[covariantElectromagneticPotential[[Last[#1]]], newCoordinates[[First[#1]]]] - 
+             D[covariantElectromagneticPotential[[First[#1]]], newCoordinates[[Last[#1]]]] & ) /@ 
           Tuples[Range[Length[newElectromagneticPotential]], 2]]] /. (ToExpression[#1] -> #1 & ) /@ 
         Select[coordinates, StringQ]; contravariantElectromagneticTensor = 
       Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inverse[matrixRepresentation][[First[index],First[#1]]]*
@@ -273,7 +423,7 @@ ElectromagneticTensor[(metricTensor_)[matrixRepresentation_List, coordinates_Lis
               (1/4)*Total[(Inverse[matrixRepresentation][[First[index],Last[index]]]*electromagneticTensor[[First[#1],
                     Last[#1]]]*contravariantElectromagneticTensor[[First[#1],Last[#1]]] & ) /@ 
                  Tuples[Range[Length[electromagneticPotential]], 2]]] & ) /@ 
-          Tuples[Range[Length[electromagneticPotential]], 2]]]; StressEnergyTensor[
+          Tuples[Range[Length[electromagneticPotential]], 2]]]; ResourceFunction["StressEnergyTensor"][
       ResourceFunction["MetricTensor"][matrixRepresentation, coordinates, metricIndex1, metricIndex2], 
       stressEnergyTensor, False, False]] /; SymbolName[metricTensor] === "MetricTensor" && 
     Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
@@ -296,8 +446,8 @@ ElectromagneticTensor[(metricTensor_)[matrixRepresentation_List, coordinates_Lis
       Normal[SparseArray[(Module[{index = #1}, index -> Total[(newMatrixRepresentation[[index,#1]]*
                 newElectromagneticPotential[[#1]] & ) /@ Range[Length[newElectromagneticPotential]]]] & ) /@ 
          Range[Length[newElectromagneticPotential]]]]; electromagneticTensor = 
-      Normal[SparseArray[(#1 -> D[covariantElectromagneticPotential[[First[#1]]], newCoordinates[[Last[#1]]]] - 
-            D[covariantElectromagneticPotential[[Last[#1]]], newCoordinates[[First[#1]]]] & ) /@ 
+      Normal[SparseArray[(#1 -> D[covariantElectromagneticPotential[[Last[#1]]], newCoordinates[[First[#1]]]] - 
+            D[covariantElectromagneticPotential[[First[#1]]], newCoordinates[[Last[#1]]]] & ) /@ 
          Tuples[Range[Length[newElectromagneticPotential]], 2]]]; contravariantElectromagneticTensor = 
       Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inverse[newMatrixRepresentation][[First[index],First[#1]]]*
                 Inverse[newMatrixRepresentation][[Last[#1],Last[index]]]*electromagneticTensor[[First[#1],
@@ -335,8 +485,8 @@ ElectromagneticTensor[(metricTensor_)[matrixRepresentation_List, coordinates_Lis
       Normal[SparseArray[(Module[{index = #1}, index -> Total[(newMatrixRepresentation[[index,#1]]*
                 newElectromagneticPotential[[#1]] & ) /@ Range[Length[newElectromagneticPotential]]]] & ) /@ 
          Range[Length[newElectromagneticPotential]]]]; electromagneticTensor = 
-      Normal[SparseArray[(#1 -> D[covariantElectromagneticPotential[[First[#1]]], newCoordinates[[Last[#1]]]] - 
-            D[covariantElectromagneticPotential[[Last[#1]]], newCoordinates[[First[#1]]]] & ) /@ 
+      Normal[SparseArray[(#1 -> D[covariantElectromagneticPotential[[Last[#1]]], newCoordinates[[First[#1]]]] - 
+            D[covariantElectromagneticPotential[[First[#1]]], newCoordinates[[Last[#1]]]] & ) /@ 
          Tuples[Range[Length[newElectromagneticPotential]], 2]]]; electromagneticDisplacementTensor = 
       (Sqrt[-Det[newMatrixRepresentation]]/vacuumPermeability)*
        Normal[SparseArray[(Module[{index = #1}, index -> Total[(Inverse[newMatrixRepresentation][[First[index],
@@ -370,8 +520,8 @@ ElectromagneticTensor[(metricTensor_)[matrixRepresentation_List, coordinates_Lis
       Normal[SparseArray[(Module[{index = #1}, index -> Total[(newMatrixRepresentation[[index,#1]]*
                 newElectromagneticPotential[[#1]] & ) /@ Range[Length[newElectromagneticPotential]]]] & ) /@ 
          Range[Length[newElectromagneticPotential]]]]; electromagneticTensor = 
-      Normal[SparseArray[(#1 -> D[covariantElectromagneticPotential[[First[#1]]], newCoordinates[[Last[#1]]]] - 
-            D[covariantElectromagneticPotential[[Last[#1]]], newCoordinates[[First[#1]]]] & ) /@ 
+      Normal[SparseArray[(#1 -> D[covariantElectromagneticPotential[[Last[#1]]], newCoordinates[[First[#1]]]] - 
+            D[covariantElectromagneticPotential[[First[#1]]], newCoordinates[[Last[#1]]]] & ) /@ 
          Tuples[Range[Length[newElectromagneticPotential]], 2]]]; 
      (Module[{index = #1}, (D[electromagneticTensor[[index[[1]],index[[2]]]], newCoordinates[[index[[3]]]]] - 
             Total[(christoffelSymbols[[#1,index[[3]],index[[1]]]]*electromagneticTensor[[#1,index[[2]]]] & ) /@ 
@@ -402,8 +552,8 @@ ElectromagneticTensor /: MakeBoxes[electromagneticTensor:ElectromagneticTensor[(
        Normal[SparseArray[(Module[{index = #1}, index -> Total[(newMatrixRepresentation[[index,#1]]*
                  newElectromagneticPotential[[#1]] & ) /@ Range[Length[newElectromagneticPotential]]]] & ) /@ 
           Range[Length[newElectromagneticPotential]]]]; tensorRepresentation = 
-       Normal[SparseArray[(#1 -> D[covariantElectromagneticPotential[[First[#1]]], newCoordinates[[Last[#1]]]] - 
-              D[covariantElectromagneticPotential[[Last[#1]]], newCoordinates[[First[#1]]]] & ) /@ 
+       Normal[SparseArray[(#1 -> D[covariantElectromagneticPotential[[Last[#1]]], newCoordinates[[First[#1]]]] - 
+              D[covariantElectromagneticPotential[[First[#1]]], newCoordinates[[Last[#1]]]] & ) /@ 
            Tuples[Range[Length[newElectromagneticPotential]], 2]]] /. (ToExpression[#1] -> #1 & ) /@ 
          Select[coordinates, StringQ]; If[index1 === True && index2 === True, matrixForm = tensorRepresentation; 
         type = "Covariant"; symbol = Subscript["\[FormalCapitalF]", "\[FormalMu]\[FormalNu]"], If[index1 === False && index2 === False, 
