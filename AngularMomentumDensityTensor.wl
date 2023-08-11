@@ -405,6 +405,169 @@ AngularMomentumDensityTensor[(stressEnergyTensor_)[(metricTensor_)[metricMatrixR
     Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
     BooleanQ[stressEnergyIndex1] && BooleanQ[stressEnergyIndex2] && Length[coordinates] == Length[positionVector] && 
     BooleanQ[index1] && BooleanQ[index2] && BooleanQ[index3]
+AngularMomentumDensityTensor[(stressEnergyTensor_)[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, 
+      metricIndex1_, metricIndex2_], matrixRepresentation_List, stressEnergyIndex1_, stressEnergyIndex2_], 
+    positionVector_List, index1_, index2_, index3_]["CovariantDerivatives"] := 
+  Module[{newMetricMatrixRepresentation, newCoordinates, newMatrixRepresentation, newPositionVector, christoffelSymbols, 
+     angularMomentumDensityTensor, newAngularMomentumDensityTensor}, 
+    newMetricMatrixRepresentation = metricMatrixRepresentation /. (#1 -> ToExpression[#1] & ) /@ 
+        Select[coordinates, StringQ]; newCoordinates = coordinates /. (#1 -> ToExpression[#1] & ) /@ 
+        Select[coordinates, StringQ]; newMatrixRepresentation = matrixRepresentation /. 
+       (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; newPositionVector = 
+      positionVector /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     christoffelSymbols = Normal[SparseArray[
+        (Module[{index = #1}, index -> Total[((1/2)*Inverse[newMetricMatrixRepresentation][[index[[1]],#1]]*
+                (D[newMetricMatrixRepresentation[[#1,index[[3]]]], newCoordinates[[index[[2]]]]] + 
+                 D[newMetricMatrixRepresentation[[index[[2]],#1]], newCoordinates[[index[[3]]]]] - 
+                 D[newMetricMatrixRepresentation[[index[[2]],index[[3]]]], newCoordinates[[#1]]]) & ) /@ 
+              Range[Length[newMetricMatrixRepresentation]]]] & ) /@ Tuples[Range[Length[newMetricMatrixRepresentation]], 
+          3]]]; angularMomentumDensityTensor = 
+      Normal[SparseArray[(Module[{index = #1}, index -> (newCoordinates[[index[[1]]]] - newPositionVector[[index[[1]]]])*
+              newMatrixRepresentation[[index[[2]],index[[3]]]] - (newCoordinates[[index[[2]]]] - newPositionVector[[
+                index[[2]]]])*newMatrixRepresentation[[index[[1]],index[[3]]]]] & ) /@ 
+         Tuples[Range[Length[newMetricMatrixRepresentation]], 3]]]; 
+     If[index1 === True && index2 === True && index3 === True, 
+      newAngularMomentumDensityTensor = Normal[SparseArray[
+          (Module[{index = #1}, index -> Total[(newMetricMatrixRepresentation[[index[[1]],#1[[1]]]]*
+                  newMetricMatrixRepresentation[[index[[2]],#1[[2]]]]*newMetricMatrixRepresentation[[#1[[3]],index[[3]]]]*
+                  angularMomentumDensityTensor[[#1[[1]],#1[[2]],#1[[3]]]] & ) /@ Tuples[Range[Length[
+                   newMetricMatrixRepresentation]], 3]]] & ) /@ Tuples[Range[Length[newMetricMatrixRepresentation]], 
+            3]]]; Association[(Module[{index = #1}, StringJoin[ToString[Subscript["\[Del]", ToString[newCoordinates[[
+                  index[[1]]]], StandardForm]], StandardForm], ToString[Subscript["\[FormalCapitalM]", StringJoin[
+                 ToString[newCoordinates[[index[[2]]]], StandardForm], ToString[newCoordinates[[index[[3]]]], 
+                  StandardForm], ToString[newCoordinates[[index[[4]]]], StandardForm]]], StandardForm]] -> 
+             D[newAngularMomentumDensityTensor[[index[[2]],index[[3]],index[[4]]]], newCoordinates[[index[[1]]]]] - 
+              Total[(christoffelSymbols[[#1,index[[1]],index[[2]]]]*newAngularMomentumDensityTensor[[#1,index[[3]],
+                   index[[4]]]] & ) /@ Range[Length[newMetricMatrixRepresentation]]] - 
+              Total[(christoffelSymbols[[#1,index[[1]],index[[3]]]]*newAngularMomentumDensityTensor[[index[[2]],#1,
+                   index[[4]]]] & ) /@ Range[Length[newMetricMatrixRepresentation]]] - 
+              Total[(christoffelSymbols[[#1,index[[1]],index[[4]]]]*newAngularMomentumDensityTensor[[index[[2]],
+                   index[[3]],#1]] & ) /@ Range[Length[newMetricMatrixRepresentation]]]] & ) /@ 
+          Tuples[Range[Length[newMetricMatrixRepresentation]], 4] /. (ToExpression[#1] -> #1 & ) /@ 
+          Select[coordinates, StringQ]], If[index1 === False && index2 === False && index3 === False, 
+       newAngularMomentumDensityTensor = angularMomentumDensityTensor; 
+        Association[(Module[{index = #1}, StringJoin[ToString[Subscript["\[Del]", ToString[newCoordinates[[index[[1]]]], 
+                  StandardForm]], StandardForm], ToString[Superscript["\[FormalCapitalM]", StringJoin[ToString[newCoordinates[[
+                    index[[2]]]], StandardForm], ToString[newCoordinates[[index[[3]]]], StandardForm], 
+                  ToString[newCoordinates[[index[[4]]]], StandardForm]]], StandardForm]] -> 
+              D[newAngularMomentumDensityTensor[[index[[2]],index[[3]],index[[4]]]], newCoordinates[[index[[1]]]]] + 
+               Total[(christoffelSymbols[[index[[2]],index[[1]],#1]]*newAngularMomentumDensityTensor[[#1,index[[3]],
+                    index[[4]]]] & ) /@ Range[Length[newMetricMatrixRepresentation]]] + Total[
+                (christoffelSymbols[[index[[3]],index[[1]],#1]]*newAngularMomentumDensityTensor[[index[[2]],#1,
+                    index[[4]]]] & ) /@ Range[Length[newMetricMatrixRepresentation]]] + Total[
+                (christoffelSymbols[[index[[4]],index[[1]],#1]]*newAngularMomentumDensityTensor[[index[[2]],index[[3]],
+                    #1]] & ) /@ Range[Length[newMetricMatrixRepresentation]]]] & ) /@ 
+           Tuples[Range[Length[newMetricMatrixRepresentation]], 4] /. (ToExpression[#1] -> #1 & ) /@ 
+           Select[coordinates, StringQ]], If[index1 === True && index2 === False && index3 === False, 
+        newAngularMomentumDensityTensor = Normal[SparseArray[(Module[{index = #1}, index -> 
+                Total[(newMetricMatrixRepresentation[[index[[1]],#1]]*angularMomentumDensityTensor[[#1,index[[2]],
+                     index[[3]]]] & ) /@ Range[Length[newMetricMatrixRepresentation]]]] & ) /@ 
+             Tuples[Range[Length[newMetricMatrixRepresentation]], 3]]]; 
+         Association[(Module[{index = #1}, StringJoin[ToString[Subscript["\[Del]", ToString[newCoordinates[[index[[1]]]], 
+                   StandardForm]], StandardForm], ToString[Subsuperscript["\[FormalCapitalM]", ToString[newCoordinates[[index[[2]]]], 
+                   StandardForm], StringJoin[ToString[newCoordinates[[index[[3]]]], StandardForm], ToString[
+                    newCoordinates[[index[[4]]]], StandardForm]]], StandardForm]] -> D[newAngularMomentumDensityTensor[[
+                  index[[2]],index[[3]],index[[4]]]], newCoordinates[[index[[1]]]]] + 
+                Total[(christoffelSymbols[[index[[3]],index[[1]],#1]]*newAngularMomentumDensityTensor[[index[[2]],#1,
+                     index[[4]]]] & ) /@ Range[Length[newMetricMatrixRepresentation]]] + 
+                Total[(christoffelSymbols[[index[[4]],index[[1]],#1]]*newAngularMomentumDensityTensor[[index[[2]],
+                     index[[3]],#1]] & ) /@ Range[Length[newMetricMatrixRepresentation]]] - 
+                Total[(christoffelSymbols[[#1,index[[1]],index[[2]]]]*newAngularMomentumDensityTensor[[#1,index[[3]],
+                     index[[4]]]] & ) /@ Range[Length[newMetricMatrixRepresentation]]]] & ) /@ 
+            Tuples[Range[Length[newMetricMatrixRepresentation]], 4] /. (ToExpression[#1] -> #1 & ) /@ 
+            Select[coordinates, StringQ]], If[index1 === False && index2 === True && index3 === False, 
+         newAngularMomentumDensityTensor = Normal[SparseArray[(Module[{index = #1}, index -> 
+                 Total[(newMetricMatrixRepresentation[[index[[2]],#1]]*angularMomentumDensityTensor[[index[[1]],#1,
+                      index[[3]]]] & ) /@ Range[Length[newMetricMatrixRepresentation]]]] & ) /@ 
+              Tuples[Range[Length[newMetricMatrixRepresentation]], 3]]]; 
+          Association[(Module[{index = #1}, StringJoin[ToString[Subscript["\[Del]", ToString[newCoordinates[[index[[1]]]], 
+                    StandardForm]], StandardForm], ToString[Subsuperscript["\[FormalCapitalM]", ToString[newCoordinates[[index[[3]]]], 
+                    StandardForm], StringJoin[ToString[newCoordinates[[index[[2]]]], StandardForm], ToString[
+                     newCoordinates[[index[[4]]]], StandardForm]]], StandardForm]] -> D[newAngularMomentumDensityTensor[[
+                   index[[2]],index[[3]],index[[4]]]], newCoordinates[[index[[1]]]]] + Total[
+                  (christoffelSymbols[[index[[2]],index[[1]],#1]]*newAngularMomentumDensityTensor[[#1,index[[3]],
+                      index[[4]]]] & ) /@ Range[Length[newMetricMatrixRepresentation]]] + 
+                 Total[(christoffelSymbols[[index[[4]],index[[1]],#1]]*newAngularMomentumDensityTensor[[index[[2]],
+                      index[[3]],#1]] & ) /@ Range[Length[newMetricMatrixRepresentation]]] - 
+                 Total[(christoffelSymbols[[#1,index[[1]],index[[3]]]]*newAngularMomentumDensityTensor[[index[[2]],#1,
+                      index[[4]]]] & ) /@ Range[Length[newMetricMatrixRepresentation]]]] & ) /@ 
+             Tuples[Range[Length[newMetricMatrixRepresentation]], 4] /. (ToExpression[#1] -> #1 & ) /@ 
+             Select[coordinates, StringQ]]]]]]] /; SymbolName[stressEnergyTensor] === "StressEnergyTensor" && 
+    SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[metricMatrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[metricMatrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[stressEnergyIndex1] && BooleanQ[stressEnergyIndex2] && Length[coordinates] == Length[positionVector] && 
+    BooleanQ[index1] && BooleanQ[index2] && BooleanQ[index3]
+AngularMomentumDensityTensor[(stressEnergyTensor_)[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, 
+      metricIndex1_, metricIndex2_], matrixRepresentation_List, stressEnergyIndex1_, stressEnergyIndex2_], 
+    positionVector_List, index1_, index2_, index3_]["ContinuityEquations"] := 
+  Module[{newMetricMatrixRepresentation, newCoordinates, newMatrixRepresentation, newPositionVector, christoffelSymbols, 
+     angularMomentumDensityTensor}, newMetricMatrixRepresentation = metricMatrixRepresentation /. 
+       (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newCoordinates = coordinates /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newMatrixRepresentation = matrixRepresentation /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newPositionVector = positionVector /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     christoffelSymbols = Normal[SparseArray[
+        (Module[{index = #1}, index -> Total[((1/2)*Inverse[newMetricMatrixRepresentation][[index[[1]],#1]]*
+                (D[newMetricMatrixRepresentation[[#1,index[[3]]]], newCoordinates[[index[[2]]]]] + 
+                 D[newMetricMatrixRepresentation[[index[[2]],#1]], newCoordinates[[index[[3]]]]] - 
+                 D[newMetricMatrixRepresentation[[index[[2]],index[[3]]]], newCoordinates[[#1]]]) & ) /@ 
+              Range[Length[newMetricMatrixRepresentation]]]] & ) /@ Tuples[Range[Length[newMetricMatrixRepresentation]], 
+          3]]]; angularMomentumDensityTensor = 
+      Normal[SparseArray[(Module[{index = #1}, index -> (newCoordinates[[index[[1]]]] - newPositionVector[[index[[1]]]])*
+              newMatrixRepresentation[[index[[2]],index[[3]]]] - (newCoordinates[[index[[2]]]] - newPositionVector[[
+                index[[2]]]])*newMatrixRepresentation[[index[[1]],index[[3]]]]] & ) /@ 
+         Tuples[Range[Length[newMetricMatrixRepresentation]], 3]]]; 
+     (Module[{index = #1}, Total[(D[angularMomentumDensityTensor[[First[index],Last[index],#1]], newCoordinates[[
+                #1]]] & ) /@ Range[Length[newMetricMatrixRepresentation]]] + 
+           Total[(christoffelSymbols[[First[index],First[#1],Last[#1]]]*angularMomentumDensityTensor[[Last[#1],
+                Last[index],First[#1]]] & ) /@ Tuples[Range[Length[newMetricMatrixRepresentation]], 2]] + 
+           Total[(christoffelSymbols[[Last[index],First[#1],Last[#1]]]*angularMomentumDensityTensor[[First[index],
+                Last[#1],First[#1]]] & ) /@ Tuples[Range[Length[newMetricMatrixRepresentation]], 2]] + 
+           Total[(christoffelSymbols[[First[#1],First[#1],Last[#1]]]*angularMomentumDensityTensor[[First[index],
+                Last[index],Last[#1]]] & ) /@ Tuples[Range[Length[newMetricMatrixRepresentation]], 2]] == 0] & ) /@ 
+       Tuples[Range[Length[newMetricMatrixRepresentation]], 2] /. (ToExpression[#1] -> #1 & ) /@ 
+       Select[coordinates, StringQ]] /; SymbolName[stressEnergyTensor] === "StressEnergyTensor" && 
+    SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[metricMatrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[metricMatrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[stressEnergyIndex1] && BooleanQ[stressEnergyIndex2] && Length[coordinates] == Length[positionVector] && 
+    BooleanQ[index1] && BooleanQ[index2] && BooleanQ[index3]
+AngularMomentumDensityTensor[(stressEnergyTensor_)[(metricTensor_)[metricMatrixRepresentation_List, coordinates_List, 
+      metricIndex1_, metricIndex2_], matrixRepresentation_List, stressEnergyIndex1_, stressEnergyIndex2_], 
+    positionVector_List, index1_, index2_, index3_]["ReducedContinuityEquations"] := 
+  Module[{newMetricMatrixRepresentation, newCoordinates, newMatrixRepresentation, newPositionVector, christoffelSymbols, 
+     angularMomentumDensityTensor}, newMetricMatrixRepresentation = metricMatrixRepresentation /. 
+       (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newCoordinates = coordinates /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newMatrixRepresentation = matrixRepresentation /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     newPositionVector = positionVector /. (#1 -> ToExpression[#1] & ) /@ Select[coordinates, StringQ]; 
+     christoffelSymbols = Normal[SparseArray[
+        (Module[{index = #1}, index -> Total[((1/2)*Inverse[newMetricMatrixRepresentation][[index[[1]],#1]]*
+                (D[newMetricMatrixRepresentation[[#1,index[[3]]]], newCoordinates[[index[[2]]]]] + 
+                 D[newMetricMatrixRepresentation[[index[[2]],#1]], newCoordinates[[index[[3]]]]] - 
+                 D[newMetricMatrixRepresentation[[index[[2]],index[[3]]]], newCoordinates[[#1]]]) & ) /@ 
+              Range[Length[newMetricMatrixRepresentation]]]] & ) /@ Tuples[Range[Length[newMetricMatrixRepresentation]], 
+          3]]]; angularMomentumDensityTensor = 
+      Normal[SparseArray[(Module[{index = #1}, index -> (newCoordinates[[index[[1]]]] - newPositionVector[[index[[1]]]])*
+              newMatrixRepresentation[[index[[2]],index[[3]]]] - (newCoordinates[[index[[2]]]] - newPositionVector[[
+                index[[2]]]])*newMatrixRepresentation[[index[[1]],index[[3]]]]] & ) /@ 
+         Tuples[Range[Length[newMetricMatrixRepresentation]], 3]]]; 
+     FullSimplify[(Module[{index = #1}, Total[(D[angularMomentumDensityTensor[[First[index],Last[index],#1]], 
+                newCoordinates[[#1]]] & ) /@ Range[Length[newMetricMatrixRepresentation]]] + 
+            Total[(christoffelSymbols[[First[index],First[#1],Last[#1]]]*angularMomentumDensityTensor[[Last[#1],
+                 Last[index],First[#1]]] & ) /@ Tuples[Range[Length[newMetricMatrixRepresentation]], 2]] + 
+            Total[(christoffelSymbols[[Last[index],First[#1],Last[#1]]]*angularMomentumDensityTensor[[First[index],
+                 Last[#1],First[#1]]] & ) /@ Tuples[Range[Length[newMetricMatrixRepresentation]], 2]] + 
+            Total[(christoffelSymbols[[First[#1],First[#1],Last[#1]]]*angularMomentumDensityTensor[[First[index],
+                 Last[index],Last[#1]]] & ) /@ Tuples[Range[Length[newMetricMatrixRepresentation]], 2]] == 0] & ) /@ 
+        Tuples[Range[Length[newMetricMatrixRepresentation]], 2] /. (ToExpression[#1] -> #1 & ) /@ 
+        Select[coordinates, StringQ]]] /; SymbolName[stressEnergyTensor] === "StressEnergyTensor" && 
+    SymbolName[metricTensor] === "MetricTensor" && Length[Dimensions[metricMatrixRepresentation]] == 2 && 
+    Length[coordinates] == Length[metricMatrixRepresentation] && BooleanQ[metricIndex1] && BooleanQ[metricIndex2] && 
+    Length[Dimensions[matrixRepresentation]] == 2 && Length[coordinates] == Length[matrixRepresentation] && 
+    BooleanQ[stressEnergyIndex1] && BooleanQ[stressEnergyIndex2] && Length[coordinates] == Length[positionVector] && 
+    BooleanQ[index1] && BooleanQ[index2] && BooleanQ[index3]
 AngularMomentumDensityTensor /: 
   MakeBoxes[angularMomentumDensityTensor:AngularMomentumDensityTensor[(stressEnergyTensor_)[
        (metricTensor_)[metricMatrixRepresentation_List, coordinates_List, metricIndex1_, metricIndex2_], 
